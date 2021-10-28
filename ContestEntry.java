@@ -19,13 +19,15 @@ class ContestEntry {
 	static final short NUM_DINOS_ON_TEAM_LEN = 1;
 	static final short TEAM_QUEEN_ARRAY_LEN = 1;
 	static final short TEAM_SPECIES_LEG_NUM_LEN = 1;
+	static final short TEAM_MYSTERY_DATA = 3;
 	static final short TEAM_X_POS_LEN = 2;
 	static final short TEAM_Y_POS_LEN = 2;
 	static final short TEAM_ROT_LEN = 2;
 	static final short TEAM_SOME_DATA_CONT_LEN = 2;
-	static final short DINO_INIT_DATA_LEN = 25;
+	static final short DINO_INIT_DATA_LEN = 22;
 	static final short TEAM_ENTRY_RECORD_LEN = TEAM_QUEEN_ARRAY_LEN
 									+ TEAM_SPECIES_LEG_NUM_LEN
+									+ TEAM_MYSTERY_DATA
 									+ TEAM_X_POS_LEN
 									+ TEAM_Y_POS_LEN
 									+ TEAM_ROT_LEN
@@ -138,6 +140,7 @@ class ContestEntry {
 		//*** Start Read Team Dino Names
 		if (entry.getChannel().position() != dinoNamesOffset) {
 			System.out.println("CONTEST ENTRY VALIDATION FAILED - Dino Names wrong position");
+			System.out.println("At: " + entry.getChannel().position() + " / Expect: " + dinoNamesOffset);
 			return false;
 		}
 

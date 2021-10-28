@@ -3,7 +3,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.io.FileOutputStream;
 import java.util.Arrays;
-//import java.nio.BufferOverflowException;
 
 class PyroContests {
 
@@ -29,6 +28,7 @@ class PyroContests {
 	static final short TEAM_SOME_DATA_CONT_LEN = 2;
 	static final short ENTRY_DINO_RECORD_LEN = TEAM_QUEEN_ARRAY_LEN
 									+ TEAM_SPECIES_LEG_NUM_LEN
+									+ TEAM_DINO_RESIZE
 									+ TEAM_X_POS_LEN
 									+ TEAM_Y_POS_LEN
 									+ TEAM_ROT_LEN
@@ -55,13 +55,25 @@ class PyroContests {
 		boolean success1, success2;
 		ContestEntry entry1 = new ContestEntry();
 		ContestEntry entry2 = new ContestEntry();
+		String entryFile1;
+		String entryFile2;
+
+		if (args.length > 1 && args.length == 2) {
+			entryFile1 = args[0];
+			entryFile2 = args[1];
+		}
+		else {
+			System.out.println("Invalid number of arguments!");
+			System.out.println("Usage: java PyroContests <entryFile1> <entryFile2>");
+			System.out.println("Where <entryFile1> is the \"Home Team\"");
+			System.out.println("\tand <entryFile2> is the \"Enemy Team\"");
+			return;
+		}
 
 
-		success1 = entry1.load(
-			"C:\\Users\\rpdel\\OneDrive\\Projects\\Pyrosaurus Reversing\\Special files\\T-3dino-5deci.TMP.txt");
+		success1 = entry1.load(entryFile1);
 
-		success2 = entry2.load(
-			"C:\\Users\\rpdel\\OneDrive\\Projects\\Pyrosaurus Reversing\\Special files\\T-2 dinos.TMP.txt");
+		success2 = entry2.load(entryFile2);
 
 		if (success1 && success2) {
 			int entry1Size = TEAM_COLORS_RECORD_LEN + entry1.playerNamesSize
@@ -136,19 +148,8 @@ class PyroContests {
 
 			// write queen data and species leg type
 			contestPlayer1.put(Arrays.copyOfRange(
-				entry1.dinoData,0,entry1.numDinos[0] + entry1.numDinos[0]));
-
-			// write the weird extra 3 bytes for dino data
-			for(count=0;count<entry1.numDinos[0];count++) {
-				contestPlayer1.put((byte)0);
-				contestPlayer1.put((byte)entry1.speciesData[0][9]);
-				contestPlayer1.put((byte)0);
-			}
-
-			// write the rest of the dino data
-			contestPlayer1.put(Arrays.copyOfRange(
 				entry1.dinoData
-				,entry1.numDinos[0] + entry1.numDinos[0]
+				,0
 				,entry1.numDinos[0] * ENTRY_DINO_RECORD_LEN));
 
 			contestPlayer1.put(entry1.dinoNames);
@@ -171,18 +172,8 @@ class PyroContests {
 
 			// write queen data and species leg type
 			contestPlayer1.put(Arrays.copyOfRange(
-				entry2.dinoData,0,entry2.numDinos[0] + entry2.numDinos[0]));
-
-			// write the weird extra 3 bytes for dino data
-			for(count=0;count<entry2.numDinos[0];count++) {
-				contestPlayer1.put((byte)0);
-				contestPlayer1.put((byte)entry2.speciesData[0][9]);
-				contestPlayer1.put((byte)0);
-			}
-			// write the rest of the dino data
-			contestPlayer1.put(Arrays.copyOfRange(
 				entry2.dinoData
-				,entry2.numDinos[0] + entry2.numDinos[0]
+				,0
 				,entry2.numDinos[0] * ENTRY_DINO_RECORD_LEN));
 
 			contestPlayer1.put(entry2.dinoNames);
