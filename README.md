@@ -6,6 +6,7 @@ The pyrosaurus-server project can consume two Contest Entry files and produce a 
 
 ## Planned Features
 * Enable Playback functionality for Contests
+      * Requires deeper reverse engineering of code to determine how Contest File input drives dino playback
 * Interface with Pyrosaurus Modem functionality
 
 ## How Do I Get This Game?
