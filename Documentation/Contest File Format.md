@@ -54,3 +54,8 @@ The Contest file consists of five main data structures:
 |Team Dino Rotation|2 * Num Dinos	
 |Some Other Data|2 * Num Dinos||
 |Dino Names|Zero Terminated, must be less than 50 chars|This logs the file offset of the Dino name and when the L key is pressed, looks up the name from the file|
+
+## Contest Command List
+
+This has not yet been reversed! I've experimented with random data at the Contest Data offset. This actually resulted in random movements of the Dino's. This is great news because this means that the data hooks up to the animation system and not something more complicated.
+Best case scenario this data is simply the same as movement data and such. However we're missing data on the codes for Fire and Death actions.
