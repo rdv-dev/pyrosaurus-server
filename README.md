@@ -12,8 +12,10 @@ The pyrosaurus-server project can consume two Contest Entry files and produce a 
 ## How Do I Get This Game?
 You can download the game from archive.org at [this location](https://web.archive.org/web/19990209090604/http://www.evryware.com/pyrosaurus/download.htm).
 
+The game runs via DOSBox/DOSBox-x or virtual machine guests DOS, Windows 3.x, or Windows 95/98 .
+
 ## How Do I Create a Contest Entry?
-Follow these steps to create a Contest Entry.
+Follow [these steps](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Create%20Contest%20Entry.md) to create a Contest Entry.
 
 ## What is Pyrosaurus?
 From the manual:
