@@ -1,10 +1,10 @@
 # Modem Functionality
 
-## Modem Test Procedure
-There are two challenge procedures, then an error checking procedure.
+## Modem Test Procedures
+There is one challenge procedure, a mode validation procedure, then an error checking procedure.
 
-### Challenge Procedures
-Challenge procedure 1 requires the following bytes be sent in sequence:
+### Challenge Procedure
+The challenge procedure requires the following bytes be sent in sequence:
 * 0x32
 * 0x3C
 * 0x46
@@ -12,9 +12,14 @@ Challenge procedure 1 requires the following bytes be sent in sequence:
   * 0x27 - means the identity data was ok
   * 0x63 - means the identity data was bad
 
-Challenge procedure 2 will try to read 1 byte five times before it will error out. This procedure will accept two types of input:
-* 0x7 - this will report success and move to next step
-* 0x21 - this will cause the procedure to loop without erroring
+### Mode Validation
+
+The mode validation procedure of the Modem driver will try to read 1 byte five times before it will error out. 
+This procedure will accept various input bytes which the server must provide. 
+The Modem driver knows what data it will accept from the server based on an argument passed to the procedure through the AX register.
+* 0x7 - this byte means "test modem"
+* 0x21 - regardless of input passed to this procedure, receiving this byte from the server will cause the procedure to loop without erroring up to 5 times
+* Other bytes to be listed here in the future 
 
 ### Error Checking Procedures
 Next comes the error checking procedures.
