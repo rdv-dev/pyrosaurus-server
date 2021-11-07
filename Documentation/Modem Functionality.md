@@ -1,5 +1,9 @@
 # Modem Functionality
 
+Pyrosaurus ships with a secondary executable file called MODEM.EXE . This is a packed but uncompressed binary which is loaded to memory segment 0x47EC. The unpacking procedure simply obfuscates the entry point for the program. It is called by using DOS-style fork() where processing is entirely handed off to the MODEM program until the process completes, then processing falls back to the main game process. It is self contained so it does have its own procedures for loading fonts and displaying text to the screen.
+
+When a player first starts up the game they are presented with the option to test the Modem functionality. This test process is described below in the [Modem Test Functionality]() section.
+
 ## Modem Test Procedures
 There is one challenge procedure, a mode validation procedure, then an error checking procedure, and finally a "phone number" update procedure.
 
