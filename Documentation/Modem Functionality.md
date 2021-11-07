@@ -1,7 +1,7 @@
 # Modem Functionality
 
 ## Modem Test Procedures
-There is one challenge procedure, a mode validation procedure, then an error checking procedure.
+There is one challenge procedure, a mode validation procedure, then an error checking procedure, and finally a "phone number" update procedure.
 
 ### Challenge Procedure
 The challenge procedure requires the following bytes be sent in sequence:
@@ -34,4 +34,8 @@ Next, Modem driver expects server to send all bytes between 0x00 and 0xFF inclus
 
 Otherwise, the Modem driver will report "Test successful".
 
-Finally, the Modem driver expects server to send an updated "phone number" which it will save for the next connection.
+### Phone Number Update Procedure
+
+Finally, the Modem driver expects server to send an updated "phone number" which it will save for the next connection. This appears to be an method for load balancing where the initial phone number shipped with the game will hopefully only be used to test the modem functionality. Once tested, then every subsequent call into the Evryware servers could be spread among a set of phone numbers. 
+
+If a phone number is not sent, then the Modem driver polling will time out and hang up the phone normally.
