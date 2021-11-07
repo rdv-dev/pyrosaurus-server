@@ -8,6 +8,7 @@ The pyrosaurus-server project can consume two Contest Entry files and produce a 
 * Enable Playback functionality for Contests
   * Requires deeper reverse engineering of code to determine how Contest File input drives dino playback
 * Interface with Pyrosaurus Modem functionality
+  * Progress is being made here! [See this page for documentation](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md).
 
 ## How Do I Get This Game?
 You can download the game from archive.org . Note that the following link at [this location](https://web.archive.org/web/20010516030044/http://www.evryware.com/pyrosaurus/pyro20.exe) points directly to a EXE file captured on May 16, 2001. If you're not comfortable with that link [here is the link to the download page](https://web.archive.org/web/19990209090604/http://www.evryware.com/pyrosaurus/download.htm). Click on download, then change to the capture at date May 16, 2001. Validate that the executable size is 1,163 KB .
