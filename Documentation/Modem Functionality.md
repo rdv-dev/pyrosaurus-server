@@ -40,6 +40,6 @@ Otherwise, the Modem driver will report "Test successful".
 
 ### Phone Number Update Procedure
 
-Finally, the Modem driver expects server to send an updated "phone number" which it will save for the next connection. This appears to be an method for load balancing where the initial phone number shipped with the game will hopefully only be used to test the modem functionality. Once tested, then every subsequent call into the Evryware servers could be spread among a set of phone numbers. 
+Finally, the Modem driver expects server to send an updated "phone number" which it will save for the next connection. This appears to be a method for load balancing where the initial phone number shipped with the game will hopefully only be used to test the modem functionality. Once tested, then every subsequent call into the Evryware servers could be spread among a set of phone numbers. 
 
 If a phone number is not sent, then the Modem driver polling will time out and hang up the phone normally.
