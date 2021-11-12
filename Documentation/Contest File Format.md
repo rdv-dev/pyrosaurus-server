@@ -55,7 +55,62 @@ The Contest file consists of five main data structures:
 |Some Other Data|2 * Num Dinos||
 |Dino Names|Zero Terminated, must be less than 50 chars|This logs the file offset of the Dino name and when the L key is pressed, looks up the name from the file|
 
-## Contest Command List
+## Contest Data Structure
 
-This has not yet been reversed! I've experimented with random data at the Contest Data offset. This actually resulted in random movements of the Dino's. This is great news because this means that the data hooks up to the animation system and not something more complicated.
-Best case scenario this data is simply the same as movement data and such. However we're missing data on the codes for Fire and Death actions.
+The Contest Data is a series of Game Tick Frame Structures which encapsulate a set of Actions which were recorded from each Dino at that point-in-time. A Dino's action may or may not be included in any given Frame Structure.
+### Frame Structure
+|Field|Size|Description|
+|--|--|--|
+|Number of Actions|1|This is a counter of how many actions are in this structure. Does not include arguments in this number as they are consumed while the action is being handled||
+|Actions|Number of Actions|This is an array of Action Structures with their arguments included as separate bytes, if required||
+
+### Actions Structure
+The Actions Structure within each Data Structure contains the following information
+|Field|Size|Description|
+|--|--|--|
+|Input_Byte|1|This is a single encoded byte which represents Dino_Index (0-9) and an Action (0-11). Together these select a Dino in the Contest Array and an Action to perform on that Dino||
+|Arguments|Variable|Depending on the Action, there may be 0 or up to 2 arguments required||
+
+### Encoding/Decoding Algorithm
+Decoding algorithm has been reversed! It is straight forward so a simple encoding algorithm has been derived.
+
+Dino_Index = a number between 0 and 9 relative to how many Dinos are actually included in the Contest data. Specifying a number outside of this range will not cause an error.
+
+Action = a number between 0 and 11.
+
+* Encoding Algorithm
+  * Encoded_Byte = (Dino_Index * 12) + Action
+* Decoding Algorithm
+  * Dino_Index = floor(Encoded_Byte / 12)
+  * Action = Encoded_Byte - (Dino_Index * 12)
+
+### Dino Actions and Arguments
+There are 12 actions available to perform on Dinos. This is a list of these actions, what they do (if known) and how many arguments (bytes) they require. There are no optional arguments, so an omitted argument will bring Contest Data reading out of alignment and cause Undefined Behavior.
+|Action Code|Required Arguments|Description|Comments|
+|--|--|--|--|
+|0|1|Unknown| ||
+|1|2|Unknown| ||
+|2|2|Unknown| ||
+|3|2|Breathe|The Dino's abdomen expands/contracts based on the arguments to simulate breathing and show Dino Status (Rested, Tired, etc)||
+|4|1|Step Left/Right|Causes selected Dino to do fighting step side-to-side and rotate based on supplied argument||
+|5|1|Step Forward/Back|Causes selected Dino to do fighting step forward or back and rotate based on supplied argument||
+|6|1|Unknown| ||
+|7|1|Jump Left/Right|Causes selected Dino to do fighting jump side-to-side and rotate based on supplied argument||
+|8|1|Jump Forward/Back|Causes selected Dino to do fighting jump forward or back and rotate based on the supplied argument||
+|9|0|Unknown|Updates the same byte array as Special Action 11-9 to 1||
+|10|0|Call|The Dino does a Call/Roar||
+|11|1 (see comments)|Special Actions|This is a special action which based on the argument selects a unique action. Special action 7 requires an additional argument||
+
+### Special Actions
+|Action Code|Argument Code|Description|Comments|
+|--|--|--|--|
+|11|0|Die|Causes the selected Dino to die||
+|11|1|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (1 * 16) ||
+|11|2|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (2 * 16)||
+|11|3|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (3 * 16)||
+|11|4|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (4 * 16)||
+|11|5|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (5 * 16)||
+|11|6|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (6 * 16)||
+|11|7|Eat Food|REQUIRES ADDITIONAL ARGUMENT, possibly ID number for food piece to be removed?||
+|11|8|Attack/Fire|This makes the Dino Attack by using its Fire||
+|11|9|Unknown|Updates the same byte array as Action 9 to 0||
