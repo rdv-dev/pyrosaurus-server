@@ -30,7 +30,7 @@ The Contest file consists of five main data structures:
 
 ## Team Information Data Structure
 
-|field|size|Description|
+|Field|Size (bytes)|Description|
 |--|--|--|
 |Pyro User ID|4|Only include if it is equal to our Pyro User ID, otherwise it should be zeros|
 |Marking and Skin Colors|C|0-99d||
@@ -41,7 +41,7 @@ The Contest file consists of five main data structures:
 
 ## Team Dino Data
 
-|field|size|Description|
+|Field|Size (bytes)|Description|
 |--|--|--|
 |Num species|1||
 |Species data|20h * num species||
@@ -61,12 +61,12 @@ The Contest Data is a series of Game Tick Frame Structures which encapsulate a s
 ### Frame Structure
 |Field|Size|Description|
 |--|--|--|
-|Number of Actions|1|This is a counter of how many actions are in this structure. Does not include arguments in this number as they are consumed while the action is being handled||
+|Number of Actions|1 byte|This is a counter of how many actions are in this structure. Does not include arguments in this number as they are consumed while the action is being handled||
 |Actions|Number of Actions|This is an array of Action Structures with their arguments included as separate bytes, if required||
 
 ### Actions Structure
 The Actions Structure within each Data Structure contains the following information
-|Field|Size|Description|
+|Field|Size (bytes)|Description|
 |--|--|--|
 |Input_Byte|1|This is a single encoded byte which represents Dino_Index (0-9) and an Action (0-11). Together these select a Dino in the Contest Array and an Action to perform on that Dino||
 |Arguments|Variable|Depending on the Action, there may be 0 or up to 2 arguments required||
