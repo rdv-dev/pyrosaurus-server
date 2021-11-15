@@ -57,7 +57,7 @@ The Contest file consists of five main data structures:
 
 ## Contest Data Structure
 
-The Contest Data is a series of Game Tick Frame Structures which encapsulate a set of Actions which were recorded from each Dino at that point-in-time. A Dino's action may or may not be included in any given Frame Structure.
+The Contest Data is a series of Game Tick Frame Structures which encapsulate a set of Actions which were recorded from each Dino at that point-in-time. A Dino's action may or may not be included in any given Frame Structure. If too many frames with actions on the same dino are encountered in succession, they are "dropped" as an animation may still be running, causing the action data to be "out of sync" with what is happening on the screen. Manually tuned delays are included as a guideline for Contest AI. 
 ### Frame Structure
 |Field|Size|Description|
 |--|--|--|
@@ -86,20 +86,20 @@ Action = a number between 0 and 11.
 
 ### Dino Actions and Arguments
 There are 12 actions available to perform on Dinos. This is a list of these actions, what they do (if known) and how many arguments (bytes) they require. There are no optional arguments, so an omitted argument will bring Contest Data reading out of alignment and cause Undefined Behavior.
-|Action Code|Required Arguments|Description|Comments|
-|--|--|--|--|
-|0|1|Unknown| ||
-|1|2|Unknown| ||
-|2|2|Unknown| ||
-|3|2|Breathe|The Dino's abdomen expands/contracts based on the arguments to simulate breathing and show Dino Status (Rested, Tired, etc)||
-|4|1|Step Left/Right|Causes selected Dino to do fighting step side-to-side and rotate based on supplied argument||
-|5|1|Step Forward/Back|Causes selected Dino to do fighting step forward or back and rotate based on supplied argument||
-|6|1|Unknown| ||
-|7|1|Jump Left/Right|Causes selected Dino to do fighting jump side-to-side and rotate based on supplied argument||
-|8|1|Jump Forward/Back|Causes selected Dino to do fighting jump forward or back and rotate based on the supplied argument||
-|9|0|Unknown|Updates the same byte array as Special Action 11-9 to 1||
-|10|0|Call|The Dino does a Call/Roar||
-|11|1 (see comments)|Special Actions|This is a special action which based on the argument selects a unique action. Special action 7 requires an additional argument||
+|Action Code|Required Arguments|Description|Delay (frames)|Comments|
+|--|--|--|--|--|
+|0|1|Unknown| | ||
+|1|2|Unknown| | ||
+|2|2|Unknown| | ||
+|3|2|Breathe| |The Dino's abdomen expands/contracts based on the arguments to simulate breathing and show Dino Status (Rested, Tired, etc)||
+|4|1|Step Left/Right| |Causes selected Dino to do fighting step side-to-side and rotate based on supplied argument||
+|5|1|Step Forward/Back| |Causes selected Dino to do fighting step forward or back and rotate based on supplied argument||
+|6|1|Unknown| | ||
+|7|1|Jump Left/Right|12|Causes selected Dino to do fighting jump side-to-side and rotate based on supplied argument||
+|8|1|Jump Forward/Back|16|Causes selected Dino to do fighting jump forward or back and rotate based on the supplied argument||
+|9|0|Unknown| |Updates the same byte array as Special Action 11-9 to 1||
+|10|0|Call| |The Dino does a Call/Roar||
+|11|1 (see comments)|Special Actions| |This is a special action which based on the argument selects a unique action. Special action 7 requires an additional argument||
 
 ### Special Actions
 |Action Code|Argument Code|Description|Comments|
@@ -114,3 +114,4 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 |11|7|Eat Food|REQUIRES ADDITIONAL ARGUMENT, possibly ID number for food piece to be removed?||
 |11|8|Attack/Fire|This makes the Dino Attack by using its Fire||
 |11|9|Unknown|Updates the same byte array as Action 9 to 0||
+|11|10|No Operation (nop) frame|This is not specifically part of the code, however if any number above 9 is provided for the Argument Code, it will be ignored and no new actions will be kicked off for the frame, and the contest will not end prematurely. This is great to use if all delays are still ongoing or no Dino is making an action for a frame.||
