@@ -88,7 +88,7 @@ Action = a number between 0 and 11.
 There are 12 actions available to perform on Dinos. This is a list of these actions, what they do (if known) and how many arguments (bytes) they require. There are no optional arguments, so an omitted argument will bring Contest Data reading out of alignment and cause Undefined Behavior.
 |Action Code|Required Arguments|Description|Delay (frames)|Comments|
 |--|--|--|--|--|
-|0|1|Unknown| | ||
+|0|2|Set Neck Angle|Directly proportional to Argument 1 (speed)|The neck angle can be set via two modes. Mode 0x1B is used for targeting head/body and swaying the neck about and is generally slower. Mode 0x1C is used to make the head shake/spray while firing based on the Fire Movement species property. Argument 1 is the neck speed and mode together, where if neck speed is odd, then it is Mode 0x1C; if neck speed is even, then it is Mode 0x1B. Argument 2 is the neck angle where moving left is negative and moving right is positive||
 |1|2|Unknown| | ||
 |2|2|Unknown| | ||
 |3|2|Breathe| |The Dino's abdomen expands/contracts based on the arguments to simulate breathing and show Dino Status (Rested, Tired, etc)||
