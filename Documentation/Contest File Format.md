@@ -88,9 +88,12 @@ Action = a number between 0 and 11.
 There are 12 actions available to perform on Dinos. This is a list of these actions, what they do (if known) and how many arguments (bytes) they require. There are no optional arguments, so an omitted argument will bring Contest Data reading out of alignment and cause Undefined Behavior.
 |Action Code|Required Arguments|Description|Delay (frames)|Comments|
 |--|--|--|--|--|
-|0|2|Set Neck Angle|Directly proportional to Argument 1 (speed)|The neck angle can be set via two modes. Mode 0x1B is used for targeting head/body and swaying the neck about and is generally slower. Mode 0x1C is used to make the head shake/spray while firing based on the Fire Movement species property. Argument 1 is the neck speed and mode together, where if neck speed is odd, then it is Mode 0x1C; if neck speed is even, then it is Mode 0x1B. Argument 2 is the neck angle where moving left is negative and moving right is positive||
-|1|2|Unknown| | ||
-|2|2|Unknown| | ||
+|0|2|Set Neck Angle|Directly proportional to Argument 1 (speed)|The neck angle can be set via two modes, mode 0 is for swinging or aiming the head and mode 1 is for during fighting and firing (head shake). Argument 1 is the neck speed and mode together, where the speed is directly proportional to the number of frames it will take to make the movement; lower is faster, maximum speed is 7. Mode 0 corresponds to even numbers and mode 1 corresponds to odd numbers. Argument 2 is the neck angle. This is a single byte which can represent a positive or negative number. To move the head left, use a negative number. To move the head right, use a positive number. Number 0 sets the neck straight.||
+|1|2|Set Tail Angle|Directly proportional to Argument 1 (speed)|The tail angle is a visual tell of how agile a dino is while making a turn; the steeper the angle, the more agile the dino can be. Argument 1 is the tail speed. Argument 2 is the tail angle. This is a single byte which can represent a positive or negative number. To move the tail left, use a negative number. To move the tail right, use a positive number. 0 sets the tail straight.||
+|2|2|Move Dino|Directly proportional to Argument 1 (speed)|This command is used to move the dino one "step". The arguments set the heading and speed. 
+To set heading to the left, use a negative number. To set the heading to the right, use a positive number.
+Heading 0 keeps the dino going straight in whatever direction it is pointed.
+This is an absolute heading, so it is best to gradually adjust the heading when making turns.||
 |3|2|Breathe| |The Dino's abdomen expands/contracts based on the arguments to simulate breathing and show Dino Status (Rested, Tired, etc)||
 |4|1|Step Left/Right| |Causes selected Dino to do fighting step side-to-side and rotate based on supplied argument||
 |5|1|Step Forward/Back| |Causes selected Dino to do fighting step forward or back and rotate based on supplied argument||
