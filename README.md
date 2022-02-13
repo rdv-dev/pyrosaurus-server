@@ -6,7 +6,7 @@ The pyrosaurus-server project can consume two Contest Entry files and produce a 
 
 ## Planned Features
 * Enable Playback functionality for Contests
-  * Requires deeper reverse engineering of code to determine how Contest File input drives dino playback
+  * See technical documentation [here](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Contest%20File%20Format.md)!
 * Interface with Pyrosaurus Modem functionality
   * Progress is being made here! [See this page for documentation](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md).
 
