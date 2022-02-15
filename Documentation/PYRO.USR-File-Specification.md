@@ -26,7 +26,7 @@ Games Available|1|12| | ||
 Arena|1|13|A-0| ||
 Rating|1|14|1-5, 1-25| ||
 Send status indicator|1|15|0 - send team, 1 - Download contest| ||
-Random data|3| | |Storing opponent data in a file like this is a clear security risk, so I'm guessing the field is random data which is meant to throw off anyone with a hex editor who might want to impersonate their opponent. This combined with the ID check earlier in the file would hopefully mitigate this.||
-Next/Last opponent ID|4| |For sending messages to last opponent WTFFF| ||
+Random data|3|16| |Storing opponent data in a file like this is a clear security risk, so I'm guessing the field is random data which is meant to throw off anyone with a hex editor who might want to impersonate their opponent. This combined with the ID check earlier in the file would hopefully mitigate this.||
+Next/Last opponent ID|4|19|For sending messages to last opponent WTFFF| ||
 Message/Call button state|1|1D|F-A|A - call only, retrieve contest & get messages B - call only, no special message C - message only D - message only E - msg and call, retrieve contest, send messages, gives option to resend team? F - message and call, doesn’t really work well||
-Last Date Contacted|4| | |Some unsigned int representing time?||
+Last Date Contacted|4|1E| |Some unsigned int representing time?||
