@@ -43,4 +43,4 @@ Team x positions|2 * num Dinos|2| ||
 Team y positions|2 * num Dinos|2| ||
 Team rotation|2 * num Dinos|2| ||
 Some data cont|2 * num Dinos|2| ||
-Dino init data|25 * num Dinos|1|Also used during init test fight||
+Dino init data|22 * num Dinos|1|Also used during init test fight||
