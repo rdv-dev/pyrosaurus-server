@@ -23,8 +23,8 @@ Num species|1|1|E|The following 6 data structures are repeated by this number||
 Species data|20h * num species|1|F| ||
 Move data|64h * 2 * num species|2| | ||
 FITE dataset 1|FEh * num species|1| | ||
-FITE dataset 2|32h * num species|2| | ||
-FITE dataset 3|32h * num species|2| | ||
+FITE dataset 2|32h * 2 * num species|2| | ||
+FITE dataset 3|32h * 2 * num species|2| | ||
 Decisions|17Dh * num species|1| | ||
 Team Data|[See table](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)|[See table](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)| | ||
 Dino names|One name per dino based on Team Data, \0 delimited, must be less than 50 characters per name| | | ||
