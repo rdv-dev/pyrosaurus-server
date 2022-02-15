@@ -21,6 +21,12 @@ You can download the game from archive.org . Note that the following link at [th
 The game runs via DOSBox/DOSBox-x or virtual machine guests DOS, Windows 3.x, or Windows 95/98 .
 Run pyro20.exe and it will self-extract the game and all of its files.
 
+```
+      Copy PYRO20.EXE into its own directory on your hard drive (we
+      suggest that you name the directory PYRO) and type PYRO20.  This
+      creates all the files that you need to use Pyrosaurus
+```
+
 ## How Do I Create a Test Contest Entry?
 Follow [these steps](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Create%20Contest%20Entry.md) to create a Contest Entry.
 
