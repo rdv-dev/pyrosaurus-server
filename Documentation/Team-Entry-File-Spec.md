@@ -9,6 +9,7 @@ The process of generating this file is to invoke anti-cheat measures.
 A Level checksum is included to validate that the player's local current level data matches that of the server. 
 Additionally, Dino Species scores are re-calculated ensuring file mods have not been done outside of the game.
 
+## Main File Map
 Field|Size|Element Width|File Position|Comments
 ---|---|---|---|---
 Pyro User ID|4|4|0| ||
@@ -23,10 +24,23 @@ FITE dataset 1|FEh * num species|1| | ||
 FITE dataset 2|32h * num species|2| | ||
 FITE dataset 3|32h * num species|2| | ||
 Decisions|17Dh * num species|1| | ||
-Team Data|See table|See table| | ||
+Team Data|[See table](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)|[See table](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)| | ||
 Dino names|Num Dinos strings, 0 delimited| | | ||
 Team colors|12|2| | ||
 Team fire colors|6|1| | ||
 Team name|0 delimited| | | ||
 Player name|0 delimited| | | ||
 Team location|0 delimited| | | ||
+
+## Team Data Structure 
+Field|Size|Byte width|Comments
+---|---|---|---
+Num Dinos on team|1|1| ||
+Team queen array|1 * num Dinos|1| ||
+Species leg num|1 * num Dinos|1| ||
+Dino struct data|3 * num Dinos|1|This matches up exactly with some of the weird data in the contest||
+Team x positions|2 * num Dinos|2| ||
+Team y positions|2 * num Dinos|2| ||
+Team rotation|2 * num Dinos|2| ||
+Some data cont|2 * num Dinos|2| ||
+Dino init data|25 * num Dinos|1|Also used during init test fight||
