@@ -4,6 +4,12 @@ Pyrosaurus ships with a Modem Driver as a secondary executable file called MODEM
 
 When a player first starts up the game they are presented with the option to test the Modem functionality. This test process is described below in the [Modem Test Functionality](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md#modem-test-procedures) section.
 
+The Modem Driver is the gateway to the Pyrosaurus game servers. It performs the following functions:
+ * Manages Pyro User File
+ * Sends Team Entry Files
+ * Receives and manages Contest Files
+ * Sends and receives Messages to Admins (Send message to Evryware) and to other Players (Next/Previous opponent)
+
 ## Modem Test Procedures
 There is one challenge procedure, a mode validation procedure, then an error checking procedure, and finally a "phone number" update procedure.
 
@@ -43,3 +49,16 @@ Otherwise, the Modem Driver will report "Test successful".
 Finally, the Modem Driver expects server to send an updated "phone number" which it will save for the next connection. This appears to be a method for load balancing where the initial phone number shipped with the game will hopefully only be used to test the modem functionality. Once tested, then every subsequent call into the Evryware servers could be spread among a set of phone numbers. 
 
 If a phone number is not sent, then the Modem Driver polling will time out and hang up the phone normally.
+
+## Final Technical Thoughts
+Since the Modem Driver is a secondary executable, it is possible to develop a community Modem Driver as well. A community Modem Driver would be executed in the same way by the Game - it doesn't care about what MODEM.EXE does. The primary requirement is MODEM.EXE must be built for a 16-bit Real-mode environment.
+
+Use cases for this:
+ * Overhaul communication protocol to increase security
+ * Expand integration and capabilities with a modern server architecture such as 
+   * Integrated User IDs/profiles/etc
+   * Two-factor authentication
+   * Mod management
+ * Advanced integration with VM
+
+This is entirely optional and the original Modem Driver has enough features and advanced UART functionality. Some modern features can still be attained, like sending an Admin message for a link to a discord server.
