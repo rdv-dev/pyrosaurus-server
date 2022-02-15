@@ -11,11 +11,17 @@ The pyrosaurus-server project can consume two Contest Entry files and produce a 
   * Progress is being made here! [See this page for documentation](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md).
 
 ## How Do I Get This Game?
-You can download the game from archive.org . Note that the following link at [this location](https://web.archive.org/web/20010516030044/http://www.evryware.com/pyrosaurus/pyro20.exe) points directly to a EXE file captured on May 16, 2001. If you're not comfortable with that link [here is the link to the download page](https://web.archive.org/web/19990209090604/http://www.evryware.com/pyrosaurus/download.htm). Click on download, then change to the capture at date May 16, 2001. Validate that the executable size is 1,163 KB .
+You can download the game from archive.org . Note that the following link at [this location](https://web.archive.org/web/20010516030044/http://www.evryware.com/pyrosaurus/pyro20.exe) points directly to a EXE file captured on May 16, 2001. Use the hashes below to validate you have the correct file.
+
+### SHA-256
+```ba13558001701b881e90fde3a0387a4547d3e97f98096fc42acb81d4c4cfeeb6  pyro20.exe```
+### MD5
+```3cb84976f4d2ded210e7f49a1e0f2f5f  pyro20.exe```
 
 The game runs via DOSBox/DOSBox-x or virtual machine guests DOS, Windows 3.x, or Windows 95/98 .
+Run pyro20.exe and it will self-extract the game and all of its files.
 
-## How Do I Create a Contest Entry?
+## How Do I Create a Test Contest Entry?
 Follow [these steps](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Create%20Contest%20Entry.md) to create a Contest Entry.
 
 ## What is Pyrosaurus?
