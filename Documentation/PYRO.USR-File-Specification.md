@@ -20,7 +20,7 @@ This is a signal to the server to generate a new ID, perform any setup server si
 Field|Size|Position|Possible Values|Notes
 ---|---|---|---|---
 Phone Number|12|0| |"Phone Number" means that for us with internet, this will need to be an IP address or domain name. DOSBox and other variants are able to handle this configuration. More information on this in the DOSBox Setup Instructions||
-ID Number|4|C|Number in file + 7| ||
+ID Number|4|C| | ||
 ID check|2|10| |First two bytes of ID number?||
 Games Available|1|12| | ||
 Arena|1|13|A-0| ||
