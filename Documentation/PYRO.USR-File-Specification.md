@@ -8,6 +8,7 @@ After the template user file is generated, the Game runs the Modem Driver. One o
 The first time this happens, the Pyrosaurus servers receive a file with a zeroed User ID field. 
 
 This is a signal to the server to generate a new ID, perform any setup server side, and fill in these values:
+ * Phone Number
  * ID Number
  * ID Check
  * Games Available
