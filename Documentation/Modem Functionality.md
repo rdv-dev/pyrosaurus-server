@@ -5,9 +5,9 @@ Pyrosaurus ships with a Modem Driver as a secondary executable file called MODEM
 When a player first starts up the game they are presented with the option to test the Modem functionality. This test process is described below in the [Modem Test Functionality](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md#modem-test-procedures) section.
 
 The Modem Driver is the gateway to the Pyrosaurus game servers. It performs the following functions:
- * Manages Pyro User File
- * Sends Team Entry Files
- * Receives and manages Contest Files
+ * Manages the [Pyro User File](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/PYRO.USR-File-Specification.md)
+ * Sends [Team Entry Files](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Team-Entry-File-Spec.md)
+ * Receives and manages [Contest Files](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Contest%20File%20Format.md)
  * Sends and receives Messages to Admins (Send message to Evryware) and to other Players (Next/Previous opponent)
 
 ## Modem Test Procedures
