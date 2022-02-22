@@ -1,7 +1,7 @@
 # Species Data Specification
 The Species data describes all information about the basic properties of a Dino from that Species. All training is defined at the Species level and is used by all Dinos of that Species. This specification's scope is limited to the data structure found in the Team Entry File.
 
-The Species data is 32 bytes long. There is a discrepancy between the documentation here and what ends up in the Team Entry File. 
+The Species data is 32 bytes long. The Team Entry file switches around some data between the Species Data and Dino data with the Leg Type - this needs to be more clearly documented.
 
 Field Name|Size (bytes)|Position|Sample|Description
 ---|---|---|---|---
