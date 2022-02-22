@@ -16,7 +16,7 @@ Leg Type + Straight/Sprawling|1|8|0=2 legs straight, 1=2 legs sprawl, 2=no legs,
 Leg Size|1|9|0-99d||||
 Foot Type|1|A|0 - Hoof, 2 - Webbed, 1 - Claw|||
 Foot Size|1|B|0-99d|||
-Fire Risk|1|C|99-0h, 0 = high risk|This is an invered scale, lower score here means higher risk tolerance during firing (chance of hitting friendly)||
+Fire Risk|1|C|99-0d, 0 = high risk|This is an invered scale, lower score here means higher risk tolerance during firing (chance of hitting friendly)||
 Skin Armor|1|D|0 - Thin, 1 - Medium, 2 - Thick, 3 - Armor|||
 Heart Size|1|E|0-99d|||
 Tail Size|1|F|0-99d|||
@@ -26,8 +26,8 @@ Sight Range|1|12|0-99d|||
 Hearing Range|1|13|0-99d|||
 Smell Range|1|14|0-99d|||
 Sight Field|1|15|0-99d|||
-Error Checking 2|2|16|always 03|||
-Error Checking 3|1|18|E0 or CE|Some derived number changes with pred/prey||
+Error Checking 2|2|16|always 03h|||
+Error Checking 3|1|18|E0h or CEh|Some derived number changes with pred/prey||
 Neck Speed|1|19|0-99d|||
 Neck Variety|1|1A|0-99d|||
 Fire Head/Body Target|1|1B|0-99d|Head/Body targeting chance. Lower score means more chance for body targeting, mid-range score means 50/50 chance between body/head, highest score always targets head||
