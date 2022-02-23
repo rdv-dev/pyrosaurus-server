@@ -2,7 +2,7 @@
 The Move data is one of the structures which hold Species training for moving around the arena. 
 It is included in Team Entry Files when a Team is being sent to the Pyrosaurus servers, which encompasses the scope of this document.
 
-The Move data has a limited size of 194 bytes (0xC2). All unused bytes in this block are marked by 0xFF .
+The Move data has a limited size of 194 bytes (0xC2).
 
 The Move data consists of a single data structure, repeated for how many Moves a Dino's Species has.
 
@@ -11,7 +11,7 @@ The following data structure is repeated for every Move a Dino's Species has.
 Field|Size (bytes)|Description
 ---|---|---
 Number of points|1|Maxiumum of 10 points, referred to as n||
-Move Type|1|See Source-Goal Codes table||
+Source-Goal|1|See [Source-Goal Codes](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Move-File-Spec.md#source-goal-codes) table||
 X Coordinate 1|2|See note on [Coordinates](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Move-File-Spec.md#source-goal-coordinate-information)||
 Y Coordinate 1|2|See note on [Coordinates](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Move-File-Spec.md#source-goal-coordinate-information)||
 Goal Size 1|2| ||
