@@ -1,4 +1,4 @@
-Win conditions
+## Win conditions
 
 Each team has one or more Queens (except in the Nulla Regina
 Arena).  Queens can be identified by unique head markings. You win
@@ -12,7 +12,7 @@ advances.
 In the first arena, the opposing Queen is not hard to find but
 the later arenas are larger and finding her will be challenging.
 
-Dino Vision
+## Dino Vision
              The field of vision cone shows the area the dino actually
              sees. But, even if something is in his field of vision, he
              may not actually see it if he turns his head too quickly. A
@@ -46,7 +46,7 @@ Your dinos will shoot at any opponent within fire range. If
       within 10 seconds, the dino will be seen instantly.
 
 
-Dino Hearing
+## Dino Hearing
  Move the slider up and down to adjust his hearing range.
                When a dino hears something, his accuracy is +/- 20 degrees
                This means that when he hears something, his
@@ -61,7 +61,7 @@ Dino Hearing
                hearing range.
 
 
-Dino Smell
+## Dino Smell
                The accuracy for smell is +/- 30 degrees. This means that
              when he smells something, he knows just the general
              direction of the smell.  This direction could be off by as
@@ -69,7 +69,7 @@ Dino Smell
              opponents, and food.
 
 
-Firing
+## Firing
 
 Your dinos will shoot at any opponent within fire range. If
             he can shoot farther than he can see, your dino will have to
@@ -85,38 +85,42 @@ Fire gradually decreases in strength over time once it leaves
         enough, the fire may reach its range limit before it fully
         dissipates.  This will cause the remaining fire to explode.
 
-Density Determines how many individual fire balls leave the
+### Density 
+Determines how many individual fire balls leave the
         dino's mouth at a time.  With a low density, you will usually
         see distinct fire balls. With a high density, several smaller
         fire balls may be interlinked.
 
-      * Pattern - Adjusts the tendency of the fire to spread. Low
+### Pattern 
+- Adjusts the tendency of the fire to spread. Low
         patterns produce narrow streams and a large pattern setting
         results in a wide spread. Although your dinos are usually
         accurate when they shoot, the shot could miss if the other dino
         is moving quickly. Your dino has a better chance of hitting his
         opponent if you give his fire some spread.
 
-      * Variation - The bottom half of the variation scale introduces
+### Variation 
+- The bottom half of the variation scale introduces
         twists to the fire creating interesting patterns. The top half
         of the scale reduces the twists while adding variations in the
         fire's speed. This causes some of the fire to travel a greater
         distance than normal while other parts won't travel as far as
         they otherwise would.
 
-Dino Size (set when you create an individual dino) determines
+## Dino Size 
+(set when you create an individual dino) determines
         how much fire the dino can breath out in one breath. A large
         dino can exhale more flames than a small one.
 
 
-Predator/Prey
+## Predator/Prey
 To compensate, prey heads can see, hear, smell and shoot 20%
             farther than predators.
 
 
 
 
-Neck
+## Neck
 If he turns his head too fast and/or
               his field of vision is too narrow, he may not notice
               another dino. The size of the other dino and his distance
