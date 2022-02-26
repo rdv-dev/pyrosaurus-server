@@ -11,7 +11,7 @@ The following data structure is repeated for every Move a Dino's Species has.
 Field|Size (bytes)|Description
 ---|---|---
 Number of points|1|Maxiumum of 10 points, referred to as n||
-Source-Goal|1|See [Source-Goal Codes](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Move-File-Spec.md#source-goal-codes) table||
+Source-Goal|1|See [Source-Goal Codes](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Move-File-Spec.md#source-goal-codes) table||
 X Coordinate 1|2|See note on [Coordinates](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Move-File-Spec.md#source-goal-coordinate-information)||
 Y Coordinate 1|2|See note on [Coordinates](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Move-File-Spec.md#source-goal-coordinate-information)||
 Goal Size 1|2| ||
