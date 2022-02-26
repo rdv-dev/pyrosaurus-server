@@ -26,7 +26,7 @@ FITE dataset 1|FEh * num species|1| | ||
 FITE dataset 2|32h * 2 * num species|2| | ||
 FITE dataset 3|32h * 2 * num species|2| | ||
 Decisions|17Dh * num species|1| | ||
-Team Data|[See table](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)|[See table](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)| | ||
+Team Data|[See table](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)|[See table](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)| | ||
 Dino names|One name per dino based on Team Data, \0 delimited, must be less than 50 characters per name| | | ||
 Team colors|12|2| | ||
 Team fire colors|6|1| | ||
