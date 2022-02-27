@@ -22,6 +22,10 @@ The challenge procedure requires the following bytes be sent by the server in se
   * 0x27 - means the identity data was ok
   * 0x63 - means the identity data was bad
 
+### Modifications 
+The challenge procedure may need a modification to a jump instruction in order for it to send the identity data.
+More details on the mod will be placed here.
+
 ### Mode Validation
 
 The mode validation procedure of the Modem Driver will try to read 1 byte five times before it will error out. 
