@@ -10,6 +10,15 @@ The Modem Driver is the gateway to the Pyrosaurus game servers. It performs the 
  * Receives and manages [Contest Files](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Contest%20File%20Format.md)
  * Sends and receives Messages to Admins (Send message to Evryware) and to other Players (Next/Previous opponent)
 
+## Modes
+Mode Code|Description
+---|---
+1|Get Messages/Send Backup User file/Get Backup User file 
+2|Send Team Entry File
+3|Retrieve Contest file
+4|Send Messages
+7|Test modem
+
 ## Modem Test Procedures
 There is one challenge procedure, a mode validation procedure, then an error checking procedure, and finally a "phone number" update procedure.
 
