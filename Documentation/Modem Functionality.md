@@ -28,9 +28,11 @@ More details on the mod will be placed here.
 
 ### Mode Validation
 
-The mode validation procedure of the Modem Driver will try to read 1 byte five times before it will error out. 
-This procedure will accept various input bytes which the server must provide. 
-The Modem Driver knows what data it will accept from the server based on an argument passed to the procedure through the AX register.
+The Mode Validation procedure of the Modem Driver tells the Modem Server what Mode the Player selected. 
+The Mode it sends out is passed to the procedure through the AX register as a byte. 
+It will try to send out the Mode five times before it will error out. 
+The Modem Server must respond with the same byte to "accept" the Mode.
+Here are the Modes and their meaning to the Modem Driver:
 * 0x7 - this byte means "test modem"
 * 0x21 - regardless of input passed to this procedure, receiving this byte from the server will cause the procedure to loop without erroring up to 5 times
 * Other bytes to be listed here in the future 
