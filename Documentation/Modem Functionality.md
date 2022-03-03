@@ -48,7 +48,7 @@ Mode Code|Description
 0x2|Send [Team Entry File](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Team-Entry-File-Spec.md)
 0x3|Retrieve [Contest File](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Contest%20File%20Format.md)
 0x4|Send Messages
-0x7|[Test modem]](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md#modem-test-procedures)
+0x7|[Test modem](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md#modem-test-procedures)
 0x21|This byte will tell the Modem Driver to loop up to 5 times; similar to a "wait" signal
 
 ### Sending Team Entry Files
