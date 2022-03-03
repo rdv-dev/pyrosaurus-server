@@ -18,9 +18,23 @@ The challenge procedure requires the following bytes be sent by the server in se
 * 0x32
 * 0x3C
 * 0x46
-* At this point, the Modem Driver will send identity data to the server. Subsequently the server must respond with
+
+The Modem Driver sends identity information to the Modem Server.
+The server can respond with either of the following responses to this identity information.
   * 0x27 - means the identity data was ok
   * 0x63 - means the identity data was bad
+
+Here is a chart of the bytes that Modem Driver will send:
+Field|Size (bytes)|Value|Description
+---|---|---|---
+Unknown|2|0x32 0xCD|Two bytes, not sure where they come from!
+Pyro String|6|PYROB0| |
+Pyro User ID|4| |The value of the Pyro User ID from PYRO.USR
+Pyro Check|2| |This is the check value from PYRO.USR
+Version Number|1|0x2|This is a static value
+Data size|2|0x8|Not sure why this is provided since this block appears to be fixed in size
+
+Modem Driver expects the Server to inspect this information and respond with the appropriate value.
 
 ### Modifications 
 The challenge procedure may need a modification to a jump instruction in order for it to send the identity data.
