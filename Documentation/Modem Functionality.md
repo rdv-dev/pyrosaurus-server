@@ -27,7 +27,8 @@ The Server can respond with either of the following responses to this Identity I
 Here is a table of the Identity bytes that Modem Driver will send:
 Field|Size (bytes)|Value|Description
 ---|---|---|---
-Unknown|2|0x32 0xCD|Two bytes, not sure where they come from!
+Check byte 1|1|0x32| |
+Check byte 2|1|0xCD|Check byte 1 + Check byte 2 should equate to 0xff (255)
 Pyro String|6|PYROB0| |
 Pyro User ID|4| |The value of the Pyro User ID from PYRO.USR
 Pyro Check|2| |This is the check value from PYRO.USR
