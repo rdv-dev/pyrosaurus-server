@@ -31,13 +31,27 @@ Next/Last opponent ID|4|19| |For sending messages to last opponent WTFFF||
 Message/Call button state|1|1D|F-A|A - call only, retrieve contest & get messages \ B - call only, no special message \ C - message only \ D - message only \ E - msg and call, retrieve contest, send messages, gives option to resend team? \ F - message and call, doesn’t really work well??||
 Last Date Contacted|4|1E| |Some unsigned int representing time?||
 
-### Pyro User ID Check Enhancement
-The Pyro User ID controls the players information for contests.
-The second field the Pyro User ID Check is never referenced or used by either the Game or the Modem driver.
+### Pyro User Check Enhancement
+The Pyro User controls the players information for contests.
+The second field Pyro User Check is never referenced or used by either the Game or the Modem driver except to write or read whatever value it contains.
 The Modem Driver handles the data by placing whatever value it receives from the Server into this field.
-This means as the Community Server, we get to define what this data means.
+This we the Community get to define what this data means.
 
-Enhancement ideas
- * Use the Check field as a secondary ID number between 0 and 65535 or whatever number range would fit within two bytes. This would be used as a "key" in addition to the Pyro User ID
- * Use the Check field to store a short hash number that changes periodically 
- * Others?
+The Pyro User Check field should be used as a key in addition to the Pyro User ID. 
+If this field in a Player's PYRO.USR file is not what the Server is expecting, then the Server should fail the authentication process.
+In addition to failing the authentication process, it may be valuable to enact a ban of the source IP if subsequent authentications fail as well.
+
+The risk that comes with this process is that losing the PYRO.USR file would require a re-install of the game.
+The Game's original Manual states this as well, so this was always a known issue.
+
+Additionally, the algorithm used to determine the Pyro User Check has the following requirements:
+ * Cannot be derived from known data; since we only have 2 bytes to store a hash, computation time is relatively small and the algorithm will be publicly available in this repository
+ * Must reduce bias or be difficult to predict
+
+Algorithm Design (for now):
+
+ * The Pyro User Check field will store a pseudo-random number which changes based on a variable criteria stored by the Server.
+
+Using an existing pseudo-random number generation process is ok because many other modern cryptographic libraries use this, so this is as good as we can get.
+Changing this number periodically increases risk of an issue with the PYRO.USR file not authenticating, however it does increase security dramatically as this number is now no longer static.
+Changing the period of when the pseudo-random number is changed increases security further as it is now unclear at which point-in-time the number could change.
