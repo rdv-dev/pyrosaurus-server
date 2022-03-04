@@ -35,7 +35,7 @@ Last Date Contacted|4|1E| |Some unsigned int representing time?||
 The Pyro User controls the players information for contests.
 The second field Pyro User Check is never referenced or used by either the Game or the Modem driver except to write or read whatever value it contains.
 The Modem Driver handles the data by placing whatever value it receives from the Server into this field.
-This we the Community get to define what this data means.
+We the Community have the opportunity to define what this data means.
 
 The Pyro User Check field should be used as a key in addition to the Pyro User ID. 
 If this field in a Player's PYRO.USR file is not what the Server is expecting, then the Server should fail the authentication process.
@@ -50,8 +50,9 @@ Additionally, the algorithm used to determine the Pyro User Check has the follow
 
 Algorithm Design (for now):
 
- * The Pyro User Check field will store a pseudo-random number which changes based on a variable criteria stored by the Server.
+ * The Pyro User Check field will store a pseudo-random number which changes based on a variable period stored by the Server.
 
 Using an existing pseudo-random number generation process is ok because many other modern cryptographic libraries use this, so this is as good as we can get.
 Changing this number periodically increases risk of an issue with the PYRO.USR file not authenticating, however it does increase security dramatically as this number is now no longer static.
 Changing the period of when the pseudo-random number is changed increases security further as it is now unclear at which point-in-time the number could change.
+However, it may be too risky to change this field every time a Player connects to the Server.
