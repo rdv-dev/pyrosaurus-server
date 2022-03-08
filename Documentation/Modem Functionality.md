@@ -51,16 +51,18 @@ Mode Code|Description
 0x7|[Test modem](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md#modem-test-procedures)
 0x21|This byte will tell the Modem Driver to loop up to 5 times; similar to a "wait" signal
 
-### Sending Team Entry Files
+### Receiving Team Entry Files
+When Modem Driver sends data, it sends in 1024 byte blocks which start with 2 check bits and end with some indeterminate data.
+Read those 1024 bytes, then send the "continue" response.
+When less than 1024 bytes, then send "end" response.
+
+### Sending Contests
 stub
 
-### Retrieving Contests
+### Sending Messages etc
 stub
 
-### Sending Messages
-stub
-
-### Retrieving Messages etc
+### Receiving Messages
 stub
 
 ## Modem Test Procedure
