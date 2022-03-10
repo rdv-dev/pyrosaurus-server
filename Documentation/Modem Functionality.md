@@ -57,7 +57,7 @@ Read those 1024 bytes, then send the "continue" response.
 When less than 1024 bytes, then send "end" response.
 
 Tried the above and didn't work great.
-Another approach: for every chunk that the Modem Driver sends, it waits for the Server to send some kind of acknowledgment, so let's take advantage of that and wait until it stops sending the chunk.
+Another approach: for every chunk that the Modem Driver sends, it waits for the Server to send a two byte acknowledgment (0x06F9), so let's take advantage of that and wait until it stops sending the chunk.
 The Server Deadline will be reached, then we can send the acknowledgment, and the next time the chunk is sent, the acknowledgment will be in the receive buffer of the Modem Driver.
 
 ### Sending Contests
