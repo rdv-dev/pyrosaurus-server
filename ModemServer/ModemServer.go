@@ -7,12 +7,14 @@ import (
 	"os"
 	"time"
 	"bufio"
+	"io/ioutil"
 	"encoding/hex"
 	"encoding/binary"
 )
 
 const (
-	SERVER_HOST="172.24.215.204"
+	// SERVER_HOST="172.24.223.187"
+	SERVER_HOST="192.168.49.132"
 	SERVER_PORT="8888"
 	SERVER_TYPE="tcp"
 )
@@ -32,6 +34,23 @@ func main() {
 	defer server.Close()
 
 	fmt.Println("Listening on " + SERVER_HOST+":"+SERVER_PORT)
+
+	keyArrayFile, err := os.Open("keyArray.bin")
+
+	if err != nil {
+		fmt.Println("Error opening keyArray.bin")
+		os.Exit(1)
+	}
+
+	// keyArrayBytes, err := ioutil.ReadAll(keyArrayFile)
+	keyArray, err := ioutil.ReadAll(keyArrayFile)
+
+	if err != nil {
+		fmt.Println("Error reading keyArray.bin")
+		os.Exit(1)
+	}
+
+	keyArrayFile.Close()
 
 	//for {
 	conn, err := server.Accept()
@@ -55,10 +74,10 @@ func main() {
 
 	fmt.Println("Challenge key sent! " + string(x))
 
-	testBytes := make([]byte,256)
+	contents := make([]byte,256)
 
 	for i := 0x0; i < 256; i++ {
-		testBytes[i] = byte(i)
+		contents[i] = byte(i)
 	}
 
 	time.Sleep(time.Second)
@@ -172,15 +191,17 @@ func main() {
 
 			doModeLoop = 0
 
-		case 2:
-			fmt.Println("Confirming mode 2...")
-			conn.Write([]byte{0x02})
+		case 2, 4:
+			fmt.Printf("Confirming mode %d...\n", int(mmode[0]))
+			conn.Write(mmode[0:1])
 
 			fmt.Println("Sending ready code (1)...")
 			conn.Write([]byte{0x01})
 
-			fmt.Println("No contest available, sending 1...")
-			conn.Write([]byte{0x1})
+			if int(mmode[0]) == 2 {
+				fmt.Println("No contest available, sending 1...")
+				conn.Write([]byte{0x1})
+			}
 
 			errorCount := 0
 
@@ -207,7 +228,7 @@ func main() {
 
 			for errorCount < 3 && doGetFileLoop == 1 {
 
-				conn.SetDeadline(time.Now().Add(timeout))
+				// conn.SetDeadline(time.Now().Add(timeout))
 				nread, err := conn.Read(data)
 
 				fileTotal += nread
@@ -215,13 +236,16 @@ func main() {
 				if err != nil {
 					errorCount += 1
 					timeout += 4*time.Second
-				} else { errorCount -= 1; timeout = 10*time.Millisecond; }
+				} else { 
+					errorCount -= 1
+					timeout = 10*time.Millisecond; 
+				}
 				//defer server.Close()
 
 				fundata = append(fundata,data[:nread]...)
 
 				//fmt.Printf("Read data: %d/%d/%d/%d\n", nread, midCheckIndex,lastCheckIndex, len(fundata))
-				//fmt.Printf(hex.EncodeToString(data[:nread]) + "\n")
+				fmt.Printf(hex.EncodeToString(data[:nread]) + "\n")
 
 				for midCheckIndex <= len(fundata) - 4 {
 					if int(fundata[midCheckIndex]) == 1 || int(fundata[midCheckIndex]) == 2 || int(fundata[midCheckIndex]) == 3 {
@@ -244,12 +268,12 @@ func main() {
 							fmt.Println("Final Chunk! Sending Check In 0x06F9")
 							conn.Write([]byte{0x06, 0xF9})
 							lastCheckIndex += 2
-							timeout = 2*time.Second
+							// timeout = 2*time.Second
 							selectMode := -1
 
 							for doGetFileLoop == 1 && errorCount < 4 {
 
-								conn.SetDeadline(time.Now().Add(timeout))
+								// conn.SetDeadline(time.Now().Add(timeout))
 
 								nread, err := conn.Read(data)
 
@@ -299,21 +323,8 @@ func main() {
 			fmt.Println("Normal Contest available (0x14)...")
 			conn.Write([]byte{0x14})
 
-			fmt.Println("Sending server ready (1)...")
-			conn.Write([]byte{0x1})
-
-			// conn.Write([]byte{})
-			fmt.Println("Not yet implemented! bye")
-		case 4:
-			// Get messages
-			// fmt.Println("Not yet implemented! bye!")
-			fmt.Println("Confirm mode 4...")
-			conn.Write([]byte{0x04})
-
-			fmt.Println("Sending ready code (1)...")
-			conn.Write([]byte{0x01})
-
-			errorCount := 0
+			// fmt.Println("Sending server ready (1)...")
+			// conn.Write([]byte{0x1})
 
 			nread, err := conn.Read(data)
 
@@ -324,104 +335,146 @@ func main() {
 			defer server.Close()
 
 			if data[0] == 0x14 {
-				fmt.Println("Got 0x14, sending 0x14 and 0x47/0xB8 response...")
-				conn.Write([]byte{0x14, 0x47, 0xB8})
+				fmt.Println("Got 0x14")
+			} else {
+				fmt.Printf("Got this number: %d", int(data[0]))
 			}
 
-			fundata = append(fundata, data[1:nread]...)
+			fundata = append(fundata, data[:nread]...)
 
-			time.Sleep(time.Second)
+			// contFile, err := os.Open("CONT.000")
+			contFile, err := os.Open("CONT.TEST")
 
-			timeout := 10*time.Millisecond
-			doGetFileLoop := 1
+			if err != nil {
+				fmt.Println("Error opening contest file")
+				os.Exit(1)
+			}
+			defer server.Close()
+
+			contents, err := ioutil.ReadAll(contFile)
+
+			if err != nil {
+				fmt.Println("Error reading contest file")
+				os.Exit(1)
+			}
+			defer server.Close()
+
+			//time.Sleep(time.Second)
+
+			//conn.Write(contents)
+
+			bx := 0
+			dx := make([]byte, 2)
+			shortLastChunk := 0
+			numChunks := 0
+
+			if len(contents) % 0x400 == 0 {
+				shortLastChunk = 0
+			} else {
+				shortLastChunk = 1
+			}
+
+			numChunks = int((len(contents)/0x400))
+			extraChunks := 0
+			chunkSize := 0x400
+			byteCount := 0
+			i := 0
+			
+			byteLen := numChunks * 0x400
+			for byteLen < len(contents) {
+				byteLen += 80
+				extraChunks++
+			}
+
+			extraChunks -= 1
+
+
+			for j:=0; j<numChunks+extraChunks; j++ {
+				dx[0] = 0
+				dx[1] = 0
+
+				if shortLastChunk == 1 && j > numChunks - 1 {
+					conn.Write([]byte{0x1, 0xFE})
+					chunkSize = 0x80
+				} else {
+					conn.Write([]byte{0x2, 0xFD})
+					chunkSize = 0x400
+				}
+
+				conn.Write([]byte{byte(j+1), (0xFF - byte(j+1))})
+
+				for byteCount = 0; byteCount < chunkSize; byteCount++ {
+
+					if i<len(contents) { 
+						conn.Write([]byte{contents[i]})
+						bx = int(contents[i])   // mov bl, [si-1]
+					} else {
+						conn.Write([]byte{0})
+						bx = 0
+					}
+				
+					bx = bx ^ int(dx[1])  // xor bl, dh
+
+					bx = bx << 1 	// shl bx, 1
+					
+
+					dx[1] = dx[0]
+					dx[0] = 0
+
+					dx[0] = dx[0] ^ keyArray[bx:bx+2][0]
+					dx[1] = dx[1] ^ keyArray[bx:bx+2][1]
+
+					i++
+
+				}
+
+				fmt.Printf("Check Hash: %x\n", int(binary.BigEndian.Uint16(dx)))
+
+				conn.Write([]byte{dx[1], dx[0]})
+			}
+
+			conn.Write([]byte{0x4, 0xFB})
+
+
+			// timeout := 100*time.Second
+			doGetStatusLoop := 1
+			errorCount := 0
 			modeSelectCount := 0
+			selectMode := 0
 
-			for errorCount < 3 && doGetFileLoop == 1 {
+			for doGetStatusLoop == 1 && errorCount < 4 {
 
-				conn.SetDeadline(time.Now().Add(timeout))
+				// conn.SetDeadline(time.Now().Add(timeout))
+
 				nread, err := conn.Read(data)
-
-				fileTotal += nread
 
 				if err != nil {
 					errorCount += 1
-					timeout += 4*time.Second
-				} else { errorCount -= 1; timeout = 10*time.Millisecond; }
-				//defer server.Close()
+					// timeout += 4*time.Second
+					fmt.Println("Nothing to read...")
+				} else {
 
-				fundata = append(fundata,data[:nread]...)
+					fmt.Printf(hex.EncodeToString(data[:nread]) + "\n")
+					lastCheckIndex := 0
 
-				//fmt.Printf("Read data: %d/%d/%d/%d\n", nread, midCheckIndex,lastCheckIndex, len(fundata))
-				//fmt.Printf(hex.EncodeToString(data[:nread]) + "\n")
-
-				for midCheckIndex <= len(fundata) - 4 {
-					if int(fundata[midCheckIndex]) == 1 || int(fundata[midCheckIndex]) == 2 || int(fundata[midCheckIndex]) == 3 {
-						if (int(fundata[midCheckIndex]) + int(fundata[midCheckIndex+1]) == 255) || (int(fundata[midCheckIndex+2]) + int(fundata[midCheckIndex+3]) == 255) {
-							fmt.Println("Sending Check In 0x06F9")
-							conn.Write([]byte{0x06, 0xF9})
-							midCheckIndex += 4
-		// Set the lastCheckIndex to mid because we have already dealt with this data
-		// the next loop doesn't need to consider this
-							lastCheckIndex = midCheckIndex
-							break;
-						}
-					}
-					midCheckIndex += 1
-				}
-
-				for lastCheckIndex <= len(fundata) - 2 {
-					if int(fundata[lastCheckIndex]) == 4 {
-						if (int(fundata[lastCheckIndex]) + int(fundata[lastCheckIndex+1])) == 255 {
-							fmt.Println("Final Chunk! Sending Check In 0x06F9")
-							conn.Write([]byte{0x06, 0xF9})
-							lastCheckIndex += 2
-							timeout = 2*time.Second
-							selectMode := -1
-
-							for doGetFileLoop == 1 && errorCount < 4 {
-
-								conn.SetDeadline(time.Now().Add(timeout))
-
-								nread, err := conn.Read(data)
-
-								if err != nil {
-									errorCount += 1
-									timeout += 4*time.Second
-									fmt.Println("Nothing to read...")
-								} else {
-
-									fmt.Printf(hex.EncodeToString(data[:nread]) + "\n")
-									lastCheckIndex = 0
-
-									for lastCheckIndex < len(data[:nread]) {
-										if int(data[lastCheckIndex]) == 1 || int(data[lastCheckIndex]) == 4 {
-											modeSelectCount += 1
-											selectMode = int(data[lastCheckIndex])
-										} else {
-											modeSelectCount = 0
-										}
-										lastCheckIndex += 1
-									}
-
-									if modeSelectCount >= 2 {
-										doGetFileLoop = 0
-										mmode[0] = byte(selectMode)
-										break
-									}
-								}
-							}
+					for lastCheckIndex < len(data[:nread]) {
+						if int(data[lastCheckIndex]) == 1 || int(data[lastCheckIndex]) == 4 {
+							modeSelectCount += 1
+							selectMode = int(data[lastCheckIndex])
 						} else {
-							// If we found a 4 but did not find 0xFB after it, move on
-							if len(fundata) >= lastCheckIndex + 2 {
-								lastCheckIndex += 1
-								break
-							}
+							modeSelectCount = 0
 						}
-					} else {
 						lastCheckIndex += 1
+					}
+
+					if modeSelectCount >= 2 {
+						doGetStatusLoop = 0
+						mmode[0] = byte(selectMode)
+						break
 					}
 				}
 			}
+
 
 		case 7:
 			testTotal := 0
@@ -447,8 +500,8 @@ func main() {
 			conn.Write([]byte{0x04})
 
 			for i := 0; i < 256; i+=16 {
-				conn.Write(testBytes[i:i+16])
-				//fmt.Printf(hex.EncodeToString(testBytes[i:i+16]) + "\n")
+				conn.Write(contents[i:i+16])
+				//fmt.Printf(hex.EncodeToString(contents[i:i+16]) + "\n")
 				time.Sleep(50)
 			}
 			
@@ -473,34 +526,3 @@ func main() {
 	
 }
 
-func processConnection(conn net.Conn) {
-	//buffer := make([]byte, 1024)
-
-	_, err := conn.Write([]byte{0x32, 0x3C, 0x46, 0x27, 0x07, 0x04})
-
-	if err != nil {
-		fmt.Println("Error with writing to connection");
-		os.Exit(1)
-	}
-
-	fmt.Println("Challenge key sent!")
-
-	time.Sleep(500)
-
-	buffer := bufio.NewReader(conn)
-
-	if err != nil {
-		fmt.Println("error reading from modem")
-	}
-
-	fmt.Println("Buffered: " + string(buffer.Buffered()))
-
-
-
-}
-
-/*func reusePort(network, address string, conn syscall.RawConn) error {
-	return conn.Control(func (descriptor uintptr) {
-		syscall.SetsockoptInt(int(descriptor), syscall.SOL_SOCKET, syscall.SO_REUSEPORT, 1)
-	})
-}*/
