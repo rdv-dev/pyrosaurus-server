@@ -51,18 +51,20 @@ Mode Code|Description
 0x7|[Test modem](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md#modem-test-procedures)
 0x21|This byte will tell the Modem Driver to loop up to 5 times; similar to a "wait" signal
 
-### Receiving Team Entry Files
-When Modem Driver sends data, it sends in 1024 byte blocks which start with 2 check bits and end with some indeterminate data.
-Read those 1024 bytes, then send the "continue" response.
-When less than 1024 bytes, then send "end" response.
+### Sending and Receiving Files
+Modem Driver sends and receives file data in 0x400 (1024) or 0x80 (128) byte chunks. 
+Each of these chunks is wrapped in a 4 byte header and a 2 byte checksum trailer.
+When a chunk is received, the receiver sends back a 2 byte confirmation (0x06F9) that the chunk was received and the checksum is validated.
+If this is not received, Modem Driver will resend the chunk up to 10 times before the process fails the file transfer.
+The file transfer switches to using 0x80 chunk size when the last chunk is less than 0x400 bytes.
+When the end of the file is reached, the chunk is padded with 0s which fill the remaining 0x80 byte chunk.
+When a file is completed a two byte trailer is sent (0x04FB).
 
-Tried the above and didn't work great.
-Another approach: for every chunk that the Modem Driver sends, it waits for the Server to send a two byte acknowledgment (0x06F9), so let's take advantage of that and wait until it stops sending the chunk.
-The Server Deadline will be reached, then we can send the acknowledgment, and the next time the chunk is sent, the acknowledgment will be in the receive buffer of the Modem Driver.
-
-That doesn't work either, once an acknowledgment is received, it clears the receive buffer, so faking it doesn't work.
-### Sending Contests
-stub
+### File Chunk Header Table
+Field|Size (bytes)|Value|Description
+---|---|---|---
+Chunk Type|2|0x02FD or 0x01FE| ||
+Chunk Number|2|0x01FE,0x02FD,0x03FC,...,0xN(0xFF - N) where N is chunk number|Maximum theoretical file size of 0x3FC00 (261120) bytes or 255 chunks of 0x400 size||
 
 ### Sending Messages etc
 stub
