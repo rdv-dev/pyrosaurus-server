@@ -44,7 +44,7 @@ The Modem Server must respond with the same byte to "accept" the Mode.
 
 Mode Code|Description
 ---|---
-0x1|Get Messages/Send Backup [User file](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/PYRO.USR-File-Specification.md)/Get Backup [User file ](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/PYRO.USR-File-Specification.md)
+0x1|Get Messages/Update [User file](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/PYRO.USR-File-Specification.md)
 0x2|Send [Team Entry File](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Team-Entry-File-Spec.md)
 0x3|Retrieve [Contest File](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Contest%20File%20Format.md)
 0x4|Send Messages
