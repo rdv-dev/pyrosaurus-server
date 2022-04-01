@@ -63,7 +63,7 @@ When a file is completed a two byte trailer is sent (0x04FB).
 ### File Chunk Header Table
 Field|Size (bytes)|Value|Description
 ---|---|---|---
-Chunk Type|2|0x02FD or 0x01FE| ||
+Chunk Type|2|0x02FD or 0x01FE|0x2FD sets the chunk size to 0x400 bytes, 0x01FE sets the chunk size to 0x80 bytes.||
 Chunk Number|2|0x01FE,0x02FD,0x03FC,...,0xN(0xFF - N) where N is chunk number|Maximum theoretical file size of 0x3FC00 (261120) bytes or 255 chunks of 0x400 size||
 
 ### Sending Messages etc
