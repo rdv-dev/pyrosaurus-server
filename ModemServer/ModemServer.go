@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	// SERVER_HOST="172.24.223.187"
-	SERVER_HOST="192.168.49.132"
+	SERVER_HOST="172.24.255.194"
+	// SERVER_HOST="192.168.49.132"
 	SERVER_PORT="8888"
 	SERVER_TYPE="tcp"
 )
@@ -204,21 +204,31 @@ func main() {
 			}
 
 			errorCount := 0
+			found14 := 0
 
-			nread, err := conn.Read(data)
+			for found14 == 0 {
 
-			if err != nil {
-				fmt.Println("Error reading mode")
-				os.Exit(1)
+				// fmt.Println("Reading for 0x14...")
+
+				nread, err := conn.Read(data)
+
+				if err != nil {
+					fmt.Println("Error reading mode")
+					os.Exit(1)
+				}
+				defer server.Close()
+
+				for i:=0; i<nread; i++ {
+					if data[i] == 0x14 {
+						fmt.Println("Got 0x14, sending 0x14 and 0x47/0xB8 response...")
+						conn.Write([]byte{0x14, 0x47, 0xB8})
+						found14 += 1
+						break;
+					}
+				}
 			}
-			defer server.Close()
 
-			if data[0] == 0x14 {
-				fmt.Println("Got 0x14, sending 0x14 and 0x47/0xB8 response...")
-				conn.Write([]byte{0x14, 0x47, 0xB8})
-			}
-
-			fundata = append(fundata, data[1:nread]...)
+			// fundata = append(fundata, data[1:nread]...)
 
 			time.Sleep(time.Second)
 
