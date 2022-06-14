@@ -185,10 +185,9 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		dinos: make([]*util.Dino, team1.NumDinos + team2.NumDinos),
 		numDinos: team1.NumDinos + team2.NumDinos}
 
-	testTimeLimit := 60 * 1 // 1 minutes, 300 seconds, TODO based on level data
+	testTimeLimit := 60 * 5 // 5 minutes, 300 seconds, TODO based on level data
 
-	// arenaFrames := testTimeLimit * ACTIONS_PER_SECOND
-	arenaFrames := 1 + (0*testTimeLimit)
+	arenaFrames := testTimeLimit * ACTIONS_PER_SECOND
 
 	// create dinos team 1
 	speciesTypeOffset := ((util.TEAM_QUEEN_ARRAY_LEN + util.TEAM_SPECIES_LEG_NUM_LEN) * team1.NumDinos) + team1.DinosOffset + 1

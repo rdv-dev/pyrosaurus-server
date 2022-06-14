@@ -13,8 +13,7 @@ import (
 )
 
 const (
-	SERVER_HOST="172.24.255.194"
-	// SERVER_HOST="192.168.49.132"
+	SERVER_HOST="127.0.0.1"
 	SERVER_PORT="8888"
 	SERVER_TYPE="tcp"
 )
