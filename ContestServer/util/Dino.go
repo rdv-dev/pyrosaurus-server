@@ -1,11 +1,13 @@
 package util
 
-// import (
-// 	"github.com/algae-disco/pyrosaurus-server/ContestServer/ContestEntry"
-// )
+import (
+	"fmt"
+)
 
 const (
 	// DECISIONS_LEN = 0x17D
+
+	DECISION_SIZE = 19
 
 	DECISION_MOVEMENT = 0
 	DECISION_TARGET = 1
@@ -55,26 +57,28 @@ func NewDecisions(decisions []byte) []*Decision {
 	retDeci := make([]*Decision, int(decisions[0]))	
 
 	for i:=0; i<int(decisions[0]); i++ {
+		fmt.Printf("Decision Index Movement: %d\n", 1 + (i * DECISION_SIZE) + DECISION_MOVEMENT)
+
 		retDeci[i] = &Decision {
-			Movement: int(decisions[1 + (i * DECISIONS_LEN) + DECISION_MOVEMENT]),
-			Target: decisions[1 + (i * DECISIONS_LEN) + DECISION_TARGET],
-			Legs: decisions[1 + (i * DECISIONS_LEN) + DECISION_LEGS],
-			Size: decisions[1 + (i * DECISIONS_LEN) + DECISION_SIZE],
-			InRange: decisions[1 + (i * DECISIONS_LEN) + DECISION_RANGE],
-			TheirSkin: decisions[1 + (i * DECISIONS_LEN) + DECISION_THEIR_SKIN],
-			MySkin: decisions[1 + (i * DECISIONS_LEN) + DECISION_MY_SKIN],
-			MyCondition: decisions[1 + (i * DECISIONS_LEN) + DECISION_MY_CONDITION],
-			MyQueenEnemyRange: decisions[1 + (i * DECISIONS_LEN) + DECISION_MY_QUEEN_ENEMY_RANGE],
-			MyQueenRange: decisions[1 + (i * DECISIONS_LEN) + DECISION_MY_QUEEN_RANGE],
-			EnemyQueenRange: decisions[1 + (i * DECISIONS_LEN) + DECISION_ENEMY_QUEEN_RANGE],
-			TheirSpeed: decisions[1 + (i * DECISIONS_LEN) + DECISION_THEIR_SPEED],
-			TheirAction: decisions[1 + (i * DECISIONS_LEN) + DECISION_THEIR_ACTION],
-			Calling: decisions[1 + (i * DECISIONS_LEN) + DECISION_CALLING],
-			Time: decisions[1 + (i * DECISIONS_LEN) + DECISION_TIME],
-			Priority: decisions[1 + (i * DECISIONS_LEN) + DECISION_PRIORITY],
-			Food: decisions[1 + (i * DECISIONS_LEN) + DECISION_FOOD],
-			GoSpeed: decisions[1 + (i * DECISIONS_LEN) + DECISION_GO_SPEED],
-			Pack: decisions[1 + (i * DECISIONS_LEN) + DECISION_PACK],
+			Movement: int(decisions[1 + (i * DECISION_SIZE) + DECISION_MOVEMENT]),
+			Target: decisions[1 + (i * DECISION_SIZE) + DECISION_TARGET],
+			Legs: decisions[1 + (i * DECISION_SIZE) + DECISION_LEGS],
+			Size: decisions[1 + (i * DECISION_SIZE) + DECISION_SIZE],
+			InRange: decisions[1 + (i * DECISION_SIZE) + DECISION_RANGE],
+			TheirSkin: decisions[1 + (i * DECISION_SIZE) + DECISION_THEIR_SKIN],
+			MySkin: decisions[1 + (i * DECISION_SIZE) + DECISION_MY_SKIN],
+			MyCondition: decisions[1 + (i * DECISION_SIZE) + DECISION_MY_CONDITION],
+			MyQueenEnemyRange: decisions[1 + (i * DECISION_SIZE) + DECISION_MY_QUEEN_ENEMY_RANGE],
+			MyQueenRange: decisions[1 + (i * DECISION_SIZE) + DECISION_MY_QUEEN_RANGE],
+			EnemyQueenRange: decisions[1 + (i * DECISION_SIZE) + DECISION_ENEMY_QUEEN_RANGE],
+			TheirSpeed: decisions[1 + (i * DECISION_SIZE) + DECISION_THEIR_SPEED],
+			TheirAction: decisions[1 + (i * DECISION_SIZE) + DECISION_THEIR_ACTION],
+			Calling: decisions[1 + (i * DECISION_SIZE) + DECISION_CALLING],
+			Time: decisions[1 + (i * DECISION_SIZE) + DECISION_TIME],
+			Priority: decisions[1 + (i * DECISION_SIZE) + DECISION_PRIORITY],
+			Food: decisions[1 + (i * DECISION_SIZE) + DECISION_FOOD],
+			GoSpeed: decisions[1 + (i * DECISION_SIZE) + DECISION_GO_SPEED],
+			Pack: decisions[1 + (i * DECISION_SIZE) + DECISION_PACK],
 			Score: 0}
 	}
 
@@ -102,6 +106,8 @@ type Dino struct {
 func NewDino(inTeam *ContestEntry, species int, dino int) *Dino {
 	decisionStart := inTeam.DecisionsOffset + (DECISIONS_LEN * species)
 	decisionEnd := inTeam.DecisionsOffset + (DECISIONS_LEN * species) + DECISIONS_LEN
+
+	fmt.Printf("Decision Start offset: %d Decision End Offset: %d Diff: %d\n", decisionStart, decisionEnd, decisionEnd-decisionStart)
 
 	return &Dino {
 		Team: inTeam.Team,
