@@ -22,6 +22,11 @@ type ContestResult struct {
 	Actions []byte
 }
 
+type ContestFrame struct {
+	Actions []byte
+	NumActions int
+}
+
 type Arena struct {
 	dinos []*util.Dino
 	numDinos int
@@ -61,14 +66,16 @@ func NewContestResult() *ContestResult {
 		Actions: make([]byte, 0)}
 }
 
-func (cr * ContestResult) Put(action *Action) {
+func (cf * ContestFrame) Put(action *Action) {
 
 	var encoded byte
 
 	encoded = (action.dino * byte(12)) + action.code
 	
-	cr.Actions = append(cr.Actions, encoded)
-	cr.Actions = append(cr.Actions, action.args...)
+	cf.Actions = append(cf.Actions, encoded)
+	cf.Actions = append(cf.Actions, action.args...)
+	cf.NumActions += 1
+
 }
 
 func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]byte, error) {
@@ -104,7 +111,11 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 	output = append(output, byte(team1.NumSpecies))
 
 	output = append(output, team1.TeamData[team1.SpeciesOffset:(team1.SpeciesOffset + (util.SPECIES_LEN * team1.NumSpecies))]...)
-	output = append(output, team1.TeamData[team1.DinosOffset:team1.DinoNamesOffset]...)
+
+	dinosOffsetEnd := team1.DinosOffset + (team1.NumDinos * (util.TEAM_ENTRY_RECORD_LEN)) + 1
+	output = append(output, team1.TeamData[team1.DinosOffset:dinosOffsetEnd]...)
+
+	output = append(output, team1.TeamData[team1.DinoNamesOffset:team1.ColorsNamesOffset]...)
 
 
 	team2ColorsNamesOffset := len(output) + 17
@@ -128,7 +139,12 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 	output = append(output, byte(team2.NumSpecies))
 
 	output = append(output, team2.TeamData[team2.SpeciesOffset:(team2.SpeciesOffset + (util.SPECIES_LEN * team2.NumSpecies))]...)
-	output = append(output, team2.TeamData[team2.DinosOffset:team2.DinoNamesOffset]...)
+
+
+	dinosOffsetEnd = team2.DinosOffset + (team2.NumDinos * (util.TEAM_ENTRY_RECORD_LEN)) + 1
+	output = append(output, team2.TeamData[team2.DinosOffset:dinosOffsetEnd]...)
+
+	output = append(output, team2.TeamData[team2.DinoNamesOffset:team2.ColorsNamesOffset]...)
 
 	levelDataOffset := len(output) + 17
 
@@ -187,7 +203,8 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 
 	testTimeLimit := 60 * 5 // 5 minutes, 300 seconds, TODO based on level data
 
-	arenaFrames := testTimeLimit * ACTIONS_PER_SECOND
+	// arenaFrames := testTimeLimit * ACTIONS_PER_SECOND
+	arenaFrames := 50 + (0* testTimeLimit)
 
 	// create dinos team 1
 	speciesTypeOffset := ((util.TEAM_QUEEN_ARRAY_LEN + util.TEAM_SPECIES_LEG_NUM_LEN) * team1.NumDinos) + team1.DinosOffset + 1
@@ -211,6 +228,8 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 	// set up delays
 	delay := make([]*Delays, 0)
 
+	initFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
+
 	for i:=0; i<team1.NumDinos + team2.NumDinos; i++ {
 		for j:=i+1; j<team1.NumDinos + team2.NumDinos; j++ {
 			// distPairs = append(distPairs, &Distance{d1: i, d2: j})
@@ -224,11 +243,20 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		delay = append(delay, &Delays {
 			movement: 0,
 			fire: 0,
-			call: 0})}
+			call: 0})
+
+		// turn on dino ?
+		initFrame.Put(&Action{code: 9, dino: byte(i), args: make([]byte, 0)})
+	}
+
+	cr.Actions = append(cr.Actions, byte(initFrame.NumActions))
+	cr.Actions = append(cr.Actions, initFrame.Actions...)
 
 	// distPairslen := len(distPairs)
 
 	for arenaFrames > 0 {
+
+		cf := ContestFrame { Actions: make([]byte, 0), NumActions: 0 }
 
 		for i:=0; i<arena.numDinos; i++ {
 			if delay[i].movement > 0 {
@@ -260,7 +288,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 
 			// evaluate decisions
 			decisions := EvaluateDecision(arena.dinos[i])
-			didAction := false
+			
 
 			if len(decisions) > 0 {
 				chosen := 0
@@ -274,8 +302,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 
 				if decisions[chosen].Movement == 0 && delay[i].call <= 0 {
 					// call
-					cr.Put(&Action{code: 10, dino: byte(i), args: make([]byte, 0)})
-					didAction = true
+					cf.Put(&Action{code: 10, dino: byte(i), args: make([]byte, 0)})
 
 					switch arena.dinos[i].Decisions[decisions[chosen].DecisionId].Priority {
 						case 0: 
@@ -293,13 +320,43 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 
 				// update position
 			}
-
-			if !didAction {
-				cr.Put(&Action{code: 11, dino: byte(i), args: []byte{10}})
-			}
 		}
 
+		if cf.NumActions <= 0 {
+			cf.Put(&Action{code: 11, dino: byte(0), args: []byte{10}})
+		}
+
+		cr.Actions = append(cr.Actions, byte(cf.NumActions))
+		cr.Actions = append(cr.Actions, cf.Actions...)
+
 		arenaFrames--;
+	}
+
+	testDieFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
+	testDieFrame.Put(&Action{code: 11, dino: byte(0), args: []byte{0}})
+
+	cr.Actions = append(cr.Actions, byte(testDieFrame.NumActions))
+	cr.Actions = append(cr.Actions, testDieFrame.Actions...)
+
+	endFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
+
+	for i:=0; i<team1.NumDinos + team2.NumDinos; i++ {
+		// turn off dino ?
+		endFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{9}})
+	}
+
+
+
+	cr.Actions = append(cr.Actions, byte(endFrame.NumActions))
+	cr.Actions = append(cr.Actions, endFrame.Actions...)
+
+	// cr.Actions = append(cr.Actions, make([]byte, 80)...)
+
+
+	if len(cr.Actions) < 0xF000 {
+		cr.Actions = append(cr.Actions, make([]byte, 0xF000 - (len(cr.Actions)%0xF000))...)
+	} else {
+		cr.Actions = append(cr.Actions, make([]byte, len(cr.Actions)%0xF000)...)
 	}
 
 	return cr, nil
