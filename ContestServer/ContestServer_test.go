@@ -12,7 +12,11 @@ import (
 
 func TestRunContest(t *testing.T) {
 	cases := []string {
-		"Call"}
+		"Call",
+		"BaseTeam"}
+
+	caseType := []int {
+		1, 0}
 
 	directory, err := os.Getwd()
 
@@ -26,7 +30,7 @@ func TestRunContest(t *testing.T) {
 
 		fmt.Printf("Loading %s\n", testTeam1Path)
 
-		team1, err := util.NewContestEntry(testTeam1Path, 1)
+		team1, err := util.NewContestEntry(testTeam1Path, caseType[i])
 
 		if err != nil {
 			t.Fail()
@@ -37,7 +41,7 @@ func TestRunContest(t *testing.T) {
 
 		fmt.Printf("Loading %s\n", testTeam2Path)
 
-		team2, err := util.NewContestEntry(testTeam2Path, 1)
+		team2, err := util.NewContestEntry(testTeam2Path, caseType[i])
 
 		if err != nil {
 			t.Fail()
