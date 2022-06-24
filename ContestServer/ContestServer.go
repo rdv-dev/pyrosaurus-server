@@ -245,10 +245,19 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		delay = append(delay, &Delays {
 			movement: 0,
 			fire: 0,
-			call: 0})
+			call: 0,
+			neck: 0,
+			tail: 0})
 
 		// turn on dino ?
 		initFrame.Put(&Action{code: 9, dino: byte(i), args: make([]byte, 0)})
+
+		if i == 0 {
+			// do a fire
+			initFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{8}})
+			// delay the neck movement until fire has started
+			delay[i].neck = 20
+		}
 	}
 
 	cr.Actions = append(cr.Actions, byte(initFrame.NumActions))
@@ -295,16 +304,29 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		// neck/tail movement
 		for i:=0; i<arena.numDinos; i++ {
 			if delay[i].neck <= 0 {
-				neckAngle := byte(30)
-				
-				if arenaFrames % 2 != 0 {
-					neckAngle = byte(255) - neckAngle
-				} 
+				if i == 0 {
+					shakeAngle := byte(10)
 
-				// Neck
-				cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x11, neckAngle}})
+					if arenaFrames % 2 != 0 {
+						shakeAngle = byte(255) - shakeAngle
+					} 
 
-				delay[i].neck = 0xF
+					cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x4, shakeAngle}})
+
+					delay[i].neck = 0x3
+
+				} else {
+					neckAngle := byte(30)
+					
+					if arenaFrames % 2 != 0 {
+						neckAngle = byte(255) - neckAngle
+					} 
+
+					// Neck
+					cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x11, neckAngle}})
+
+					delay[i].neck = 0xF
+				}
 			}
 			
 
