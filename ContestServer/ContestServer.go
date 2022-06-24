@@ -59,6 +59,8 @@ type Delays struct {
 	movement int
 	fire int
 	call int
+	neck int
+	tail int
 }
 
 func NewContestResult() *ContestResult {
@@ -270,6 +272,14 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 			if delay[i].call > 0 {
 				delay[i].call--
 			}
+
+			if delay[i].neck > 0 {
+				delay[i].neck--
+			}
+
+			if delay[i].tail > 0 {
+				delay[i].tail--
+			}
 		}
 
 		// for i:=0; i<distPairslen; i++ {
@@ -282,6 +292,38 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 			// enemy queen range
 		// }
 
+		// neck/tail movement
+		for i:=0; i<arena.numDinos; i++ {
+			if delay[i].neck <= 0 {
+				neckAngle := byte(30)
+				
+				if arenaFrames % 2 != 0 {
+					neckAngle = byte(255) - neckAngle
+				} 
+
+				// Neck
+				cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x11, neckAngle}})
+
+				delay[i].neck = 0xF
+			}
+			
+
+			if delay[i].tail <= 0 {
+				tailAngle := byte(30)
+
+				if arenaFrames % 2 != 0 {
+					tailAngle = byte(255) - tailAngle
+				}
+
+				// Tail
+				cf.Put(&Action{code: 1, dino: byte(i), args: []byte{0x11, tailAngle}})
+
+				
+				delay[i].tail = 0xF
+			}
+		}
+
+		// decisions
 		for i:=0; i<arena.numDinos; i++ {
 
 			// fighting?
@@ -302,7 +344,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 
 				if decisions[chosen].Movement == 0 && delay[i].call <= 0 {
 					// call
-					cf.Put(&Action{code: 10, dino: byte(i), args: make([]byte, 0)})
+					// cf.Put(&Action{code: 10, dino: byte(i), args: make([]byte, 0)})
 
 					switch arena.dinos[i].Decisions[decisions[chosen].DecisionId].Priority {
 						case 0: 
@@ -332,15 +374,18 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		arenaFrames--;
 	}
 
-	testDieFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
-	testDieFrame.Put(&Action{code: 11, dino: byte(0), args: []byte{0}})
+	// testDieFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
+	// testDieFrame.Put(&Action{code: 11, dino: byte(0), args: []byte{0}})
 
-	cr.Actions = append(cr.Actions, byte(testDieFrame.NumActions))
-	cr.Actions = append(cr.Actions, testDieFrame.Actions...)
+	// cr.Actions = append(cr.Actions, byte(testDieFrame.NumActions))
+	// cr.Actions = append(cr.Actions, testDieFrame.Actions...)
 
 	endFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
 
 	for i:=0; i<team1.NumDinos + team2.NumDinos; i++ {
+		// set neck and tail to 0
+		endFrame.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x11, 0}})
+		endFrame.Put(&Action{code: byte(1), dino: byte(i), args: []byte{0x11, 0}})
 		// turn off dino ?
 		endFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{9}})
 	}
