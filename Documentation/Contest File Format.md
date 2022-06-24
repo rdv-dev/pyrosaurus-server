@@ -97,7 +97,7 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 |6|1|Unknown| | ||
 |7|1|Jump Left/Right|12|Causes selected Dino to do fighting jump side-to-side and rotate based on supplied argument||
 |8|1|Jump Forward/Back|16|Causes selected Dino to do fighting jump forward or back and rotate based on the supplied argument||
-|9|0|Unknown| |Updates the same byte array as Special Action 11-9 to 1||
+|9|0|Unknown| |Updates the same byte array as Special Action 11-9 to 1. Associated with firing?||
 |10|0|Call| |The Dino does a Call/Roar||
 |11|1 (see comments)|Special Actions| |This is a special action which based on the argument selects a unique action. Special action 7 requires an additional argument||
 
@@ -113,5 +113,45 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 |11|6|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (6 * 16)||
 |11|7|Eat Food|REQUIRES ADDITIONAL ARGUMENT, possibly ID number for food piece to be removed?||
 |11|8|Attack/Fire|This makes the Dino Attack by using its Fire||
-|11|9|Unknown|Updates the same byte array as Action 9 to 0||
+|11|9|Unknown|Updates the same byte array as Action 9 to 0. Associated with firing?||
 |11|10|No Operation (nop) frame|This is not specifically part of the code, however if any number above 9 is provided for the Argument Code, it will be ignored and no new actions will be kicked off for the frame, and the contest will not end prematurely. This is great to use if all delays are still ongoing or no Dino is making an action for a frame.||
+
+# Tracing Contest Execution
+* Beginning of contestReadAllocate 9D4B:4CC
+* Setup Contest Memory Size 9D4B:4EE
+* Read contest data 9D4B:585
+* Contest Memory Size final result 9D4B:5A1
+* Beginning of contestReadFrame - 9D4B:5C2
+* Continue reading data - 9D4B:5D2
+* Read head of frame (num actions) - 9D4B:630
+* Check read num actions - 9D4B:649
+* num actions is 0 - 9D4B:A04
+* num actions > 0 - 9D4B:657
+* action value read from file - 9D4B:66E
+* dino number decoded - 9D4B:68F
+* action decoded - 9D4B:6BD
+
+# File read trace
+* 0823:FBC
+
+
+## Contest Action Tracing
+* action 0 - 9D4B:796
+* action 1 - 9D4B:7D4
+* action 2 - 9D4B:7EC
+* action 3 - 9D4B:820
+* action 4 - 9D4B:836
+* action 5 - 9D4B:86C
+* action 6 - 9D4B:87C
+* action 7 - 9D4B:894
+* action 8 - 9D4B:8CA
+* action 9 - 9D4B:8FE
+* action 10 - 9D4B:90A
+* action 11 - 9D4B:916
+
+## Action Tracing
+Action 0 location 1D43:36CA
+Action 1 location 1D43:39A2
+Action 2 location 1D43:3B2A
+Action 3 location 1D43:3AE0
+Action 6 location 1d43:3d48
