@@ -5,6 +5,7 @@
 Note all entered values must be little endian.
 
 * Enter user ID number at position 0x0C within 4 bytes (32-bit Long)
+* Enter a User Check number at position 0x10 within 2 bytes (16-bit Int)
 * At position 0x12 enter a non zero number, FF will give you 255d games
 * At position 0x1D enter hex number 0E (14d)
 
