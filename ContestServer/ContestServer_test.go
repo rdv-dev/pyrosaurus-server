@@ -13,10 +13,11 @@ import (
 func TestRunContest(t *testing.T) {
 	cases := []string {
 		"Call",
-		"BaseTeam"}
+		"BaseTeam",
+		"Moves"}
 
 	caseType := []int {
-		1, 0}
+		1, 0, 1}
 
 	directory, err := os.Getwd()
 

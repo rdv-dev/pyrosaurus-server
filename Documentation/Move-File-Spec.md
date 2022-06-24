@@ -14,11 +14,11 @@ Number of points|1|Maxiumum of 10 points, referred to as n||
 Source-Goal|1|See [Source-Goal Codes](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Move-File-Spec.md#source-goal-codes) table||
 X Coordinate 1|2|See note on [Coordinates](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Move-File-Spec.md#source-goal-coordinate-information)||
 Y Coordinate 1|2|See note on [Coordinates](https://github.com/algae-disco/pyrosaurus-server/edit/main/Documentation/Move-File-Spec.md#source-goal-coordinate-information)||
-Goal Size 1|2| ||
+Goal Size 1|1| ||
 ...|...| ||
 X Coordinate n|2| ||
 Y Coordinate n|2| ||
-Goal Size n|2| ||
+Goal Size n|1| ||
 
 ## Source-Goal Codes
 Here are the different types of Movements and their Source Codes

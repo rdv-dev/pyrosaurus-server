@@ -88,7 +88,7 @@ func NewDecisions(decisions []byte) []*Decision {
 type Dino struct {
 	Team uint32
 	species []byte
-	moves []byte
+	moves []*Moves
 	fitePoints []byte
 	fiteXPos []byte
 	fiteYPos []byte
@@ -104,6 +104,12 @@ type Dino struct {
 }
 
 func NewDino(inTeam *ContestEntry, species int, dino int) *Dino {
+	fmt.Printf("Moves Offset: %d Species: %d\n", inTeam.MovesOffset, species)
+	movesStart := inTeam.MovesOffset + (MOVE_DATA_LEN * species)
+	movesEnd := inTeam.MovesOffset + (MOVE_DATA_LEN * species) + MOVE_DATA_LEN
+
+	fmt.Printf("Moves Start offset: %d Moves End Offset: %d Diff: %d\n", movesStart, movesEnd, movesEnd-movesStart)
+
 	decisionStart := inTeam.DecisionsOffset + (DECISIONS_LEN * species)
 	decisionEnd := inTeam.DecisionsOffset + (DECISIONS_LEN * species) + DECISIONS_LEN
 
@@ -112,7 +118,7 @@ func NewDino(inTeam *ContestEntry, species int, dino int) *Dino {
 	return &Dino {
 		Team: inTeam.Team,
 		species: make([]byte, SPECIES_LEN),
-		moves: make([]byte, MOVE_DATA_LEN),
+		moves: NewMoves(inTeam.TeamData[movesStart:movesEnd]),
 		fitePoints: make([]byte, FITE_DATA1_LEN),
 		fiteXPos: make([]byte, FITE_DATA2_LEN),
 		fiteYPos: make([]byte, FITE_DATA3_LEN),
