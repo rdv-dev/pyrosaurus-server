@@ -12,7 +12,7 @@ const (
 	DECISION_MOVEMENT = 0
 	DECISION_TARGET = 1
 	DECISION_LEGS = 2
-	DECISION_SIZE = 3
+	DECISION_THEIR_SIZE = 3
 	DECISION_RANGE = 4
 	DECISION_THEIR_SKIN = 5
 	DECISION_MY_SKIN = 6
@@ -63,7 +63,7 @@ func NewDecisions(decisions []byte) []*Decision {
 			Movement: int(decisions[1 + (i * DECISION_SIZE) + DECISION_MOVEMENT]),
 			Target: decisions[1 + (i * DECISION_SIZE) + DECISION_TARGET],
 			Legs: decisions[1 + (i * DECISION_SIZE) + DECISION_LEGS],
-			Size: decisions[1 + (i * DECISION_SIZE) + DECISION_SIZE],
+			Size: decisions[1 + (i * DECISION_SIZE) + DECISION_THEIR_SIZE],
 			InRange: decisions[1 + (i * DECISION_SIZE) + DECISION_RANGE],
 			TheirSkin: decisions[1 + (i * DECISION_SIZE) + DECISION_THEIR_SKIN],
 			MySkin: decisions[1 + (i * DECISION_SIZE) + DECISION_MY_SKIN],
