@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"encoding/binary"
 )
 
 const (
@@ -115,6 +116,13 @@ func NewDino(inTeam *ContestEntry, species int, dino int) *Dino {
 
 	fmt.Printf("Decision Start offset: %d Decision End Offset: %d Diff: %d\n", decisionStart, decisionEnd, decisionEnd-decisionStart)
 
+	dinoXPosIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE + TEAM_MYSTERY_DATA)) + (dino * TEAM_X_POS_LEN)
+	dinoYPosIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE + TEAM_MYSTERY_DATA + TEAM_X_POS_LEN)) + (dino * TEAM_Y_POS_LEN)
+	dinoRotnIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE + TEAM_MYSTERY_DATA + TEAM_X_POS_LEN + TEAM_Y_POS_LEN)) + (dino * TEAM_ROT_LEN)
+
+	fmt.Printf("Dino Offsets XPos: %d YPos: %d Rotn: %d\n", dinoXPosIndex, dinoYPosIndex, dinoRotnIndex)
+	fmt.Printf("Dino Values  XPos: %f YPos: %f Rotn: %f\n",float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360))
+
 	return &Dino {
 		Team: inTeam.Team,
 		species: make([]byte, SPECIES_LEN),
@@ -125,9 +133,9 @@ func NewDino(inTeam *ContestEntry, species int, dino int) *Dino {
 		Decisions: NewDecisions(inTeam.TeamData[decisionStart:decisionEnd]),
 		dino: make([]byte, TEAM_ENTRY_RECORD_LEN),
 		name: make([]byte, 50),
-		Xpos: 0,
-		Ypos: 0,
-		angle: 0,
+		Xpos: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2]))),
+		Ypos: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2]))),
+		angle: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360),
 		neckAngle: 0,
 		attacking: make([]byte, 0),
 		attackedBy: make([]byte, 0)}
