@@ -95,16 +95,10 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x68, 0x01, 0x01, 0x00,
 	0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x50, 0x00};
 
-	// output = append(output, []byte{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0})
-
 	team1ColorsNamesOffset := len(output) + 17
 
 	userId1 := make([]byte, 4)
 	binary.LittleEndian.PutUint32(userId1, team1.PyroUserId)
-
-	// if sizeput < 4 {
-	// 	return make([]byte, 0), errors.New("Failed to write PyroUserId for Team1")
-	// }
 
 	output = append(output, userId1...)
 
@@ -112,7 +106,6 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 
 	team1DataOffset := len(output) + 17
 
-	// sizeput = binary.PutUvarint(output, uint64(team1.NumSpecies))
 	output = append(output, byte(team1.NumSpecies))
 
 	output = append(output, team1.TeamData[team1.SpeciesOffset:(team1.SpeciesOffset + (util.SPECIES_LEN * team1.NumSpecies))]...)
@@ -127,12 +120,8 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 
 
 	userId2 := make([]byte, 4)
-	// sizeput = binary.PutUvarint(output, uint64(team2.PyroUserId))
-	binary.LittleEndian.PutUint32(userId2, team2.PyroUserId)
 
-	// if sizeput < 4 {
-	// 	return make([]byte, 0), errors.New("Failed to write PyroUserId for Team1")
-	// }
+	binary.LittleEndian.PutUint32(userId2, team2.PyroUserId)
 
 	output = append(output, userId2...)
 
@@ -140,7 +129,6 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 
 	team2DataOffset := len(output) + 17
 
-	// sizeput = binary.PutUvarint(output, uint64(team2.NumSpecies))
 	output = append(output, byte(team2.NumSpecies))
 
 	output = append(output, team2.TeamData[team2.SpeciesOffset:(team2.SpeciesOffset + (util.SPECIES_LEN * team2.NumSpecies))]...)
@@ -160,7 +148,6 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 	contestHeader := make([]byte, 17)
 	fielduInt16 := make([]byte, 2)
 
-	// contestHeader = append(contestHeader, byte(0))
 	contestHeader[0] = byte(0)
 	binary.LittleEndian.PutUint16(fielduInt16, uint16(team1ColorsNamesOffset))
 	contestHeader[1] = fielduInt16[0]
