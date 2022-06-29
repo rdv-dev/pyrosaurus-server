@@ -14,7 +14,7 @@ const (
 	ACTIONS_PER_SECOND = 20
 	NUM_SPECIES_LEN = 1
 	TOTAL_DINOS_LEN = 1
-	CONTEST_HEADER_RECORD_LEN = 16
+	CONTEST_HEADER_RECORD_LEN = 17
 	LEVEL_DATA_SIZE = 70
 )
 
@@ -95,7 +95,7 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x68, 0x01, 0x01, 0x00,
 	0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x50, 0x00};
 
-	team1ColorsNamesOffset := len(output) + 17
+	team1ColorsNamesOffset := len(output) + CONTEST_HEADER_RECORD_LEN
 
 	userId1 := make([]byte, 4)
 	binary.LittleEndian.PutUint32(userId1, team1.PyroUserId)
@@ -104,7 +104,7 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 
 	output = append(output, team1.TeamData[team1.ColorsNamesOffset:]...)
 
-	team1DataOffset := len(output) + 17
+	team1DataOffset := len(output) + CONTEST_HEADER_RECORD_LEN
 
 	output = append(output, byte(team1.NumSpecies))
 
@@ -116,7 +116,7 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 	output = append(output, team1.TeamData[team1.DinoNamesOffset:team1.ColorsNamesOffset]...)
 
 
-	team2ColorsNamesOffset := len(output) + 17
+	team2ColorsNamesOffset := len(output) + CONTEST_HEADER_RECORD_LEN
 
 
 	userId2 := make([]byte, 4)
@@ -127,7 +127,7 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 
 	output = append(output, team2.TeamData[team2.ColorsNamesOffset:]...)
 
-	team2DataOffset := len(output) + 17
+	team2DataOffset := len(output) + CONTEST_HEADER_RECORD_LEN
 
 	output = append(output, byte(team2.NumSpecies))
 
@@ -139,40 +139,41 @@ func ExportContest(team1, team2 *util.ContestEntry, result *ContestResult) ([]by
 
 	output = append(output, team2.TeamData[team2.DinoNamesOffset:team2.ColorsNamesOffset]...)
 
-	levelDataOffset := len(output) + 17
+	levelDataOffset := len(output) + CONTEST_HEADER_RECORD_LEN
 
 	output = append(output, levelData...)
 
-	contestDataOffset := len(output) + 17
+	contestDataOffset := len(output) + CONTEST_HEADER_RECORD_LEN
 
-	contestHeader := make([]byte, 17)
+	// contestHeader := make([]byte, CONTEST_HEADER_RECORD_LEN)
+	contestHeader := make([]byte, 0)
 	fielduInt16 := make([]byte, 2)
 
-	contestHeader[0] = byte(0)
+	contestHeader = append(contestHeader, byte(0))
+
 	binary.LittleEndian.PutUint16(fielduInt16, uint16(team1ColorsNamesOffset))
-	contestHeader[1] = fielduInt16[0]
-	contestHeader[2] = fielduInt16[1]
+	contestHeader = append(contestHeader, fielduInt16...)
+
 	binary.LittleEndian.PutUint16(fielduInt16, uint16(team1DataOffset))
-	contestHeader[3] = fielduInt16[0]
-	contestHeader[4] = fielduInt16[1]
+	contestHeader = append(contestHeader, fielduInt16...)
+
 	binary.LittleEndian.PutUint16(fielduInt16, uint16(0))
-	contestHeader[5] = fielduInt16[0]
-	contestHeader[6] = fielduInt16[1]
+	contestHeader = append(contestHeader, fielduInt16...)
+
 	binary.LittleEndian.PutUint16(fielduInt16, uint16(team2ColorsNamesOffset))
-	contestHeader[7] = fielduInt16[0]
-	contestHeader[8] = fielduInt16[1]
+	contestHeader = append(contestHeader, fielduInt16...)
+
 	binary.LittleEndian.PutUint16(fielduInt16, uint16(team2DataOffset))
-	contestHeader[9] = fielduInt16[0]
-	contestHeader[10] = fielduInt16[1]
+	contestHeader = append(contestHeader, fielduInt16...)
+
 	binary.LittleEndian.PutUint16(fielduInt16, uint16(0))
-	contestHeader[11] = fielduInt16[0]
-	contestHeader[12] = fielduInt16[1]
+	contestHeader = append(contestHeader, fielduInt16...)
+
 	binary.LittleEndian.PutUint16(fielduInt16, uint16(levelDataOffset))
-	contestHeader[13] = fielduInt16[0]
-	contestHeader[14] = fielduInt16[1]
+	contestHeader = append(contestHeader, fielduInt16...)
+
 	binary.LittleEndian.PutUint16(fielduInt16, uint16(contestDataOffset))
-	contestHeader[15] = fielduInt16[0]
-	contestHeader[16] = fielduInt16[1]
+	contestHeader = append(contestHeader, fielduInt16...)
 
 	output = append(contestHeader, output...)
 
