@@ -53,6 +53,9 @@ type DinoSense struct {
 	see []byte
 	hear []byte
 	smell []byte
+	enemy []int
+	friend []int
+	self int
 }
 
 type Delays struct {
@@ -240,7 +243,34 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		sense = append(sense, &DinoSense {
 			see: make([]byte, team1.NumDinos + team2.NumDinos),
 			hear: make([]byte, team1.NumDinos + team2.NumDinos),
-			smell: make([]byte, team1.NumDinos + team2.NumDinos)})
+			smell: make([]byte, team1.NumDinos + team2.NumDinos),
+			enemy: make([]int, 0),
+			friend: make([]int, 0),
+			self: 0})
+
+		for j:=0; j<team1.NumDinos + team2.NumDinos; j++ {
+			// sense friend, enemy etc
+			if j == i {
+				sense[i].self = j
+			} else {
+				if i < team1.NumDinos && j < team1.NumDinos {
+					// team 1 friend
+					sense[i].friend = append(sense[i].friend, j)
+				}
+				if i < team1.NumDinos && j >= team1.NumDinos {
+					// team 1 enemy
+					sense[i].enemy = append(sense[i].enemy, j)
+				}
+				if i >= team1.NumDinos && j < team1.NumDinos {
+					// team 2 enemy
+					sense[i].enemy = append(sense[i].enemy, j)
+				}
+				if i >= team1.NumDinos && j >= team1.NumDinos {
+					// team 2 friend
+					sense[i].friend = append(sense[i].friend, j)
+				}
+			}
+		}
 
 		delay = append(delay, &Delays {
 			movement: 0,
