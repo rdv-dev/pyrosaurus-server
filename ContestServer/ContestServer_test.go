@@ -66,6 +66,7 @@ func TestRunContest(t *testing.T) {
 		if len(result.Actions) < 0 {
 			t.Fail()
 			t.Logf("No result produced\n")
+			fmt.Println("No result produced")
 			os.Exit(1)
 		}
 
