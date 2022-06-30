@@ -184,7 +184,7 @@ func parseFile(rawFile *os.File) *contestEntryRaw {
 		}
 
 		if doRead == 0 {
-			fmt.Println("file not able to be parsed or already parsed")
+			fmt.Printf("file not able to be parsed or already parsed at %d\n", readPos)
 			os.Exit(1)
 		}
 
@@ -206,9 +206,11 @@ func parseFile(rawFile *os.File) *contestEntryRaw {
 			} else {
 				if fileChunkNum < chunkNum {
 					// repeated chunk, skip it
-					toReadPos = (readPos + chunkSize) + 2
+					fmt.Printf("Skipping chunk %d...\n", chunkNum)
+					fmt.Printf("Before: readPos: %d toReadPos: %d\n", readPos, toReadPos)
+					toReadPos = (readPos + chunkSize) + 2 + 4
 					readPos = toReadPos
-					fmt.Println("Skipping chunk...")
+					fmt.Printf("After: readPos: %d toReadPos: %d\n", readPos, toReadPos)
 				}
 
 				if fileChunkNum > chunkNum {
