@@ -3,6 +3,7 @@ package ContestServer
 import (
 	"testing"
 	"os"
+	"io/ioutil"
 	"github.com/algae-disco/pyrosaurus-server/ContestServer/util"
 	"github.com/algae-disco/pyrosaurus-server/ContestServer"
 	// "https://github.com/stretchr/testify/assert"
@@ -18,6 +19,8 @@ func TestRunContest(t *testing.T) {
 
 	caseType := []int {
 		1, 0, 1}
+
+	var levelData []byte
 
 	directory, err := os.Getwd()
 
@@ -74,7 +77,25 @@ func TestRunContest(t *testing.T) {
 			os.Exit(1)
 		}
 
-		outdata, err := ContestServer.ExportContest(team1, team2, result)
+		levelFile, err := os.Open(directory + "/TestData/" + cases[i] + "/LEVEL.000")
+
+		if err != nil {
+			t.Fail()
+			t.Logf("Unable to open Level File\n")
+			fmt.Println(err)
+			os.Exit(1)
+		} else {
+			levelData, err = ioutil.ReadAll(levelFile)
+
+			if err != nil {
+				t.Fail()
+				t.Logf("Failed to load Level File\n")
+				fmt.Println(err)
+				os.Exit(1)
+			}
+		}
+
+		outdata, err := ContestServer.ExportContest(team1, team2, levelData, result)
 
 		if err != nil {
 			t.Fail()
