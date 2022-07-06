@@ -89,7 +89,8 @@ func NewDecisions(decisions []byte) []*Decision {
 type Dino struct {
 	Team uint32
 	species []byte
-	moves []*Moves
+	Moves []*Moves
+	DoMove *Moves
 	fitePoints []byte
 	fiteXPos []byte
 	fiteYPos []byte
@@ -98,10 +99,11 @@ type Dino struct {
 	name []byte
 	Xpos float64
 	Ypos float64
-	angle float64
+	Angle float64
 	neckAngle float64
 	attacking []byte
 	attackedBy []byte
+	
 }
 
 func NewDino(inTeam *ContestEntry, species int, dino int) *Dino {
@@ -126,7 +128,7 @@ func NewDino(inTeam *ContestEntry, species int, dino int) *Dino {
 	return &Dino {
 		Team: inTeam.Team,
 		species: make([]byte, SPECIES_LEN),
-		moves: NewMoves(inTeam.TeamData[movesStart:movesEnd]),
+		Moves: NewMoves(inTeam.TeamData[movesStart:movesEnd]),
 		fitePoints: make([]byte, FITE_DATA1_LEN),
 		fiteXPos: make([]byte, FITE_DATA2_LEN),
 		fiteYPos: make([]byte, FITE_DATA3_LEN),
@@ -135,7 +137,7 @@ func NewDino(inTeam *ContestEntry, species int, dino int) *Dino {
 		name: make([]byte, 50),
 		Xpos: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2]))),
 		Ypos: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2]))),
-		angle: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360),
+		Angle: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360),
 		neckAngle: 0,
 		attacking: make([]byte, 0),
 		attackedBy: make([]byte, 0)}

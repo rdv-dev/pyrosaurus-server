@@ -5,9 +5,6 @@ import (
 	// "fmt"
 	// "math"
 	"github.com/algae-disco/pyrosaurus-server/ContestServer/util"
-	// "github.com/algae-disco/pyrosaurus-server/ContestServer"
-	// "github.com/algae-disco/pyrosaurus-server/ContestServer/ContestEntry"
-	// "github.com/algae-disco/pyrosaurus-server/ContestServer/Dino"
 )
 
 const (
@@ -66,6 +63,12 @@ type Delays struct {
 	tail int
 }
 
+type Vector struct {
+	x float64
+	y float64
+	a float64
+}
+
 func NewContestResult() *ContestResult {
 	return &ContestResult {
 		Actions: make([]byte, 0)}
@@ -83,6 +86,7 @@ func (cf * ContestFrame) Put(action *Action) {
 
 }
 
+// maybe move this under util?
 func ExportContest(team1, team2 *util.ContestEntry, levelData []byte, result *ContestResult) ([]byte, error) {
 	output := make([]byte, 0)
 
@@ -211,6 +215,8 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 	sense := make([]*DinoSense, 0)
 	// set up delays
 	delay := make([]*Delays, 0)
+	pos := make([]*Vector, 0)
+	velocity := make([]*Vector, 0)
 
 	initFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
 
@@ -218,6 +224,13 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		for j:=i+1; j<team1.NumDinos + team2.NumDinos; j++ {
 			// distPairs = append(distPairs, &Distance{d1: i, d2: j})
 		}
+
+		pos = append(pos, &Vector {
+			x: arena.dinos[i].Xpos,
+			y: arena.dinos[i].Ypos,
+			a: arena.dinos[i].Angle})
+
+		velocity = append(velocity, &Vector {x: 0, y: 0, a: 0})
 
 		sense = append(sense, &DinoSense {
 			see: make([]byte, team1.NumDinos + team2.NumDinos),
@@ -281,10 +294,12 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		for i:=0; i<arena.numDinos; i++ {
 			if delay[i].movement > 0 {
 				delay[i].movement--
+				// update position
 			}
 
 			if delay[i].fire > 0 {
 				delay[i].fire--
+				// calcuate damage
 			}
 
 			if delay[i].call > 0 {
@@ -293,10 +308,12 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 
 			if delay[i].neck > 0 {
 				delay[i].neck--
+				// update neck angle
 			}
 
 			if delay[i].tail > 0 {
 				delay[i].tail--
+				// update tail angle
 			}
 		}
 
@@ -373,7 +390,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 					}
 				}
 
-				if decisions[chosen].Movement == 0 && delay[i].call <= 0 {
+				if decisions[chosen].Movement == util.MOVEMENT_CALL && delay[i].call <= 0 {
 					// call
 					// cf.Put(&Action{code: 10, dino: byte(i), args: make([]byte, 0)})
 
@@ -391,7 +408,54 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 					}
 				}
 
-				// update position
+				if decisions[chosen].Movement == util.MOVEMENT_DONT_MOVE {
+					// do nothing?
+				}
+
+				// if decisions[chosen].Movement == util.MOVEMENT_WANDER {}
+				// if decisions[chosen].Movement == util.MOVEMENT_MOVE_AWAY {}
+				// if decisions[chosen].Movement == util.MOVEMENT_MOVE_CLOSER {}
+				// if decisions[chosen].Movement == util.MOVEMENT_MOVE_NORTH {}
+				// if decisions[chosen].Movement == util.MOVEMENT_MOVE_SOUTH {}
+
+				if decisions[chosen].Movement > util.MAX_PREDEFINED_MOVEMENT && delay[i].movement <= 0 {
+					// look up movement
+					mvId := decisions[chosen].Movement - util.CUSTOM_MOVEMENT_START
+
+					if arena.dinos[i].DoMove != nil {
+						// we are running a movement right now
+						// check if we are at the point
+						// if at point
+						if arena.dinos[i].DoMove.ToPoint < len(arena.dinos[i].DoMove.Points) {
+							arena.dinos[i].DoMove.ToPoint += 1
+						} else {
+							// last point
+							arena.dinos[i].DoMove = nil
+						}
+					} else { 
+						// we're not running a movement
+						arena.dinos[i].DoMove = arena.dinos[i].Moves[mvId]
+						arena.dinos[i].DoMove.ToPoint = 0
+					}
+
+					if arena.dinos[i].DoMove != nil {
+						// calculate angle to point
+						// x1 = x + cos(ang) * distance;
+						// y1 = y + sin(ang) * distance;
+						// or
+						// x1 = x + sin(ang) * distance;
+						// y1 = y + cos(ang) * distance;
+						// execute movement
+						// setup delay
+					}
+				}
+
+				
+				if decisions[chosen].Movement >= util.MOVEMENT_WANDER {
+					// we did some kind of moving about
+
+				}
+
 			}
 		}
 
@@ -429,6 +493,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 	// cr.Actions = append(cr.Actions, make([]byte, 80)...)
 
 
+	// move to export contest 
 	if len(cr.Actions) < 0xF000 {
 		cr.Actions = append(cr.Actions, make([]byte, 0xF000 - (len(cr.Actions)%0xF000))...)
 	} else {
