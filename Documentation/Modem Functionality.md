@@ -14,8 +14,12 @@ One of the first operations of the Modem Driver is to use a Challenge Procedure.
 * 0x46
 
 ### Note
-The challenge procedure may need a modification to a jump instruction in order for it to send the identity data.
-More details on the mod will be placed here.
+The challenge procedure currently needs a modification to a jump instruction in order for it to send the identity data. If we figure out how to get the return value it is expecting without this modification, then this will no longer be needed.
+
+Use a hex editor and follow these steps to make the change.
+* Navigate to byte 0xB17
+  * Validate surrounding bytes: 9C 0B D2 *7C* 15 7F 05
+* Set byte to 0x74
 
 If this test is passed, then the Modem Driver sends Identity Information (see [table](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md#identity-information-table) below) to the Modem Server.
 
