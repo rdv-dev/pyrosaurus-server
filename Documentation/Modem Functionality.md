@@ -62,8 +62,17 @@ Mode 1 sub-mode 0x64 will exit this mode.
 
 Sub-mode 5 will receive an updated User File. This will update all fields beyond the phone number field.
 
-Sub-mode 6, unmodified, will send credit data that the player has entered. *WARNING: DO NOT USE THIS MODE. IF A PERSON ENTERS THIS INFORMATION AND YOU CODE THE MODEM SERVER TO REQUEST THIS INFORMATION, THEN YOU ARE RESPONSIBLE FOR SENDING CREDIT CARD INFORMATION IN PLAIN TEXT ACROSS THE INTERNET! YOU HAVE BEEN WARNED!*
+Sub-mode 6, unmodified, will send credit data that the player has entered. 
 To avoid this possibility, it makes the most sense to modify the program to instead call the getContest() procedure, giving the Modem Driver the ability to retrieve multiple contests by the servers request. If this works out, it may make sense to increase the version number in the binary so the Modem Server can fail the original Modem Driver.
+
+Modification instructions:
+* Using a hex editor, navigate to byte 0x9DE
+* Source of jump 0x7DD
+* Target procedure 0xD33
+* Original target 0x715
+* Original jump 0xFF38 = - 0xC8 = -200
+* New jump is 0xD33 - 0x7DD = 0x556
+* Enter bytes 0x56 0x05
 
 ### Sending and Receiving Files
 Modem Driver sends and receives file data in 0x400 (1024) or 0x80 (128) byte chunks. 
