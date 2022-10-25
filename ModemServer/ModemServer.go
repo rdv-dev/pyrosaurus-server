@@ -24,7 +24,6 @@ type PyroUser struct {
 	pyroCheckId uint16
 	pyroVersion byte
 
-	active int
 	conn net.Conn
 	mode int
 	submode int
@@ -504,6 +503,10 @@ func handleModemJobs(pyroJobs chan *PyroUser) {
 
 		// for doModeLoop == 1 {
 
+		if job.mode == 0 {
+			break;
+		}
+
 		fmt.Printf("Select mode: %d\n", job.mode)
 
 		switch job.mode {
@@ -519,7 +522,7 @@ func handleModemJobs(pyroJobs chan *PyroUser) {
 			time.Sleep(10*time.Second)
 
 			if success == 1 {
-				success = 1
+				job.mode = 0
 			}
 
 			// doModeLoop = 0
@@ -556,7 +559,7 @@ func handleModemJobs(pyroJobs chan *PyroUser) {
 			}
 
 			if success == 1 {
-				success	= 1
+				job.mode = 0
 			}
 
 			// doModeLoop = 0
@@ -592,14 +595,14 @@ func main() {
 	KeyArray = LoadValidationKey()
 
 	for {
-		
+
 		conn, err := server.Accept()
 
 		if err != nil {
 			fmt.Println("Error accepting modem", err.Error())
 			os.Exit(1)
 		}
-		defer server.Close()
+		// defer server.Close()
 
 		go func() {
 			fmt.Println("Got connection")
@@ -608,7 +611,7 @@ func main() {
 					pyroUserId: 0,
 					pyroCheckId: 0,
 					pyroVersion: 0,
-					active: 1,
+					// active: 1,
 					conn: conn,
 					mode: 0,
 					submode: 0,
@@ -620,7 +623,7 @@ func main() {
 				fmt.Println("Error during Challenge", err.Error())
 				os.Exit(1)
 			}
-			defer server.Close()
+			// defer server.Close()
 
 			if validated == 1 {
 
@@ -644,7 +647,13 @@ func main() {
 
 				for {
 
+					
 					pyroJobs <- user
+
+					if user.mode == 0 {
+						fmt.Println("Closing connection to client")
+						break;
+					}
 				}
 			}
 		}()
