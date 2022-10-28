@@ -127,7 +127,9 @@ Phone Number|0xC (12d)|0000018888, 0x0, 0x0|This is the phone number. Of course 
 Payload Sum|1|0x01|This is a simple summation of the ASCII codes (character '0' is equal to 0x30). The sum of '0000018888' is 0x201 - this of course does not fit in one byte, so we AND with 0xFF the lowest bytes (0x201 & 0xFF = 0x1) and finally send 0x1.||
 
 ## Technical Background
-Pyrosaurus ships with a Modem Driver as a secondary executable file called MODEM.EXE . This is a packed but uncompressed binary which is loaded to memory segment 0x47EC. The unpacking procedure simply obfuscates the entry point for the program. It is called by using DOS-style fork() where processing is entirely handed off to the MODEM program until the process completes, then processing falls back to the main game process. It is self contained so it does have its own procedures for loading fonts and displaying text to the screen.
+Pyrosaurus ships with a Modem Driver as a secondary executable file called MODEM.EXE . This is a packed but uncompressed binary. The unpacking procedure simply obfuscates the entry point for the program. It is called by using DOS-style fork() where processing is entirely handed off to the MODEM program until the process completes, then processing falls back to the main game process. It is self contained so it does have its own procedures for loading fonts and displaying text to the screen.
+
+For tracing the Modem Driver, the best way to find out which memory segment the executable is loaded to is once a call is started, quick enable debugging and pause emulation while the Modem Driver is initializing the "modem", enter any breakpoints, then unpause emulation. Once this is set, normally the executable is loaded to the same segment so breakpoints don't always need to be adjusted.
 
 ## Community Modem Driver 
 Since the Modem Driver is a secondary executable, it is possible to develop a community Modem Driver as well. 
