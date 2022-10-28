@@ -118,7 +118,13 @@ If everything passed, the Modem Driver will report "Test successful".
 
 As a final step to the Test procedure the Modem Driver expects Server to send an updated "phone number" which it will save for the next connection. This appears to be a method for load balancing where the initial phone number shipped with the game will hopefully only be used to test the Modem connectivity. Once tested, then every subsequent call into the Evryware servers could be spread among a set of phone numbers. 
 
-If a phone number is not sent, then the Modem Driver polling will time out and hang up the phone normally.
+Here is a chart of the information that Modem Driver expects
+
+Field|Size (bytes)|Value|Description
+---|---|---|---
+Mode Change|2|0x2, 0x2|Send hex number 0x2 twice to confirm the mode to send data to driver||
+Phone Number|0xC (12d)|0000018888, 0x0, 0x0|This is the phone number. Of course we will be sending IP addresses or domain names instead which will not take up the full 12 character size, so we have to pad the rest with 0's.||
+Payload Sum|1|0x01|This is a simple summation of the ASCII codes (character '0' is equal to 0x30). The sum of '0000018888' is 0x201 - this of course does not fit in one byte, so we AND with 0xFF the lowest bytes (0x201 & 0xFF = 0x1) and finally send 0x1.||
 
 ## Technical Background
 Pyrosaurus ships with a Modem Driver as a secondary executable file called MODEM.EXE . This is a packed but uncompressed binary which is loaded to memory segment 0x47EC. The unpacking procedure simply obfuscates the entry point for the program. It is called by using DOS-style fork() where processing is entirely handed off to the MODEM program until the process completes, then processing falls back to the main game process. It is self contained so it does have its own procedures for loading fonts and displaying text to the screen.
