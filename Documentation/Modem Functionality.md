@@ -37,7 +37,7 @@ Pyro String|6|PYROB0| |
 Pyro User ID|4| |The value of the Pyro User ID from PYRO.USR
 Pyro Check|2| |This is the check value from PYRO.USR
 Version Number|1|0x2|This is a static value
-Data size|2|0x8|Not sure why this is provided since this block appears to be fixed in size
+Simple Checksum|2|0x8|This is a sum of fields Pyro User ID, Pyro Check and Version Number
 
 Modem Driver expects the Server to inspect this information and respond with the appropriate value.
 

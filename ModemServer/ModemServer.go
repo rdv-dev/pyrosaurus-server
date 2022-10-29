@@ -84,7 +84,7 @@ func doChallenge(user *PyroUser) (int, error) {
 		}
 
 		//fmt.Printf("Read data: %d/%d\n", nread, idTotal)
-		//fmt.Printf(hex.EncodeToString(data[:nread]) + "\n")
+		// fmt.Printf(hex.EncodeToString(user.data[:nread]) + "\n")
 		identity = append(identity, user.data[:nread]...)
 		//fmt.Printf(hex.EncodeToString(identity) + "\n")
 		//dtFile.Write(data[:nread])
@@ -103,7 +103,7 @@ func doChallenge(user *PyroUser) (int, error) {
 	fmt.Printf("Pyro UserID: %d\n", pyroUserID)
 	fmt.Printf("PyroCheckId: %d\n", pyroCheckId)
 	fmt.Printf("Version: %d\n", pyroVersion)
-	fmt.Printf("Data len: %d\n", pyroDatalen)
+	fmt.Printf("Checksum: %d\n", pyroDatalen)
 
 	if ((checkByte1 + checkByte2) == 255 && 
 		pyroString == "PYROB0" &&
@@ -170,10 +170,23 @@ func doSpecialModes(user *PyroUser) (int, error) {
 	fmt.Println("Confirming mode 1...")
 	user.conn.Write([]byte{0x01})
 
-	fmt.Println("ToDo: Implement more here...")
-	fmt.Println("Sending 0x64 for 'we're done!'...")
+	fmt.Println("Selecting sub-mode 5")
+	user.conn.Write([]byte{0x5, 0x5})
 
-	user.conn.Write([]byte{0x64, 0x64, 0x64, 0x64})
+	fmt.Println("Ready...")
+	user.conn.Write([]byte{0x14})
+
+	fmt.Println("Sending updated user file")
+
+	i := 0
+
+	for i < 0xE {
+		user.conn.Write([]byte{ byte(i) })
+		i++;
+	}
+
+	fmt.Println("Sending 0x64 for 'we're done!'...")
+	user.conn.Write([]byte{0x64, 0x64})
 
 	// conn.SetDeadline(time.Now().Add(0))
 	// _, err := conn.Read(data)
@@ -586,7 +599,6 @@ func main() {
 	fmt.Println("Setting up server...")
 
 	pyroJobs := make(chan *PyroUser)
-	go handleModemJobs(pyroJobs)
 
 	//server, err := config.Listen(context.Background(), SERVER_TYPE, SERVER_HOST+":"+SERVER_PORT)
 	server, err := net.Listen(SERVER_TYPE, SERVER_HOST+":"+SERVER_PORT)
@@ -633,6 +645,8 @@ func main() {
 			// defer server.Close()
 
 			if validated == 1 {
+
+				go handleModemJobs(pyroJobs)
 
 				idTotal := 0
 				mmode := make([]byte, 0)
