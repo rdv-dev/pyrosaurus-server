@@ -29,6 +29,11 @@ type PyroUser struct {
 	submode int
 	data []byte
 
+	arena int
+	rating int
+	gamesAvailable int
+	lastOpponent uint32
+
 }
 
 var KeyArray []byte 
@@ -170,19 +175,52 @@ func doSpecialModes(user *PyroUser) (int, error) {
 	fmt.Println("Confirming mode 1...")
 	user.conn.Write([]byte{0x01})
 
-	fmt.Println("Selecting sub-mode 5")
-	user.conn.Write([]byte{0x5, 0x5})
+	if user.pyroUserId == uint32(0) && user.pyroCheckId == uint16(0) {
+		// Pyro Id is 0, create new user and send user ID to them
 
-	fmt.Println("Ready...")
-	user.conn.Write([]byte{0x14})
+		user.pyroUserId = uint32(0xABEE)
+		user.pyroCheckId = uint16(0xCCD)
+		user.arena = 0xA
+		user.rating = 5
+		user.gamesAvailable = 255
+		user.lastOpponent = uint32(0)
 
-	fmt.Println("Sending updated user file")
+		fmt.Println("Selecting sub-mode 5")
+		user.conn.Write([]byte{0x5, 0x5})
 
-	i := 0
+		fmt.Println("Ready...")
+		user.conn.Write([]byte{0x14})
 
-	for i < 0xE {
-		user.conn.Write([]byte{ byte(i) })
-		i++;
+		fmt.Println("Sending updated user file")
+
+		i := 0
+		sum := 0
+
+		userData := make([]byte, 0)
+
+		userId := make([]byte, 4)
+		checkId := make([]byte, 2)
+		opponent := make([]byte, 4)
+
+		binary.LittleEndian.PutUint32(userId, user.pyroUserId)
+		binary.LittleEndian.PutUint16(checkId, user.pyroCheckId)
+		binary.LittleEndian.PutUint32(opponent, user.lastOpponent)
+
+		userData = append(userData, userId...)
+		userData = append(userData, checkId...)
+		userData = append(userData, byte(user.arena))
+		userData = append(userData, byte(user.rating))
+		userData = append(userData, byte(user.gamesAvailable))
+		userData = append(userData, opponent...)
+
+		for i < len(userData) {
+			sum = sum + int(userData[i])
+			i++;
+		}
+
+		user.conn.Write(userData)
+
+		user.conn.Write([]byte{ byte(sum) })
 	}
 
 	fmt.Println("Sending 0x64 for 'we're done!'...")

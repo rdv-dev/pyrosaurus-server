@@ -8,27 +8,27 @@ After the template User File is generated, the Game runs the Modem Driver. One o
 The first time this happens, the Pyrosaurus servers receive a file with a zeroed User ID field. 
 
 This is a signal to the server to generate a new ID, perform any setup server side, and fill in these values:
- * Phone Number
+ * Phone Number - after successful test only
  * ID Number
  * ID Check
  * Games Available
- * Send/Receive Indicator
- * Message/Call Button State
- * Last Date Contacted
+ * Arena
+ * Rating
+ * Last Opponent ID
 
 ## File Map
 Field|Size|Position|Possible Values|Notes
 ---|---|---|---|---
-Phone Number|12|0| |"Phone Number" means that for us with internet, this will need to be an IP address or domain name. DOSBox and other variants are able to handle this configuration. More information on this in the DOSBox Setup Instructions. By some stroke of luck (or clever past planning??) 12 characters is perfect to represent a full IP address without specifying a port number. Evryware - great job accidentally planning for the future here!||
-ID Number|4|C| | ||
-ID check|2|10| |See enhancement details below||
-Games Available|1|12| | ||
-Arena|1|13|A-0| ||
-Rating|1|14|1-5, 1-25|1-5 is relevant for levels 1 - 10, 1-25 is for level 11 (final level)||
+Phone Number|12|0| |"Phone Number" means that for us with internet, this will need to be an IP address or domain name. DOSBox and other variants are able to handle this configuration. More information on this in the DOSBox Setup Instructions. This is updated after a successful Test.||
+ID Number|4|C| |Maintained by Server||
+ID check|2|10| |Maintained by ServerSee enhancement details below||
+Games Available|1|12| |Maintained by Server||
+Arena|1|13|A-0|Maintained by Server||
+Rating|1|14|1-5, 1-25|Maintained by Server, 1-5 is relevant for levels 1 - 10, 1-25 is for level 11 (final level)||
 Send/Retrieve Indicator|1|15|0 - Send Team, 1 - Retrieve Contests/Messages| ||
-Random data|3|16| |Storing opponent data in a file like this is a clear security risk, so I'm guessing the field is random data which is meant to throw off anyone with a hex editor who might want to impersonate their opponent. This combined with the ID check earlier in the file would hopefully mitigate this.||
-Next/Last opponent ID|4|19| |For sending messages to last opponent WTFFF||
-Message/Call button state|1|1D|F-A|A - call only, retrieve contest & get messages \ B - call only, no special message \ C - message only \ D - message only \ E - msg and call, retrieve contest, send messages, gives option to resend team? \ F - message and call, doesn’t really work well??||
+Unused data|3|16| |This isn't maintained by server and doesn't appear to be maintained by Pyro game||
+Last opponent ID|4|19| |For sending messages to last opponent ||
+Message/Call button state|1|1D|2, 4, 6|Displays or Hides the Call and Message buttons: 2 - Call only, 4 - Message only, 6 - Call & Message||
 Last Date Contacted|4|1E| |Some unsigned int representing time?||
 
 ### Pyro User Check Enhancement
