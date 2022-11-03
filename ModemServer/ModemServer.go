@@ -1,4 +1,5 @@
-package main
+package ModemServer
+
 import (
 	"fmt"
 	//"context"
@@ -10,59 +11,70 @@ import (
 	"io/ioutil"
 	"encoding/hex"
 	"encoding/binary"
+	"encoding/base64"
 	"errors"
 )
 
-const (
-	SERVER_HOST="127.0.0.1"
-	SERVER_PORT="8888"
-	SERVER_TYPE="tcp"
-)
-
 type PyroUser struct {
-	pyroUserId uint32
-	pyroCheckId uint16
-	pyroVersion byte
+	PyroUserId uint32
+	PyroCheckId uint16
+	PyroVersion byte
 
-	conn net.Conn
-	mode int
-	submode int
-	data []byte
+	Conn net.Conn
+	Mode int
+	Submode int
+	Data []byte
 
-	arena int
-	rating int
-	gamesAvailable int
-	lastOpponent uint32
+	Arena int
+	Rating int
+	GamesAvailable int
+	LastOpponent uint32
 
 }
 
-var KeyArray []byte 
+var keyArray = []byte{}
 
-func LoadValidationKey() ([]byte) {
-	keyArrayFile, err := os.Open("keyArray.bin")
+const keyArrayEncoded = "AAAhEEIgYzCEQKVQxmDncAiBKZFKoWuxjMGt0c7h7/ExEhACczJSIrVSlEL3ctZiOZMYg3uzWqO905zD//Pe42IkQzQgBAEU5mTHdKREhVRqpUu1KIUJle7lz/WsxY3VUzZyJhEWMAbXdvZmlVa0Rlu3eqcZlziH3/f+553XvMfESOVYhmineEAIYRgCKCM4zMnt2Y7pr/lIiWmZCqkrufVa1Eq3epZqcRpQCjM6Eir929zLv/ue63mbWIs7uxqrpmyHfORMxVwiLAM8YAxBHK7tj/3szc3dKq0LvWiNSZ2XfrZu1V70ThM+Mi5RHnAOn/++793f/M8bvzqvWZ94j4iRqYHKseuhDNEtwU7xb+GAEKEAwjDjIARQJUBGcGdguYOYk/uj2rM9wxzTf+Ne87ECkBLzItIyNUIUUndiVnLqtculqJWJhW71T+Us1Q3F4jTDJKAUgQRmdEdkJFQFRNun+reZh7iXX+d+9x3HPNfTJvI2kQawFldmdnYVRjRWTNltyQ75L+nImemJirmrqURYZUgGeCdowBjhCII4oyh9y1zbP+se+/mL2Ju7q5q7dUpUWjdqFnrxCtAasyqSOi79D+1s3U3Nqr2LreidyY0mfAdsZFxFTKI8gyzgHMEMH+8+/13PfN+br7q/2Y/4nxduNn5VTnReky6yPtEO8B4="
 
-	if err != nil {
-		fmt.Println("Error opening keyArray.bin")
-		os.Exit(1)
-	}
-
-	keyArray, err := ioutil.ReadAll(keyArrayFile)
+func init() {
+	var err error
+	keyArray, err = base64.StdEncoding.DecodeString(keyArrayEncoded)
 
 	if err != nil {
-		fmt.Println("Error reading keyArray.bin")
+// 		fmt.Println("Error opening keyArray.bin")
+		fmt.Println("Error decoding key Array")
 		os.Exit(1)
 	}
-
-	keyArrayFile.Close()
-
-	return keyArray
 }
 
-func doChallenge(user *PyroUser) (int, error) {
+// func LoadValidationKey() { // ([]byte)
+// 	keyArrayFile, err := os.Open("keyArray.bin")
+
+// 	KeyArray, err = base64.StdEncoding.DecodeString(keyArrayEncoded)
+
+// 	if err != nil {
+// 		fmt.Println("Error opening keyArray.bin")
+// 		fmt.Println("Error decoding key Array")
+// 		os.Exit(1)
+// 	}
+
+// 	KeyArray, err := ioutil.ReadAll(keyArrayFile)
+
+// 	if err != nil {
+// 		fmt.Println("Error reading keyArray.bin")
+// 		os.Exit(1)
+// 	}
+
+// 	keyArrayFile.Close()
+
+// 	return keyArray
+// }
+
+func DoChallenge(user *PyroUser) (int, error) {
 
 	validated := 0
 
-	x, err := user.conn.Write([]byte{0x32, 0x3C, 0x46}) // challenge bytes
+	x, err := user.Conn.Write([]byte{0x32, 0x3C, 0x46}) // challenge bytes
 
 	if err != nil {
 		return -1, errors.New("Error with writing to connection")
@@ -72,7 +84,7 @@ func doChallenge(user *PyroUser) (int, error) {
 
 	// data := make([]byte, 1024)
 	identity := make([]byte, 0)
-	//buffer := bufio.NewReader(user.conn)
+	//buffer := bufio.NewReader(user.Conn)
 	//dtFile, err := os.Create("pyro-data.bin")
 
 
@@ -80,7 +92,7 @@ func doChallenge(user *PyroUser) (int, error) {
 
 	for idTotal < 17 {
 
-		nread, err := user.conn.Read(user.data)
+		nread, err := user.Conn.Read(user.Data)
 
 		idTotal += nread
 
@@ -89,8 +101,8 @@ func doChallenge(user *PyroUser) (int, error) {
 		}
 
 		//fmt.Printf("Read data: %d/%d\n", nread, idTotal)
-		// fmt.Printf(hex.EncodeToString(user.data[:nread]) + "\n")
-		identity = append(identity, user.data[:nread]...)
+		// fmt.Printf(hex.EncodeToString(user.Data[:nread]) + "\n")
+		identity = append(identity, user.Data[:nread]...)
 		//fmt.Printf(hex.EncodeToString(identity) + "\n")
 		//dtFile.Write(data[:nread])
 	}
@@ -113,25 +125,25 @@ func doChallenge(user *PyroUser) (int, error) {
 	if ((checkByte1 + checkByte2) == 255 && 
 		pyroString == "PYROB0" &&
 		(pyroVersion == 2 || pyroVersion == 3)) {
-			user.conn.Write([]byte{0x27}) //validated pyroid
+			user.Conn.Write([]byte{0x27}) //validated pyroid
 			validated = 1
-			user.pyroUserId = pyroUserID
-			user.pyroCheckId = pyroCheckId
-			user.pyroVersion = pyroVersion
+			user.PyroUserId = pyroUserID
+			user.PyroCheckId = pyroCheckId
+			user.PyroVersion = pyroVersion
 		} else {
-		user.conn.Write([]byte{0x63})
+		user.Conn.Write([]byte{0x63})
 	}
 
 	return validated, nil
 }
 
-func doTestConnection(user *PyroUser) (int, error) {
+func DoTestConnection(user *PyroUser) (int, error) {
 
 	success := 0
 
 	testTotal := 0
 	fmt.Printf("Sending code 7...")
-	user.conn.Write([]byte{0x07})
+	user.Conn.Write([]byte{0x07})
 
 	contents := make([]byte,256)
 
@@ -143,7 +155,7 @@ func doTestConnection(user *PyroUser) (int, error) {
 
 	for testTotal < 256 {
 
-		nread, err := user.conn.Read(user.data)
+		nread, err := user.Conn.Read(user.Data)
 
 		testTotal += nread
 
@@ -155,10 +167,10 @@ func doTestConnection(user *PyroUser) (int, error) {
 		//fmt.Printf(hex.EncodeToString(data[:nread]) + "\n")
 	}
 
-	user.conn.Write([]byte{0x04})
+	user.Conn.Write([]byte{0x04})
 
 	for i := 0; i < 256; i+=16 {
-		user.conn.Write(contents[i:i+16])
+		user.Conn.Write(contents[i:i+16])
 		//fmt.Printf(hex.EncodeToString(contents[i:i+16]) + "\n")
 		time.Sleep(50)
 	}
@@ -171,25 +183,32 @@ func doTestConnection(user *PyroUser) (int, error) {
 	return success, nil
 }
 
-func doSpecialModes(user *PyroUser) (int, error) {
+func DoSpecialModes(user *PyroUser) (int, error) {
 	fmt.Println("Confirming mode 1...")
-	user.conn.Write([]byte{0x01})
+	user.Conn.Write([]byte{0x01})
 
-	if user.pyroUserId == uint32(0) && user.pyroCheckId == uint16(0) {
+	// SUB-MODE 4 - send EMSG, TEMS files
+
+
+	// SUB-MODE 5 - send updated user file
+	if user.PyroUserId == uint32(0) && user.PyroCheckId == uint16(0) {
 		// Pyro Id is 0, create new user and send user ID to them
 
-		user.pyroUserId = uint32(0xABEE)
-		user.pyroCheckId = uint16(0xCCD)
-		user.arena = 0xA
-		user.rating = 5
-		user.gamesAvailable = 255
-		user.lastOpponent = uint32(0)
+		user.PyroUserId = uint32(0xABEE)
+		user.PyroCheckId = uint16(0xCCD)
+		user.Arena = 0xA
+		user.Rating = 5
+		user.GamesAvailable = 255
+		user.LastOpponent = uint32(0)
+	}
+
+	if user.LastOpponent != uint32(0) {
 
 		fmt.Println("Selecting sub-mode 5")
-		user.conn.Write([]byte{0x5, 0x5})
+		user.Conn.Write([]byte{0x5, 0x5})
 
 		fmt.Println("Ready...")
-		user.conn.Write([]byte{0x14})
+		user.Conn.Write([]byte{0x14})
 
 		fmt.Println("Sending updated user file")
 
@@ -202,15 +221,15 @@ func doSpecialModes(user *PyroUser) (int, error) {
 		checkId := make([]byte, 2)
 		opponent := make([]byte, 4)
 
-		binary.LittleEndian.PutUint32(userId, user.pyroUserId)
-		binary.LittleEndian.PutUint16(checkId, user.pyroCheckId)
-		binary.LittleEndian.PutUint32(opponent, user.lastOpponent)
+		binary.LittleEndian.PutUint32(userId, user.PyroUserId)
+		binary.LittleEndian.PutUint16(checkId, user.PyroCheckId)
+		binary.LittleEndian.PutUint32(opponent, user.LastOpponent)
 
 		userData = append(userData, userId...)
 		userData = append(userData, checkId...)
-		userData = append(userData, byte(user.arena))
-		userData = append(userData, byte(user.rating))
-		userData = append(userData, byte(user.gamesAvailable))
+		userData = append(userData, byte(user.Arena))
+		userData = append(userData, byte(user.Rating))
+		userData = append(userData, byte(user.GamesAvailable))
 		userData = append(userData, opponent...)
 
 		for i < len(userData) {
@@ -218,13 +237,25 @@ func doSpecialModes(user *PyroUser) (int, error) {
 			i++;
 		}
 
-		user.conn.Write(userData)
+		user.Conn.Write(userData)
 
-		user.conn.Write([]byte{ byte(sum) })
+		user.Conn.Write([]byte{ byte(sum) })
 	}
 
+	// SUB-MODE 6 - check for contest, if one is available, send it
+	// somehow switch to mode 3?
+
+	// fmt.Println("Selecting sub-mode 6")
+	// user.Conn.Write([]byte{0x6, 0x6})
+
+	// SUB-MODE 7 - get BACKUP data
+
+	// SUB-MODE 8 - Set modem return code to 0x14
+
+	// SUB-MODE 9 - Send BACKUP block
+
 	fmt.Println("Sending 0x64 for 'we're done!'...")
-	user.conn.Write([]byte{0x64, 0x64})
+	user.Conn.Write([]byte{0x64, 0x64})
 
 	// conn.SetDeadline(time.Now().Add(0))
 	// _, err := conn.Read(data)
@@ -238,19 +269,19 @@ func doSpecialModes(user *PyroUser) (int, error) {
 	return 1, nil
 }
 
-func getFile(user *PyroUser) ([]byte, error) {
+func GetFile(user *PyroUser) ([]byte, error) {
 
 	fundata := make([]byte, 0)
 
-	fmt.Printf("Confirming mode %d...\n", user.mode)
-	user.conn.Write([]byte{byte(user.mode)})
+	fmt.Printf("Confirming mode %d...\n", user.Mode)
+	user.Conn.Write([]byte{byte(user.Mode)})
 
 	fmt.Println("Sending ready code (1)...")
-	user.conn.Write([]byte{0x01})
+	user.Conn.Write([]byte{0x01})
 
-	if user.mode == 2 {
+	if user.Mode == 2 {
 		fmt.Println("No contest available, sending 1...")
-		user.conn.Write([]byte{0x1})
+		user.Conn.Write([]byte{0x1})
 	}
 
 	errorCount := 0
@@ -260,7 +291,7 @@ func getFile(user *PyroUser) ([]byte, error) {
 
 		// fmt.Println("Reading for 0x14...")
 
-		nread, err := user.conn.Read(user.data)
+		nread, err := user.Conn.Read(user.Data)
 
 		if err != nil {
 			return make([]byte, 0), errors.New("Error reading mode")
@@ -268,9 +299,9 @@ func getFile(user *PyroUser) ([]byte, error) {
 		}
 
 		for i:=0; i<nread; i++ {
-			if user.data[i] == 0x14 {
+			if user.Data[i] == 0x14 {
 				fmt.Println("Got 0x14, sending 0x14 and 0x47/0xB8 response...")
-				user.conn.Write([]byte{0x14, 0x47, 0xB8})
+				user.Conn.Write([]byte{0x14, 0x47, 0xB8})
 				found14 += 1
 				break;
 			}
@@ -292,7 +323,7 @@ func getFile(user *PyroUser) ([]byte, error) {
 	for errorCount < 3 && doGetFileLoop == 1 {
 
 		// conn.SetDeadline(time.Now().Add(timeout))
-		nread, err := user.conn.Read(user.data)
+		nread, err := user.Conn.Read(user.Data)
 
 		fileTotal += nread
 
@@ -305,16 +336,16 @@ func getFile(user *PyroUser) ([]byte, error) {
 		}
 		//defer server.Close()
 
-		fundata = append(fundata,user.data[:nread]...)
+		fundata = append(fundata,user.Data[:nread]...)
 
 		//fmt.Printf("Read data: %d/%d/%d/%d\n", nread, midCheckIndex,lastCheckIndex, len(fundata))
-		fmt.Printf(hex.EncodeToString(user.data[:nread]) + "\n")
+		fmt.Printf(hex.EncodeToString(user.Data[:nread]) + "\n")
 
 		for midCheckIndex <= len(fundata) - 4 {
 			if int(fundata[midCheckIndex]) == 1 || int(fundata[midCheckIndex]) == 2 || int(fundata[midCheckIndex]) == 3 {
 				if (int(fundata[midCheckIndex]) + int(fundata[midCheckIndex+1]) == 255) || (int(fundata[midCheckIndex+2]) + int(fundata[midCheckIndex+3]) == 255) {
 					fmt.Println("Sending Check In 0x06F9")
-					user.conn.Write([]byte{0x06, 0xF9})
+					user.Conn.Write([]byte{0x06, 0xF9})
 					midCheckIndex += 4
 		// Set the lastCheckIndex to mid because we have already dealt with this data
 		// the next loop doesn't need to consider this
@@ -329,7 +360,7 @@ func getFile(user *PyroUser) ([]byte, error) {
 			if int(fundata[lastCheckIndex]) == 4 {
 				if (int(fundata[lastCheckIndex]) + int(fundata[lastCheckIndex+1])) == 255 {
 					fmt.Println("Final Chunk! Sending Check In 0x06F9")
-					user.conn.Write([]byte{0x06, 0xF9})
+					user.Conn.Write([]byte{0x06, 0xF9})
 					lastCheckIndex += 2
 					// timeout = 2*time.Second
 					selectMode := -1
@@ -338,7 +369,7 @@ func getFile(user *PyroUser) ([]byte, error) {
 
 						// conn.SetDeadline(time.Now().Add(timeout))
 
-						nread, err := user.conn.Read(user.data)
+						nread, err := user.Conn.Read(user.Data)
 
 						if err != nil {
 							errorCount += 1
@@ -346,13 +377,13 @@ func getFile(user *PyroUser) ([]byte, error) {
 							fmt.Println("Nothing to read...")
 						} else {
 
-							fmt.Printf(hex.EncodeToString(user.data[:nread]) + "\n")
+							fmt.Printf(hex.EncodeToString(user.Data[:nread]) + "\n")
 							lastCheckIndex = 0
 
-							for lastCheckIndex < len(user.data[:nread]) {
-								if int(user.data[lastCheckIndex]) == 1 || int(user.data[lastCheckIndex]) == 4 {
+							for lastCheckIndex < len(user.Data[:nread]) {
+								if int(user.Data[lastCheckIndex]) == 1 || int(user.Data[lastCheckIndex]) == 4 {
 									modeSelectCount += 1
-									selectMode = int(user.data[lastCheckIndex])
+									selectMode = int(user.Data[lastCheckIndex])
 								} else {
 									modeSelectCount = 0
 								}
@@ -361,7 +392,7 @@ func getFile(user *PyroUser) ([]byte, error) {
 
 							if modeSelectCount >= 2 {
 								doGetFileLoop = 0
-								user.mode = selectMode
+								user.Mode = selectMode
 								break
 							}
 						}
@@ -382,32 +413,32 @@ func getFile(user *PyroUser) ([]byte, error) {
 	return fundata, nil
 }
 
-func sendFile(user *PyroUser, fileType int) (int, error) {
+func SendFile(user *PyroUser, fileType int) (int, error) {
 
 	fundata := make([]byte, 0)
 
 	fmt.Println("Sending code 3...")
-	user.conn.Write([]byte{0x03})
+	user.Conn.Write([]byte{0x03})
 
 	fmt.Println("Normal Contest available (0x14)...")
-	user.conn.Write([]byte{0x14})
+	user.Conn.Write([]byte{0x14})
 
 	// fmt.Println("Sending server ready (1)...")
 	// conn.Write([]byte{0x1})
 
-	nread, err := user.conn.Read(user.data)
+	nread, err := user.Conn.Read(user.Data)
 
 	if err != nil {
 		return 0, errors.New("Error reading mode")
 	}
 
-	if user.data[0] == 0x14 {
+	if user.Data[0] == 0x14 {
 		fmt.Println("Got 0x14")
 	} else {
-		fmt.Printf("Got this number: %d", int(user.data[0]))
+		fmt.Printf("Got this number: %d", int(user.Data[0]))
 	}
 
-	fundata = append(fundata, user.data[:nread]...)
+	fundata = append(fundata, user.Data[:nread]...)
 
 	// contFile, err := os.Open("CONT.000")
 	contFile, err := os.Open("CONT.TEST")
@@ -457,22 +488,22 @@ func sendFile(user *PyroUser, fileType int) (int, error) {
 		dx[1] = 0
 
 		if shortLastChunk == 1 && j > numChunks - 1 {
-			user.conn.Write([]byte{0x1, 0xFE})
+			user.Conn.Write([]byte{0x1, 0xFE})
 			chunkSize = 0x80
 		} else {
-			user.conn.Write([]byte{0x2, 0xFD})
+			user.Conn.Write([]byte{0x2, 0xFD})
 			chunkSize = 0x400
 		}
 
-		user.conn.Write([]byte{byte(j+1), (0xFF - byte(j+1))})
+		user.Conn.Write([]byte{byte(j+1), (0xFF - byte(j+1))})
 
 		for byteCount = 0; byteCount < chunkSize; byteCount++ {
 
 			if i<len(contents) { 
-				user.conn.Write([]byte{contents[i]})
+				user.Conn.Write([]byte{contents[i]})
 				bx = int(contents[i])   // mov bl, [si-1]
 			} else {
-				user.conn.Write([]byte{0})
+				user.Conn.Write([]byte{0})
 				bx = 0
 			}
 		
@@ -484,8 +515,8 @@ func sendFile(user *PyroUser, fileType int) (int, error) {
 			dx[1] = dx[0]
 			dx[0] = 0
 
-			dx[0] = dx[0] ^ KeyArray[bx:bx+2][0]
-			dx[1] = dx[1] ^ KeyArray[bx:bx+2][1]
+			dx[0] = dx[0] ^ keyArray[bx:bx+2][0]
+			dx[1] = dx[1] ^ keyArray[bx:bx+2][1]
 
 			i++
 
@@ -493,10 +524,10 @@ func sendFile(user *PyroUser, fileType int) (int, error) {
 
 		fmt.Printf("Check Hash: %x\n", int(binary.BigEndian.Uint16(dx)))
 
-		user.conn.Write([]byte{dx[1], dx[0]})
+		user.Conn.Write([]byte{dx[1], dx[0]})
 	}
 
-	user.conn.Write([]byte{0x4, 0xFB})
+	user.Conn.Write([]byte{0x4, 0xFB})
 
 
 	// timeout := 100*time.Second
@@ -509,7 +540,7 @@ func sendFile(user *PyroUser, fileType int) (int, error) {
 
 		// conn.SetDeadline(time.Now().Add(timeout))
 
-		nread, err := user.conn.Read(user.data)
+		nread, err := user.Conn.Read(user.Data)
 
 		if err != nil {
 			errorCount += 1
@@ -517,13 +548,13 @@ func sendFile(user *PyroUser, fileType int) (int, error) {
 			fmt.Println("Nothing to read...")
 		} else {
 
-			fmt.Printf(hex.EncodeToString(user.data[:nread]) + "\n")
+			fmt.Printf(hex.EncodeToString(user.Data[:nread]) + "\n")
 			lastCheckIndex := 0
 
-			for lastCheckIndex < len(user.data[:nread]) {
-				if int(user.data[lastCheckIndex]) == 1 || int(user.data[lastCheckIndex]) == 4 {
+			for lastCheckIndex < len(user.Data[:nread]) {
+				if int(user.Data[lastCheckIndex]) == 1 || int(user.Data[lastCheckIndex]) == 4 {
 					modeSelectCount += 1
-					selectMode = int(user.data[lastCheckIndex])
+					selectMode = int(user.Data[lastCheckIndex])
 				} else {
 					modeSelectCount = 0
 				}
@@ -532,7 +563,7 @@ func sendFile(user *PyroUser, fileType int) (int, error) {
 
 			if modeSelectCount >= 2 {
 				doGetStatusLoop = 0
-				user.mode = selectMode
+				user.Mode = selectMode
 				break
 			}
 		}
@@ -542,196 +573,4 @@ func sendFile(user *PyroUser, fileType int) (int, error) {
 
 }
 
-func handleModemJobs(pyroJobs chan *PyroUser) {
-	for {
-		job := <- pyroJobs
-
-		// midCheckIndex := 4
-		// lastCheckIndex := 4
-		// fileTotal := 0
-		// fundata := make([]byte,0)
-		// doModeLoop := 1
-
-		// for doModeLoop == 1 {
-
-		if job.mode == 0 {
-			break;
-		}
-
-		fmt.Printf("Select mode: %d\n", job.mode)
-
-		switch job.mode {
-		case 1:
-			// Backup data, Get Messages
-			
-			success, err := doSpecialModes(job)
-
-			if err != nil {
-				fmt.Println("Error during special mode", err.Error())
-			}
-
-			time.Sleep(10*time.Second)
-
-			if success == 1 {
-				job.mode = 0
-			}
-
-			// doModeLoop = 0
-
-		case 2, 4:
-			// Server gets file
-			fileData, err := getFile(job)
-
-			if err != nil {
-				fmt.Println("Error getting file", err.Error())
-			}
-
-			fmt.Sprintf("%s", fileData[0])
-
-		case 3:
-			// Server sends data
-			success, err := sendFile(job, 0) // contest
-
-			if err != nil {
-				fmt.Println("Error sending file", err.Error())
-			}
-
-			if success == 1 {
-				success = 1
-			}
-
-
-		case 7:
-			success, err := doTestConnection(job)
-
-			if err != nil {
-				fmt.Println("Error during test: ", err.Error())
-				os.Exit(1)
-			}
-
-			if success == 1 {
-				job.mode = 0
-
-				fmt.Println("Writing updated phone number")
-
-				sum := 0x30 + 0x30 + 0x30 + 0x30 + 0x30 + 0x31 + 0x38 + 0x38 + 0x38 + 0x38 + 0x00 + 0x00
-				sum = sum & 0xFF
-
-				job.conn.Write([]byte{0x2,0x02,0x30,0x30,0x30,0x30,0x30,0x31,0x38,0x38,0x38,0x38,0x00,0x00, byte(sum)})
-			}
-
-			// doModeLoop = 0
-
-		default:
-			fmt.Println("Invalid mode, exiting")
-			break;
-		}
-	// }
-	}
-}
-
-func main() {
-
-	//config := &net.ListenConfig(Control: reusePort)
-
-	fmt.Println("Setting up server...")
-
-	pyroJobs := make(chan *PyroUser)
-
-	//server, err := config.Listen(context.Background(), SERVER_TYPE, SERVER_HOST+":"+SERVER_PORT)
-	server, err := net.Listen(SERVER_TYPE, SERVER_HOST+":"+SERVER_PORT)
-
-	if err != nil {
-		fmt.Println("Error setting up socket", err.Error())
-		os.Exit(1)
-	}
-	defer server.Close()
-
-	fmt.Println("Listening on " + SERVER_HOST+":"+SERVER_PORT)
-
-	KeyArray = LoadValidationKey()
-
-	for {
-
-		conn, err := server.Accept()
-
-		if err != nil {
-			fmt.Println("Error accepting modem", err.Error())
-			os.Exit(1)
-		}
-		// defer server.Close()
-
-		go func() {
-			fmt.Println("Got connection")
-
-			user := &PyroUser {
-					pyroUserId: 0,
-					pyroCheckId: 0,
-					pyroVersion: 0,
-					// active: 1,
-					conn: conn,
-					mode: 0,
-					submode: 0,
-					data: make([]byte,1024)}
-
-			validated, err := doChallenge(user)
-
-			if err != nil {
-				fmt.Println("Error during Challenge", err.Error())
-				os.Exit(1)
-			}
-			// defer server.Close()
-
-			if validated == 1 {
-
-				go handleModemJobs(pyroJobs)
-
-				idTotal := 0
-				mmode := make([]byte, 0)
-
-				for idTotal < 2 {
-					nread, err := user.conn.Read(user.data)
-
-					idTotal += nread
-
-					if err != nil {
-						fmt.Println("Error reading from socket: Mode", err.Error())
-						break;
-					}
-
-					mmode = append(mmode, user.data[:nread]...)
-				}
-
-				user.mode = int(mmode[0])
-
-				for {
-
-					
-					pyroJobs <- user
-
-					if user.mode == 0 {
-						fmt.Println("Closing connection to client")
-						break;
-					}
-				}
-			}
-		}()
-	}
-
-	
-	fmt.Println("Closing...")
-
-	// fmt.Println("Writing fundata to file...")
-	// f, err := os.Create("T.TMP.1")
-	// if err != nil {
-	// 	fmt.Println("Error writing file")
-	// 	os.Exit(1)
-	// }
-	// defer server.Close()
-
-	// f.Write(fundata)
-
-	server.Close()
-	
-}
 
