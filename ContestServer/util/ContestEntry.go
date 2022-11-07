@@ -1,8 +1,6 @@
 package util
 import (
-	"os"
 	"fmt"
-	"io/ioutil"
 	"encoding/binary"
 	"errors"
 	// "github.com/algae-disco/pyrosaurus-server/ContestServer/Dino"
@@ -35,15 +33,6 @@ const (
 	TEAM_COLORS_RECORD_LEN = TEAM_COLORS_LEN + TEAM_FIRE_COLORS_LEN
 )
 
-type contestMessage struct {
-	Data []byte
-}
-
-type contestEntryRaw struct {
-	TeamData []byte
-	Messages []*contestMessage
-}
-
 type ContestEntry struct {
 	PyroUserId uint32
 	SpeciesOffset int
@@ -63,24 +52,7 @@ type ContestEntry struct {
 	DinoNamesSize int
 }
 
-func NewContestEntry(filePath string, isRawFile int) (*ContestEntry, error) {
-	rawFile, err := os.Open(filePath)
-
-	if err != nil {
-		return nil, errors.New("unable to open team file")
-	}
-
-	var teamData []byte
-
-	if isRawFile == 1 {
-		teamData = parseFile(rawFile).TeamData
-	} else { 
-		teamData, err = ioutil.ReadAll(rawFile)
-	}
-
-	if err != nil {
-		return nil, errors.New("unable to read team file")
-	}
+func NewContestEntry(teamData []byte) (*ContestEntry, error) {
 
 	if len(teamData) <= 0 {
 		return nil, errors.New("team file empty")
@@ -145,114 +117,3 @@ func NewContestEntry(filePath string, isRawFile int) (*ContestEntry, error) {
 }
 
 
-func parseFile(rawFile *os.File) *contestEntryRaw {
-
-	rawData, err := ioutil.ReadAll(rawFile)
-
-	if err != nil {
-		fmt.Println("Error reading team entry file")
-		os.Exit(1)
-	}
-
-	if len(rawData) <= 0 {
-		fmt.Println("File length 0, skipping")
-		os.Exit(1)
-	}
-
-	readPos := 0
-	toReadPos := 0
-	fileLen := len(rawData)
-	doRead := 1
-	chunkSize := 0
-	chunkNum := 1
-	fileChunkNum := 0
-	outData := make([]byte, 0)
-	fileNum := 1
-	// outFileName := ""
-
-	entryData := &contestEntryRaw{TeamData: make([]byte, 0), Messages: make([]*contestMessage, 0)}
-
-	for doRead == 1 {
-		if rawData[readPos] == 0x2 && ((rawData[readPos] + rawData[readPos+1]) == 0xFF) && ((rawData[readPos+2] + rawData[readPos+3]) == 0xFF) {
-			chunkSize = 0x400
-		} else {
-			if rawData[readPos] == 0x1 && ((rawData[readPos] + rawData[readPos+1]) == 0xFF) && ((rawData[readPos+2] + rawData[readPos+3]) == 0xFF) {
-				chunkSize = 0x80
-			} else {
-				doRead = 0
-			}
-		}
-
-		if doRead == 0 {
-			fmt.Printf("file not able to be parsed or already parsed at %d\n", readPos)
-			os.Exit(1)
-		}
-
-		if doRead == 1 {
-
-			fileChunkNum = int(rawData[readPos + 2])
-
-			if fileChunkNum == chunkNum {
-
-				readPos += 4
-				
-				chunkNum += 1
-				toReadPos = (readPos + chunkSize)
-				
-				outData = append(outData, rawData[readPos:toReadPos]...)
-
-				readPos = toReadPos + 2
-
-			} else {
-				if fileChunkNum < chunkNum {
-					// repeated chunk, skip it
-					fmt.Printf("Skipping chunk %d...\n", chunkNum)
-					fmt.Printf("Before: readPos: %d toReadPos: %d\n", readPos, toReadPos)
-					toReadPos = (readPos + chunkSize) + 2 + 4
-					readPos = toReadPos
-					fmt.Printf("After: readPos: %d toReadPos: %d\n", readPos, toReadPos)
-				}
-
-				if fileChunkNum > chunkNum {
-					// invalid file?
-					fmt.Printf("File error, chunkNum less than file chunk number (%d, %d) readPos: %d\n", fileChunkNum, chunkNum, readPos)
-					os.Exit(1)
-				}	
-			}		
-
-			if rawData[readPos] == 0x4 && (rawData[readPos] + rawData[readPos + 1]) == 0xFF {
-				// end of file
-
-				chunkNum = 1
-
-				if fileNum == 1 {
-					// outFileName = "TEAM.BIN"
-					entryData.TeamData = append(entryData.TeamData, outData...)
-				} else {
-					// outFileName = fmt.Sprintf("MSG-%d.bin", fileNum-1)
-					entryData.Messages = append(entryData.Messages, &contestMessage{Data: outData})
-				}
-
-				fileNum += 1
-
-				// outFile, err := os.Create(outFileName)
-
-				// if err != nil {
-				// 	fmt.Println("Error opening out file")
-				// 	os.Exit(1)
-				// }
-
-				// outFile.Write(outData)
-				// outData = make([]byte, 0)
-
-				if readPos + 3 >= fileLen {
-					doRead = 0
-				} else {
-					readPos += 2
-				}
-			}
-		}
-	}
-
-	return entryData
-}

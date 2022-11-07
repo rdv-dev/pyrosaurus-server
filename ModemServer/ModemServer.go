@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 	// "bufio"
-	"io/ioutil"
+	// "io/ioutil"
 	"encoding/hex"
 	"encoding/binary"
 	"encoding/base64"
@@ -30,6 +30,17 @@ type PyroUser struct {
 	GamesAvailable int
 	LastOpponent uint32
 
+	Contest []byte
+
+}
+
+type ContestMessage struct {
+	Data []byte
+}
+
+type ContestEntryRaw struct {
+	TeamData []byte
+	Messages []*ContestMessage
 }
 
 var keyArray = []byte{}
@@ -245,8 +256,37 @@ func DoSpecialModes(user *PyroUser) (int, error) {
 	// SUB-MODE 6 - check for contest, if one is available, send it
 	// somehow switch to mode 3?
 
-	// fmt.Println("Selecting sub-mode 6")
-	// user.Conn.Write([]byte{0x6, 0x6})
+	if len(user.Contest) > 0 {
+		fmt.Println("Selecting sub-mode 6")
+		user.Conn.Write([]byte{0x6, 0x6})
+
+		idTotal := 0
+		mmode := make([]byte, 0)
+
+		for idTotal < 2 {
+			nread, err := user.Conn.Read(user.Data)
+
+			idTotal += nread
+
+			if err != nil {
+				fmt.Println("Error reading from socket: Mode", err.Error())
+				break;
+			}
+
+			mmode = append(mmode, user.Data[:nread]...)
+		}
+
+		// user.Mode = int(mmode[0])
+
+		sentFile, err := SendFile(user, user.Contest)
+
+		if err != nil {
+			return  0, errors.New("Failed to send Contest File")
+		}
+
+		return sentFile, nil
+	}
+
 
 	// SUB-MODE 7 - get BACKUP data
 
@@ -269,7 +309,7 @@ func DoSpecialModes(user *PyroUser) (int, error) {
 	return 1, nil
 }
 
-func GetFile(user *PyroUser) ([]byte, error) {
+func GetFile(user *PyroUser) (*ContestEntryRaw, error) {
 
 	fundata := make([]byte, 0)
 
@@ -294,7 +334,7 @@ func GetFile(user *PyroUser) ([]byte, error) {
 		nread, err := user.Conn.Read(user.Data)
 
 		if err != nil {
-			return make([]byte, 0), errors.New("Error reading mode")
+			return nil, errors.New("Error reading mode")
 			// os.Exit(1)
 		}
 
@@ -410,10 +450,12 @@ func GetFile(user *PyroUser) ([]byte, error) {
 		}
 	}
 
-	return fundata, nil
+	rawEntry := parseFile(fundata)
+
+	return rawEntry, nil
 }
 
-func SendFile(user *PyroUser, fileType int) (int, error) {
+func SendFile(user *PyroUser, contents []byte) (int, error) {
 
 	fundata := make([]byte, 0)
 
@@ -439,23 +481,6 @@ func SendFile(user *PyroUser, fileType int) (int, error) {
 	}
 
 	fundata = append(fundata, user.Data[:nread]...)
-
-	// contFile, err := os.Open("CONT.000")
-	contFile, err := os.Open("CONT.TEST")
-
-	if err != nil {
-		return 0, errors.New("Error opening contest file")
-	}
-
-	contents, err := ioutil.ReadAll(contFile)
-
-	if err != nil {
-		return 0, errors.New("Error reading contest file")
-	}
-
-	//time.Sleep(time.Second)
-
-	//conn.Write(contents)
 
 	bx := 0
 	dx := make([]byte, 2)
@@ -522,55 +547,109 @@ func SendFile(user *PyroUser, fileType int) (int, error) {
 
 		}
 
-		fmt.Printf("Check Hash: %x\n", int(binary.BigEndian.Uint16(dx)))
+		// fmt.Printf("Check Hash: %x\n", int(binary.BigEndian.Uint16(dx)))
 
 		user.Conn.Write([]byte{dx[1], dx[0]})
 	}
 
 	user.Conn.Write([]byte{0x4, 0xFB})
 
-
-	// timeout := 100*time.Second
-	doGetStatusLoop := 1
-	errorCount := 0
-	modeSelectCount := 0
-	selectMode := 0
-
-	for doGetStatusLoop == 1 && errorCount < 4 {
-
-		// conn.SetDeadline(time.Now().Add(timeout))
-
-		nread, err := user.Conn.Read(user.Data)
-
-		if err != nil {
-			errorCount += 1
-			// timeout += 4*time.Second
-			fmt.Println("Nothing to read...")
-		} else {
-
-			fmt.Printf(hex.EncodeToString(user.Data[:nread]) + "\n")
-			lastCheckIndex := 0
-
-			for lastCheckIndex < len(user.Data[:nread]) {
-				if int(user.Data[lastCheckIndex]) == 1 || int(user.Data[lastCheckIndex]) == 4 {
-					modeSelectCount += 1
-					selectMode = int(user.Data[lastCheckIndex])
-				} else {
-					modeSelectCount = 0
-				}
-				lastCheckIndex += 1
-			}
-
-			if modeSelectCount >= 2 {
-				doGetStatusLoop = 0
-				user.Mode = selectMode
-				break
-			}
-		}
-	}
-
 	return 1, nil
 
 }
 
 
+func parseFile(rawData []byte) *ContestEntryRaw {
+
+	if len(rawData) <= 0 {
+		fmt.Println("File length 0, skipping")
+		os.Exit(1)
+	}
+
+	readPos := 0
+	toReadPos := 0
+	fileLen := len(rawData)
+	doRead := 1
+	chunkSize := 0
+	chunkNum := 1
+	fileChunkNum := 0
+	outData := make([]byte, 0)
+	fileNum := 1
+	// outFileName := ""
+
+	entryData := &ContestEntryRaw{TeamData: make([]byte, 0), Messages: make([]*ContestMessage, 0)}
+
+	for doRead == 1 {
+		if rawData[readPos] == 0x2 && ((rawData[readPos] + rawData[readPos+1]) == 0xFF) && ((rawData[readPos+2] + rawData[readPos+3]) == 0xFF) {
+			chunkSize = 0x400
+		} else {
+			if rawData[readPos] == 0x1 && ((rawData[readPos] + rawData[readPos+1]) == 0xFF) && ((rawData[readPos+2] + rawData[readPos+3]) == 0xFF) {
+				chunkSize = 0x80
+			} else {
+				doRead = 0
+			}
+		}
+
+		if doRead == 0 {
+			fmt.Printf("file not able to be parsed or already parsed at %d\n", readPos)
+			os.Exit(1)
+		}
+
+		if doRead == 1 {
+
+			fileChunkNum = int(rawData[readPos + 2])
+
+			if fileChunkNum == chunkNum {
+
+				readPos += 4
+				
+				chunkNum += 1
+				toReadPos = (readPos + chunkSize)
+				
+				outData = append(outData, rawData[readPos:toReadPos]...)
+
+				readPos = toReadPos + 2
+
+			} else {
+				if fileChunkNum < chunkNum {
+					// repeated chunk, skip it
+					fmt.Printf("Skipping chunk %d...\n", chunkNum)
+					fmt.Printf("Before: readPos: %d toReadPos: %d\n", readPos, toReadPos)
+					toReadPos = (readPos + chunkSize) + 2 + 4
+					readPos = toReadPos
+					fmt.Printf("After: readPos: %d toReadPos: %d\n", readPos, toReadPos)
+				}
+
+				if fileChunkNum > chunkNum {
+					// invalid file?
+					fmt.Printf("File error, chunkNum less than file chunk number (%d, %d) readPos: %d\n", fileChunkNum, chunkNum, readPos)
+					os.Exit(1)
+				}	
+			}		
+
+			if rawData[readPos] == 0x4 && (rawData[readPos] + rawData[readPos + 1]) == 0xFF {
+				// end of file
+
+				chunkNum = 1
+
+				if fileNum == 1 {
+					// outFileName = "TEAM.BIN"
+					entryData.TeamData = append(entryData.TeamData, outData...)
+				} else {
+					// outFileName = fmt.Sprintf("MSG-%d.bin", fileNum-1)
+					entryData.Messages = append(entryData.Messages, &ContestMessage{Data: outData})
+				}
+
+				fileNum += 1
+
+				if readPos + 3 >= fileLen {
+					doRead = 0
+				} else {
+					readPos += 2
+				}
+			}
+		}
+	}
+
+	return entryData
+}
