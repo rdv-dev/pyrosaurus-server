@@ -485,20 +485,10 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		endFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{9}})
 	}
 
-
-
 	cr.Actions = append(cr.Actions, byte(endFrame.NumActions))
 	cr.Actions = append(cr.Actions, endFrame.Actions...)
 
 	// cr.Actions = append(cr.Actions, make([]byte, 80)...)
-
-
-	// move to export contest 
-	if len(cr.Actions) < 0xF000 {
-		cr.Actions = append(cr.Actions, make([]byte, 0xF000 - (len(cr.Actions)%0xF000))...)
-	} else {
-		cr.Actions = append(cr.Actions, make([]byte, len(cr.Actions)%0xF000)...)
-	}
 
 	return cr, nil
 
