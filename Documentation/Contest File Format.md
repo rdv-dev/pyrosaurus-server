@@ -105,12 +105,12 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 |Action Code|Argument Code|Description|Comments|
 |--|--|--|--|
 |11|0|Die|Causes the selected Dino to die||
-|11|1|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (1 * 16) ||
-|11|2|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (2 * 16)||
-|11|3|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (3 * 16)||
-|11|4|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (4 * 16)||
-|11|5|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (5 * 16)||
-|11|6|Unknown|Updates an internal game structure variable to (var AND 0xF) OR (6 * 16)||
+|11|1|Set Armor Display|Armor is almost gone ||
+|11|2|Set Armor Display|Armor is low||
+|11|3|Set Armor Display|Armor is low-medium||
+|11|4|Set Armor Display|Armor is medium||
+|11|5|Set Armor Display|Armor is thick||
+|11|6|Set Armor Display|Armor is thickest||
 |11|7|Eat Food|REQUIRES ADDITIONAL ARGUMENT, possibly ID number for food piece to be removed?||
 |11|8|Attack/Fire|This makes the Dino Attack by using its Fire||
 |11|9|Unknown|Updates the same byte array as Action 9 to 0. Associated with firing?||
@@ -150,8 +150,15 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 * action 11 - 9D4B:916
 
 ## Action Tracing
-Action 0 location 1E0C:36CA
-Action 1 location 1E0C:39A2
-Action 2 location 1E0C:3B2A
-Action 3 location 1E0C:3AE0
-Action 6 location 1E0C:3d48
+* Action 0 location 1E0C:36CA
+* Action 1 location 1E0C:39A2
+* Action 2 location 1E0C:3B2A
+* Action 3 location 1E0C:3AE0
+* Action 4 location 1E0C:3DC8
+* Action 5 location 1E0C:3FF2
+* Action 6 location 1E0C:3D48
+* Action 7 location 1E0C:3E6C
+* Action 8 location 1E0C:3F24
+* Action 10 location 1E0C:41F6
+* Action 11-7 location 1E0C:45FC
+* Action 11-8 location 1E0C:4350
