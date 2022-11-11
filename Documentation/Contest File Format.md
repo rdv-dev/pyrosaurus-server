@@ -90,14 +90,14 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 |--|--|--|--|--|
 |0|2|Set Neck Angle|Directly proportional to Argument 1 (speed)|The neck angle can be set via two modes, mode 0 is for swinging or aiming the head and mode 1 is for during fighting and firing (head shake). Argument 1 is the neck speed and mode together, where the speed is directly proportional to the number of frames it will take to make the movement; lower is faster. Mode 0 corresponds to odd numbers and mode 1 corresponds to even numbers. Argument 2 is the neck angle. This is a single byte which can represent a positive or negative number. To move the head left, use a negative number. To move the head right, use a positive number. Number 0 sets the neck straight.||
 |1|2|Set Tail Angle|Directly proportional to Argument 1 (speed)|The tail angle is a visual tell of how agile a dino is while making a turn; the steeper the angle, the more agile the dino can be. Argument 1 is the tail speed. Argument 2 is the tail angle. This is a single byte which can represent a positive or negative number. To move the tail left, use a negative number. To move the tail right, use a positive number. 0 sets the tail straight.||
-|2|2|Move Dino|Directly proportional to Argument 1 (speed)|This command is used to move the dino one "step". The arguments set the heading and speed. To set heading to the left, use a negative number. To set the heading to the right, use a positive number. Heading 0 keeps the dino going straight in whatever direction it is pointed. This is an absolute heading, so it is best to gradually adjust the heading when making turns.||
+|2|3|Move Dino|Directly proportional to Argument 1 (speed)|This command is used to move the dino one "step". The arguments set the heading and speed. To set heading to the left, use a negative number. To set the heading to the right, use a positive number. Heading 0 keeps the dino going straight in whatever direction it is pointed. This is an absolute heading, so it is best to gradually adjust the heading when making turns. The third argument sets a array variable for the dino related to movement||
 |3|2|Breathe| |The Dino's abdomen expands/contracts based on the arguments to simulate breathing and show Dino Status (Rested, Tired, etc)||
 |4|1|Step Left/Right| |Causes selected Dino to do fighting step side-to-side and rotate based on supplied argument||
 |5|1|Step Forward/Back| |Causes selected Dino to do fighting step forward or back and rotate based on supplied argument||
-|6|1|Unknown| | ||
+|6|1|Unknown| |D8F1 when setting up dino, D8F2 when dino dies||
 |7|1|Jump Left/Right|12|Causes selected Dino to do fighting jump side-to-side and rotate based on supplied argument||
 |8|1|Jump Forward/Back|16|Causes selected Dino to do fighting jump forward or back and rotate based on the supplied argument||
-|9|0|Unknown| |Updates the same byte array as Special Action 11-9 to 1. Associated with firing?||
+|9|0|Locks neck movement?| |Updates the same byte array as Special Action 11-9 to 1. Associated with firing? Move neck normal sets to 0||
 |10|0|Call| |The Dino does a Call/Roar||
 |11|1 (see comments)|Special Actions| |This is a special action which based on the argument selects a unique action. Special action 7 requires an additional argument||
 
@@ -113,7 +113,7 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 |11|6|Set Armor Display|Armor is thickest||
 |11|7|Eat Food|REQUIRES ADDITIONAL ARGUMENT, possibly ID number for food piece to be removed?||
 |11|8|Attack/Fire|This makes the Dino Attack by using its Fire||
-|11|9|Unknown|Updates the same byte array as Action 9 to 0. Associated with firing?||
+|11|9|Frees neck movement?|Updates the same byte array as Action 9 to 0. Associated with firing?||
 |11|10|No Operation (nop) frame|This is not specifically part of the code, however if any number above 9 is provided for the Argument Code, it will be ignored and no new actions will be kicked off for the frame, and the contest will not end prematurely. This is great to use if all delays are still ongoing or no Dino is making an action for a frame.||
 
 # Tracing Contest Execution
@@ -159,6 +159,7 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 * Action 6 location 1E0C:3D48
 * Action 7 location 1E0C:3E6C
 * Action 8 location 1E0C:3F24
+* Action 9 memory location ds:5B5C + (dinoNum * 0x4B)
 * Action 10 location 1E0C:41F6
 * Action 11-7 location 1E0C:45FC
 * Action 11-8 location 1E0C:4350
