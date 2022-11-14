@@ -153,6 +153,8 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 * Action 0 location 1E0C:36CA
 * Action 1 location 1E0C:39A2
 * Action 2 location 1E0C:3B2A
+  * Argument 3 memory location ds:65b8
+  * start - var2 = ax = 0
 * Action 3 location 1E0C:3AE0
 * Action 4 location 1E0C:3DC8
 * Action 5 location 1E0C:3FF2
@@ -161,5 +163,32 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 * Action 8 location 1E0C:3F24
 * Action 9 memory location ds:5B5C + (dinoNum * 0x4B)
 * Action 10 location 1E0C:41F6
-* Action 11-7 location 1E0C:45FC
+* Actionid 11-7 location 1E0C:45FC
 * Action 11-8 location 1E0C:4350
+
+## Movement Details
+* Compare arg 0 - 1E0C:3BAE
+* Switch - 1E0C:3CB5
+* Or di - 1E0C:3CEC
+* Compare var2 (species leg type) - 1E0C:3D06
+* arg3 needs to be in lock step with the actual game
+
+Creep movement is the easiest, arg3 stays 0
+
+Walk is next easiest, sequence of arg3:
+* 0
+* 4
+* 5 - continues on until stopping, where arg3 is set to 0
+
+Run is the hardest and most complicated
+* 0
+* 9
+* A
+* A
+* B - full speed
+* D - slow down
+* D - slow down
+* 5 - slow down
+* 5
+* 5
+* 0
