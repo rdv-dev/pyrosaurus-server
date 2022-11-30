@@ -319,10 +319,10 @@ func GetFile(user *PyroUser) (*ContestEntryRaw, error) {
 	fmt.Println("Sending ready code (1)...")
 	user.Conn.Write([]byte{0x01})
 
-	if user.Mode == 2 {
-		fmt.Println("No contest available, sending 1...")
-		user.Conn.Write([]byte{0x1})
-	}
+	// if user.Mode == 2 {
+	// 	fmt.Println("No contest available, sending 1...")
+	// 	user.Conn.Write([]byte{0x1})
+	// }
 
 	errorCount := 0
 	found14 := 0
@@ -462,13 +462,25 @@ func SendFile(user *PyroUser, contents []byte) (int, error) {
 	fmt.Println("Sending code 3...")
 	user.Conn.Write([]byte{0x03})
 
+	nread, err := user.Conn.Read(user.Data)
+
+	if err != nil {
+		return 0, errors.New("Error reading mode")
+	}
+
+	if user.Data[0] == 0x03 {
+		fmt.Println("Mode 3 confirmed")
+	} else {
+		fmt.Printf("Got this number: %d", int(user.Data[0]))
+	}
+
 	fmt.Println("Normal Contest available (0x14)...")
 	user.Conn.Write([]byte{0x14})
 
 	// fmt.Println("Sending server ready (1)...")
 	// conn.Write([]byte{0x1})
 
-	nread, err := user.Conn.Read(user.Data)
+	nread, err = user.Conn.Read(user.Data)
 
 	if err != nil {
 		return 0, errors.New("Error reading mode")
