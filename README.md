@@ -5,11 +5,13 @@ pyrosaurus-server is a custom Contest server for DOS game Pyrosaurus developed b
 The pyrosaurus-server project imitates the original Evryware network, communicating directly with the game's modem utility program. Currently this server is coded to communicate with a [modified version of this modem utility](https://github.com/algae-disco/pyrosaurus-server/tree/main/Mods/MODEM.EXE) for streamlined testing.
 
 What is working:
+* POC updating PYRO.USR file
 * Sending teams
 * Receiving contests
 * Reading team entries
 * Compiling contest headers
 * Partial arena (contest) emulation
+* Contest data export
 
 ## Planned Features
 * Enable Playback functionality for Contests
