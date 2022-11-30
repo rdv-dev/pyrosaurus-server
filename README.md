@@ -1,8 +1,15 @@
 # About
-pyrosaurus-server is a custom Contest server for DOS game Pyrosaurus developed by Evryware in 1996.
+pyrosaurus-server is a custom Contest server for DOS game Pyrosaurus developed by Evryware and released in 1996.
 
 ## Current Functionality
-The pyrosaurus-server project can consume two Contest Entry files and produce a Contest file stub. All this means is that when the Contest is loaded, it will only display the dinos on the screen, and no actual actions will be performed.
+The pyrosaurus-server project imitates the original Evryware network, communicating directly with the game's modem utility program. Currently this server is coded to communicate with a modified version of this modem utility.
+
+What is working:
+* Sending teams
+* Receiving contests
+* Reading team entries
+* Compiling contest headers
+* Partial arena (contest) emulation
 
 ## Planned Features
 * Enable Playback functionality for Contests
