@@ -210,6 +210,8 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 
 			result, err := ContestServer.RunContest(team1, team2)
 
+			fmt.Printf("Contest length: %d\n", len(result.Actions))
+
 			if err != nil {
 				fmt.Println("Failed to run contest!", err.Error())
 				job.Mode = 0
