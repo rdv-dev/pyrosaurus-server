@@ -52,7 +52,6 @@ Algorithm Design (for now):
 
  * The Pyro User Check field will store a pseudo-random number which changes based on a variable period stored by the Server.
 
-Using an existing pseudo-random number generation process is ok because many other modern cryptographic libraries use this, so this is as good as we can get.
-Changing this number periodically increases risk of an issue with the PYRO.USR file not authenticating, however it does increase security dramatically as this number is now no longer static.
+Changing this number periodically increases risk of an issue with the PYRO.USR file becoming corrupted and not authenticating, however it does increase security dramatically as this number is now no longer static.
 Changing the period of when the pseudo-random number is changed increases security further as it is now unclear at which point-in-time the number could change.
 However, it may be too risky to change this field every time a Player connects to the Server.
