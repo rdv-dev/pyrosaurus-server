@@ -60,3 +60,7 @@ Arena Number|File Name|Arena Name|Description
 3|LEVL.002|Vastus Campus: "A Vast Plain"|This is a huge arena with plenty of room to roam. Large hearts cost less points (to increase endurance) and the time limit is extended to 9 minutes.||
 2|LEVL.001|Congregari Venator: "Pack Hunters"|Five Queens to a side, 12,000 points, a 9 1/2 minute time limit and vicious opponents. This is no place for cowards!||
 1|LEVL.000|Tyrannicus Supremus: "Supreme Tyrant"|Does your team have what it takes to become the Supreme Tyrant? This is the last Arena. When you make it this far, you are among the best of the best. Two significant rules change now. The other Arenas had 5 ratings each, this one has 25! You now will go down a rating if you lose (but you can't drop down to a lower arena). This arena is not for the fainthearted! You have 13,000 points, a 10 minute limit and tough competition! If you reach the top level, your name and your team name will be added to The Official Pyrosaurus Home Page for the whole world to see!||
+
+## Level Data Analysis
+Below is an image of the analysis of Level Data. When a value for the arena increases, it is highlighted in green. When it decreases, it is highlighted in red.
+![Level Data Analysis](Pyrosaurus%20Level%20Analysis.PNG?raw=true)
