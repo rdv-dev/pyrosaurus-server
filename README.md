@@ -37,9 +37,6 @@ Run pyro20.exe and it will self-extract the game and all of its files.
       creates all the files that you need to use Pyrosaurus
 ```
 
-## How Do I Create a Test Contest Entry?
-Follow [these steps](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Create%20Contest%20Entry.md) to create a Contest Entry.
-
 ## What is Pyrosaurus?
 From the manual:
 ```      
