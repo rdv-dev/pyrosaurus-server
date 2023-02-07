@@ -1,23 +1,24 @@
 # Documentation
 
-* [Original Manual](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/MANUAL.TXT)
+* [Original Manual](MANUAL.TXT)
 
 ## Server Design
-* [Requirements Document](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Pyro-Requirements.md)
+* [Requirements Document](Pyro-Requirements.md)
 
 ## Game Data
-* [Pyro User File Specification](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/PYRO.USR-File-Specification.md)
+* [Pyro User File Specification](PYRO.USR-File-Specification.md)
+* [Level Data Specification](Level%20Specification.md)
 
 ## Dino Team Data
-* [Species Data Specification](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Species-data-spec.md)
-* [Move Data Specification](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Move-File-Spec.md)
-* [Fight Data Specification](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Fight-Data-spec.md)
-* [Decision Data Specification](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Decision-Data-spec.md)
-* [Team Entry Specification](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Team-Entry-File-Spec.md)
+* [Species Data Specification](Species-data-spec.md)
+* [Move Data Specification](Move-File-Spec.md)
+* [Fight Data Specification](Fight-Data-spec.md)
+* [Decision Data Specification](Decision-Data-spec.md)
+* [Team Entry Specification](Team-Entry-File-Spec.md)
 
 ## Contests and Communication
-* [Contest File Specification](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Contest%20File%20Format.md)
-* [Modem Functionality](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md)
+* [Contest File Specification](Contest%20File%20Format.md)
+* [Modem Functionality](Modem%20Functionality.md)
 
 
 
