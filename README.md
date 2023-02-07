@@ -7,6 +7,8 @@ provided here for any future RE work. Many of the basic functions are named for 
 functions in there which are total guesses on what is going on. See [this document](Documentation/RE-function-map.md) which highlights functions to review
 for ease of reading. Download the PYRO ida file [here](Documentation/PYRO.idb) and the MODEM ida file [here](Documentation/MODEM-mod-20211105.idb)
 
+For reversing, debugging and testing of the game I recommend using DOSBox-X as this fork has a superior debug interface. For heavy debugging I recommend downloading DOSBox-X source and commenting out all instances of C_HEAVY_DEBUG so these will build regardless of configuration.
+
 ## Current Functionality
 The pyrosaurus-server project imitates the original Evryware network, communicating directly with the game's modem utility program. Currently this server is coded to communicate with a modified version of this modem utility.
 
