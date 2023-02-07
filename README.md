@@ -1,6 +1,12 @@
 # About
 pyrosaurus-server is a custom Contest server for DOS game Pyrosaurus developed by Evryware and released in 1996.
 
+## Reverse Engineering
+Most reverse engineering work was completed with [IDA 5.0](https://www.scummvm.org/news/20180331/) and so those files are
+provided here for any future RE work. Many of the basic functions are named for ease of reading, though there are massive
+functions in there which are total guesses on what is going on. See [this document](Documentation/RE-function-map.md) which highlights functions to review
+for ease of reading. Download the PYRO ida file [here](Documentation/PYRO.idb) and the MODEM ida file [here](Documentation/MODEM-mod-20211105.idb)
+
 ## Current Functionality
 The pyrosaurus-server project imitates the original Evryware network, communicating directly with the game's modem utility program. Currently this server is coded to communicate with a modified version of this modem utility.
 
