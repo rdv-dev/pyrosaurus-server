@@ -1,13 +1,17 @@
 # Levels
 
-Level data files describe the properties and rules of an Arena. Game options can be configured here that affect the cost of dinos, 
+Level data files describe the properties and rules of each Arena and the Division at large. Game options can be configured here that affect the cost of dinos, 
 the size of the arena, how many legs dinos can have, etc. The position of each option is fixed.
+
+Pyrosaurus comes delivered with 11 Arenas or Levels which make up the default Division. As it is coded into the game, each 
+Arena has 5 rankings, except for the last Arena which has 25 rankings. Once the highest ranking is reached for that Arena, the
+player is advanced to the next Arena at the bottom ranking.
 
 ## Level Data Structure
 Field Name|Size (bytes)|Position|Description
 ---|---|---|---
-Arena Width X|2|0|The total horizontal width||
-Arena Width Y|2|2|The total vertical height||
+Arena Size X|2|0|The total Arena horizontal width||
+Arena Size Y|2|2|The total Arena vertical height||
 Max Food Items|2|4|Change to 99 causes graphical issues! tests ok up to 15, full crash at 100h.||
 Max Team Score|2|6|The maximum number of points allowed for the team||
 Max Fire Range|2|8|More testing needed||
@@ -39,8 +43,8 @@ Required Queens|2|58|The main lose condition of the game is if one of your queen
 Enable 4 Leg Dinos|2|60|Enables quadrupeds in the Species - Leg screen ||
 Enable Pack Decision|2|62|Display the Pack decision in the Train - Decisions screen||
 Enable Increase Sight/Hearing?|2|64|More testing needed||
-Mini Map Size X|2|66|The width of the minimap||
-Mini Map Size Y|2|68|The height of the minimap||
+Mini Map Size X|2|66|The width of the minimap in pixels||
+Mini Map Size Y|2|68|The height of the minimap in pixels||
 
 ## Original Arena Descriptions
 Arena Number|File Name|Arena Name|Description
