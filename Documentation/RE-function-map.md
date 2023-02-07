@@ -25,3 +25,10 @@
 * doFire - correspnds to Contest Special Action 8
 
 ## MODEM Executable Notable Functions
+* modemDial - dials the IP address
+* modemChallenge - the challenge procedure for authenticating users
+* modemGetSend - determines whether modem is sending or getting data
+* getUsrDBackup - poorly named function which handles various functions based on the servers input
+* modemTest - the test procedure for the modem
+* doCheckSum - creates the checksum when sending data
+* calcCheckSum - calculates the checksum from data
