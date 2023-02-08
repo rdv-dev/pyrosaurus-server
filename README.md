@@ -9,6 +9,9 @@ for ease of reading. Download the PYRO ida file [here](Documentation/PYRO.idb) a
 
 For reversing, debugging and testing of the game I recommend using DOSBox-X as this fork has a superior debug interface. For heavy debugging I recommend downloading DOSBox-X source and commenting out all instances of C_HEAVY_DEBUG so these will build regardless of configuration.
 
+## Build Instructions
+See [build instructions here](Documentation/Build-instructions.md).
+
 ## Current Functionality
 The pyrosaurus-server project imitates the original Evryware network, communicating directly with the game's modem utility program. Currently this server is coded to communicate with a modified version of this modem utility.
 
