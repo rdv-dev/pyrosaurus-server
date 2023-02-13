@@ -11,10 +11,16 @@ apt install xfce4 xrdp net-tools chromium-browser git firefox golang ghex xfce4-
 
 Use the power manager to disable any screensaver.
 
-Installing Sublime Text:
+For installing Sublime Text, run the below commands first.
 ```
 apt-get install apt-transport-https
 apt install ca-certificates
+```
+
+Next, follow [these instructions](https://www.sublimetext.com/docs/linux_repositories.html) from Sublime:
+
+Finally, install Sublime:
+```
 apt install sublime-text
 ```
 
@@ -43,6 +49,10 @@ go build
 Clone the repository for [DOSBox-X](https://github.com/joncampbell123/dosbox-x) and follow [the build instructions](https://github.com/joncampbell123/dosbox-x/blob/master/BUILD.md).
 
 For Heavy Debug, you may need to search in the src directory for any occurrance of C_HEAVY_DEBUG and comment out the pre-compile checks. Next, follow the build instructions for the regular debug build.
+
+Once DOSBox is installed, run DOSBox.
+
+
 
 # Setup Pyrosaurus
 
