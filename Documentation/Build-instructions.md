@@ -45,12 +45,29 @@ go build
 ```
 
 # Setup DOSBox
+## Install
 
 Clone the repository for [DOSBox-X](https://github.com/joncampbell123/dosbox-x) and follow [the build instructions](https://github.com/joncampbell123/dosbox-x/blob/master/BUILD.md).
 
 For Heavy Debug, you may need to search in the src directory for any occurrance of C_HEAVY_DEBUG and comment out the pre-compile checks. Next, follow the build instructions for the regular debug build.
 
 Once DOSBox is installed, run DOSBox.
+
+
+
+In the Menu, select "Main" then "Configuration Tool".
+
+Select CPU, set "cycles" to 30000. anything between 20000 and 30000 is recommended.
+
+Select OK.
+
+Select Serial Ports.
+
+In the "serial1" field enter `modem listenport 2323`.
+
+Select OK.
+
+Select AUTOEXEC.BAT .
 
 
 
