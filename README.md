@@ -32,7 +32,9 @@ To see what has been documented so far from reverse engineering research and som
   * Progress is being made here! [See this page for documentation](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md).
 
 ## How Do I Get This Game?
-You can download the game from archive.org . Note that the following link at [this location](https://web.archive.org/web/20010516030044/http://www.evryware.com/pyrosaurus/pyro20.exe) points directly to a EXE file captured on May 16, 2001. Use the hashes below to validate you have the correct file.
+You can download it directly from this repository [here](https://github.com/algae-disco/pyrosaurus-server/blob/main/Mods/pyro20.exe). Optionally you can download the game from archive.org . Note that the following link at [this location](https://web.archive.org/web/20010516030044/http://www.evryware.com/pyrosaurus/pyro20.exe) points directly to a EXE file captured on May 16, 2001. 
+
+Which ever source you download from, use the hashes below to validate you have the correct file.
 
 ### SHA-256
 ```ba13558001701b881e90fde3a0387a4547d3e97f98096fc42acb81d4c4cfeeb6  pyro20.exe```
