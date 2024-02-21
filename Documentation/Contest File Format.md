@@ -154,6 +154,7 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 * Action 1 location 1E0C:39A2
 * Action 2 location 1E0C:3B2A
   * Argument 3 memory location ds:65b8
+  * Dino Number at ds:2F04
   * start - var2 = ax = 0
 * Action 3 location 1E0C:3AE0
 * Action 4 location 1E0C:3DC8
