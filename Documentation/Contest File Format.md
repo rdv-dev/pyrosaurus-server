@@ -84,22 +84,22 @@ Action = a number between 0 and 11.
   * Dino_Index = floor(Encoded_Byte / 12)
   * Action = Encoded_Byte - (Dino_Index * 12)
 
-### Dino Actions and Arguments
+## Dino Actions
 There are 12 actions available to perform on Dinos. This is a list of these actions, what they do (if known) and how many arguments (bytes) they require. There are no optional arguments, so an omitted argument will bring Contest Data reading out of alignment and cause Undefined Behavior.
-|Action Code|Required Arguments|Description|Delay (frames)|Comments|
+|Action Code|Required Arguments|Description|Delay (frames)|Function Breakpoint|Contest Trace Breakpoint|
 |--|--|--|--|--|
-|0|2|Set Neck Angle|Directly proportional to Argument 1 (speed)|The neck angle can be set via two modes, mode 0 is for swinging or aiming the head and mode 1 is for during fighting and firing (head shake). Argument 1 is the neck speed and mode together, where the speed is directly proportional to the number of frames it will take to make the movement; lower is faster. Mode 0 corresponds to odd numbers and mode 1 corresponds to even numbers. Argument 2 is the neck angle. This is a single byte which can represent a positive or negative number. To move the head left, use a negative number. To move the head right, use a positive number. Number 0 sets the neck straight.||
-|1|2|Set Tail Angle|Directly proportional to Argument 1 (speed)|The tail angle is a visual tell of how agile a dino is while making a turn; the steeper the angle, the more agile the dino can be. Argument 1 is the tail speed. Argument 2 is the tail angle. This is a single byte which can represent a positive or negative number. To move the tail left, use a negative number. To move the tail right, use a positive number. 0 sets the tail straight.||
-|2|3|Move Dino|Directly proportional to Argument 1 (speed)|This command is used to move the dino one "step". The arguments set the heading and speed. To set heading to the left, use a negative number. To set the heading to the right, use a positive number. Heading 0 keeps the dino going straight in whatever direction it is pointed. This is an absolute heading, so it is best to gradually adjust the heading when making turns. The third argument sets a array variable for the dino related to movement||
-|3|2|Breathe| |The Dino's abdomen expands/contracts based on the arguments to simulate breathing and show Dino Status (Rested, Tired, etc)||
-|4|1|Step Left/Right| |Causes selected Dino to do fighting step side-to-side and rotate based on supplied argument||
-|5|1|Step Forward/Back| |Causes selected Dino to do fighting step forward or back and rotate based on supplied argument||
-|6|1|Unknown| |D8F1 when setting up dino, D8F2 when dino dies||
-|7|1|Jump Left/Right|12|Causes selected Dino to do fighting jump side-to-side and rotate based on supplied argument||
-|8|1|Jump Forward/Back|16|Causes selected Dino to do fighting jump forward or back and rotate based on the supplied argument||
-|9|0|Locks neck movement?| |Updates the same byte array as Special Action 11-9 to 1. Associated with firing? Move neck normal sets to 0||
-|10|0|Call| |The Dino does a Call/Roar||
-|11|1 (see comments)|Special Actions| |This is a special action which based on the argument selects a unique action. Special action 7 requires an additional argument||
+|0|2|Set Neck Angle|||
+|1|2|Set Tail Angle|Directly proportional to Argument 1 (speed)||||
+|2|3|Move Dino|Directly proportional to Argument 1 (speed)||||
+|3|2|Breathe| ||||
+|4|1|Step Left/Right| ||||
+|5|1|Step Forward/Back| ||||
+|6|1|Unknown| ||||
+|7|1|Jump Left/Right|12||||
+|8|1|Jump Forward/Back|16||||
+|9|0|Locks neck movement?| ||||
+|10|0|Call| ||||
+|11|1, 11-7 requires 2|Special Actions| ||||
 
 ### Special Actions
 |Action Code|Argument Code|Description|Comments|
@@ -115,6 +115,56 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 |11|8|Attack/Fire|This makes the Dino Attack by using its Fire||
 |11|9|Frees neck movement?|Updates the same byte array as Action 9 to 0. Associated with firing?||
 |11|10|No Operation (nop) frame|This is not specifically part of the code, however if any number above 9 is provided for the Argument Code, it will be ignored and no new actions will be kicked off for the frame, and the contest will not end prematurely. This is great to use if all delays are still ongoing or no Dino is making an action for a frame.||
+
+### Actions Comments
+#### Set Neck Angle
+
+Directly proportional to Argument 1 (speed)|The neck angle can be set via two modes, mode 0 is for swinging or aiming the head and mode 1 is for during fighting and firing (head shake). Argument 1 is the neck speed and mode together, where the speed is directly proportional to the number of frames it will take to make the movement; lower is faster. Mode 0 corresponds to odd numbers and mode 1 corresponds to even numbers. Argument 2 is the neck angle. This is a single byte which can represent a positive or negative number. To move the head left, use a negative number. To move the head right, use a positive number. Number 0 sets the neck straight.
+
+#### Set Tail Angle
+
+The tail angle is a visual tell of how agile a dino is while making a turn; the steeper the angle, the more agile the dino can be. Argument 1 is the tail speed. Argument 2 is the tail angle. This is a single byte which can represent a positive or negative number. To move the tail left, use a negative number. To move the tail right, use a positive number. 0 sets the tail straight.
+
+#### Move Dino
+
+This command is used to move the dino one "step". The arguments set the heading and speed. To set heading to the left, use a negative number. To set the heading to the right, use a positive number. Heading 0 keeps the dino going straight in whatever direction it is pointed. This is an absolute heading, so it is best to gradually adjust the heading when making turns. The third argument sets a array variable for the dino related to movement
+
+#### Set Breath Rate
+
+The Dino's abdomen expands/contracts based on the arguments to simulate breathing and show Dino Status (Rested, Tired, etc)
+
+#### Step Left/Right
+
+Causes selected Dino to do fighting step side-to-side and rotate based on supplied argument. Quadruped and snake dinos use this
+
+#### Step Forward/Back
+
+Causes selected Dino to do fighting step forward or back and rotate based on supplied argument. Quadruped and snake dinos use this
+
+#### Die
+
+D8F1 when setting up dino, D8F2 when dino dies. This function is called repeatedly while other dinos alive and the game is still running
+
+#### Jump Left/Right
+
+Causes selected Dino to do fighting jump side-to-side and rotate based on supplied argument. Used only by biped dinos.
+
+#### Jump Forward/Back
+
+Causes selected Dino to do fighting jump forward or back and rotate based on the supplied argument. Used only by biped dinos.
+
+#### Lock neck angle at current
+
+Updates the same byte array as Special Action 11-9 to 1. Associated with firing? Move neck normal sets to 0
+
+#### Call
+
+The Dino does a Call/Roar
+
+### Special Action Comments
+This is a special action which based on the argument selects a unique action. Special action 7 requires an additional argument
+
+
 
 # Tracing Contest Execution
 * Beginning of contestReadAllocate 9D4B:4CC
