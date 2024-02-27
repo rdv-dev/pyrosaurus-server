@@ -88,33 +88,32 @@ Action = a number between 0 and 11.
 There are 12 actions available to perform on Dinos. This is a list of these actions, what they do (if known) and how many arguments (bytes) they require. There are no optional arguments, so an omitted argument will bring Contest Data reading out of alignment and cause Undefined Behavior.
 |Action Code|Required Arguments|Description|Delay (frames)|Function Breakpoint|Contest Trace Breakpoint|
 |--|--|--|--|--|
-|0|2|Set Neck Angle|||
-|1|2|Set Tail Angle|Directly proportional to Argument 1 (speed)||||
-|2|3|Move Dino|Directly proportional to Argument 1 (speed)||||
-|3|2|Breathe| ||||
-|4|1|Step Left/Right| ||||
-|5|1|Step Forward/Back| ||||
-|6|1|Unknown| ||||
-|7|1|Jump Left/Right|12||||
-|8|1|Jump Forward/Back|16||||
-|9|0|Locks neck movement?| ||||
-|10|0|Call| ||||
-|11|1, 11-7 requires 2|Special Actions| ||||
+|0|2|Set Neck Angle|1E0C:36CA|9D4B:796||
+|1|2|Set Tail Angle|Directly proportional to Argument 1 (speed)|1E0C:39A2|9D4B:7D4||
+|2|3|Move Dino|Directly proportional to Argument 1 (speed)|1E0C:3B2A|||
+|3|2|Breathe| |1E0C:3AE0|9D4B:820||
+|4|1|Step Left/Right| |1E0C:3DC8|9D4B:836||
+|5|1|Step Forward/Back| |1E0C:3FF2|9D4B:86C||
+|6|1|Unknown| |1E0C:3D48|9D4B:87C||
+|7|1|Jump Left/Right|12|1E0C:3E6C|9D4B:894||
+|8|1|Jump Forward/Back|16|1E0C:3F24|9D4B:8CA||
+|9|0|Locks neck movement?| | |9D4B:8FE||
+|10|0|Call| |1E0C:41F6|9D4B:90A||
+|11|1, 11-7 requires 2|Special Actions| | |9D4B:916||
 
 ### Special Actions
-|Action Code|Argument Code|Description|Comments|
+|Action Code|Argument Code|Description|Function Breakpoint|Contest Trace Breakpoint|
 |--|--|--|--|
-|11|0|Die|Causes the selected Dino to die||
-|11|1|Set Armor Display|Armor is almost gone ||
-|11|2|Set Armor Display|Armor is low||
-|11|3|Set Armor Display|Armor is low-medium||
-|11|4|Set Armor Display|Armor is medium||
-|11|5|Set Armor Display|Armor is thick||
-|11|6|Set Armor Display|Armor is thickest||
-|11|7|Eat Food|REQUIRES ADDITIONAL ARGUMENT, possibly ID number for food piece to be removed?||
-|11|8|Attack/Fire|This makes the Dino Attack by using its Fire||
-|11|9|Frees neck movement?|Updates the same byte array as Action 9 to 0. Associated with firing?||
-|11|10|No Operation (nop) frame|This is not specifically part of the code, however if any number above 9 is provided for the Argument Code, it will be ignored and no new actions will be kicked off for the frame, and the contest will not end prematurely. This is great to use if all delays are still ongoing or no Dino is making an action for a frame.||
+|11|0|Die|Causes the selected Dino to die|N/A|9D4B:916||
+|11|1|Set Armor Display lowest|N/A| ||
+|11|2|Set Armor Display low|N/A| ||
+|11|3|Set Armor Display medium-low|N/A| ||
+|11|4|Set Armor Display medium|N/A| ||
+|11|5|Set Armor Display thick|N/A| ||
+|11|6|Set Armor Display thickest|N/A| ||
+|11|7|Eat Food - Requires extra Arg|1E0C:45FC| ||
+|11|8|Attack/Fire|1E0C:4350| ||
+|11|9|Frees neck movement?|N/A| ||
 
 ### Actions Comments
 #### Set Neck Angle
@@ -128,6 +127,37 @@ The tail angle is a visual tell of how agile a dino is while making a turn; the 
 #### Move Dino
 
 This command is used to move the dino one "step". The arguments set the heading and speed. To set heading to the left, use a negative number. To set the heading to the right, use a positive number. Heading 0 keeps the dino going straight in whatever direction it is pointed. This is an absolute heading, so it is best to gradually adjust the heading when making turns. The third argument sets a array variable for the dino related to movement
+
+## Movement Details
+* Compare arg 0 - 1E0C:3BAE
+* Switch - 1E0C:3CB5
+* Or di - 1E0C:3CEC
+* Compare var2 (species leg type) - 1E0C:3D06
+* arg3 needs to be in lock step with the actual game
+
+Creep movement is the easiest, arg3 stays 0
+
+Walk is next easiest, sequence of arg3:
+* 0
+* 4
+* 5 - continues on until stopping, where arg3 is set to 0
+
+Run is the hardest and most complicated
+* 0
+* 9
+* A
+* A
+* B - full speed
+* D - slow down
+* D - slow down
+* 5 - slow down
+* 5
+* 5
+* 0
+
+  * Argument 3 memory location ds:65b8
+  * Dino Number at ds:2F04
+  * start - var2 = ax = 0
 
 #### Set Breath Rate
 
@@ -164,6 +194,10 @@ The Dino does a Call/Roar
 ### Special Action Comments
 This is a special action which based on the argument selects a unique action. Special action 7 requires an additional argument
 
+#### 11-9
+ds:5B5C + (dinoNum * 0x4B)
+Updates the same byte array as Action 9 to 0. Associated with firing?
+
 
 
 # Tracing Contest Execution
@@ -183,63 +217,3 @@ This is a special action which based on the argument selects a unique action. Sp
 
 # File read trace
 * 0823:FBC
-
-
-## Contest Action Tracing
-* action 0 - 9D4B:796
-* action 1 - 9D4B:7D4
-* action 2 - 9D4B:7EC
-* action 3 - 9D4B:820
-* action 4 - 9D4B:836
-* action 5 - 9D4B:86C
-* action 6 - 9D4B:87C
-* action 7 - 9D4B:894
-* action 8 - 9D4B:8CA
-* action 9 - 9D4B:8FE
-* action 10 - 9D4B:90A
-* action 11 - 9D4B:916
-
-## Action Tracing
-* Action 0 location 1E0C:36CA
-* Action 1 location 1E0C:39A2
-* Action 2 location 1E0C:3B2A
-  * Argument 3 memory location ds:65b8
-  * Dino Number at ds:2F04
-  * start - var2 = ax = 0
-* Action 3 location 1E0C:3AE0
-* Action 4 location 1E0C:3DC8
-* Action 5 location 1E0C:3FF2
-* Action 6 location 1E0C:3D48
-* Action 7 location 1E0C:3E6C
-* Action 8 location 1E0C:3F24
-* Action 9 memory location ds:5B5C + (dinoNum * 0x4B)
-* Action 10 location 1E0C:41F6
-* Actionid 11-7 location 1E0C:45FC
-* Action 11-8 location 1E0C:4350
-
-## Movement Details
-* Compare arg 0 - 1E0C:3BAE
-* Switch - 1E0C:3CB5
-* Or di - 1E0C:3CEC
-* Compare var2 (species leg type) - 1E0C:3D06
-* arg3 needs to be in lock step with the actual game
-
-Creep movement is the easiest, arg3 stays 0
-
-Walk is next easiest, sequence of arg3:
-* 0
-* 4
-* 5 - continues on until stopping, where arg3 is set to 0
-
-Run is the hardest and most complicated
-* 0
-* 9
-* A
-* A
-* B - full speed
-* D - slow down
-* D - slow down
-* 5 - slow down
-* 5
-* 5
-* 0
