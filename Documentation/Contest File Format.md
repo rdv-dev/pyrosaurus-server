@@ -86,34 +86,34 @@ Action = a number between 0 and 11.
 
 ## Dino Actions
 There are 12 actions available to perform on Dinos. This is a list of these actions, what they do (if known) and how many arguments (bytes) they require. There are no optional arguments, so an omitted argument will bring Contest Data reading out of alignment and cause Undefined Behavior.
-|Action Code|Required Arguments|Description|Delay (frames)|Function Breakpoint|Contest Trace Breakpoint|
-|--|--|--|--|--|
-|0|2|Set Neck Angle|1E0C:36CA|9D4B:796||
-|1|2|Set Tail Angle|Directly proportional to Argument 1 (speed)|1E0C:39A2|9D4B:7D4||
-|2|3|Move Dino|Directly proportional to Argument 1 (speed)|1E0C:3B2A|||
-|3|2|Breathe| |1E0C:3AE0|9D4B:820||
+|Action Code|# of Arguments|Description|Delay (frames)|Function Breakpoint|Contest Trace Breakpoint|
+|--|--|--|--|--|--|
+|0|2|Set Neck Angle| |1E0C:36CA|9D4B:796||
+|1|2|Set Tail Angle|Equal to speed|1E0C:39A2|9D4B:7D4||
+|2|3|Move Dino|Equal to speed|1E0C:3B2A|9D4B:7EC||
+|3|2|Set Breath Rate| |1E0C:3AE0|9D4B:820||
 |4|1|Step Left/Right| |1E0C:3DC8|9D4B:836||
 |5|1|Step Forward/Back| |1E0C:3FF2|9D4B:86C||
-|6|1|Unknown| |1E0C:3D48|9D4B:87C||
+|6|1|Dino Die| |1E0C:3D48|9D4B:87C||
 |7|1|Jump Left/Right|12|1E0C:3E6C|9D4B:894||
 |8|1|Jump Forward/Back|16|1E0C:3F24|9D4B:8CA||
 |9|0|Locks neck movement?| | |9D4B:8FE||
 |10|0|Call| |1E0C:41F6|9D4B:90A||
-|11|1, 11-7 requires 2|Special Actions| | |9D4B:916||
+|11|Up to 2|Special Actions| | |9D4B:916||
 
 ### Special Actions
-|Action Code|Argument Code|Description|Function Breakpoint|Contest Trace Breakpoint|
-|--|--|--|--|
-|11|0|Die|Causes the selected Dino to die|N/A|9D4B:916||
-|11|1|Set Armor Display lowest|N/A| ||
-|11|2|Set Armor Display low|N/A| ||
-|11|3|Set Armor Display medium-low|N/A| ||
-|11|4|Set Armor Display medium|N/A| ||
-|11|5|Set Armor Display thick|N/A| ||
-|11|6|Set Armor Display thickest|N/A| ||
-|11|7|Eat Food - Requires extra Arg|1E0C:45FC| ||
-|11|8|Attack/Fire|1E0C:4350| ||
-|11|9|Frees neck movement?|N/A| ||
+|Action Code|Argument Code|# of Arguments|Description|Function Breakpoint|Contest Trace Breakpoint|
+|--|--|--|--|--|--|
+|11|0|1|Causes dino to die|N/A|9D4B:916||
+|11|1|1|Set Armor Display lowest|N/A| ||
+|11|2|1|Set Armor Display low|N/A| ||
+|11|3|1|Set Armor Display medium-low|N/A| ||
+|11|4|1|Set Armor Display medium|N/A| ||
+|11|5|1|Set Armor Display thick|N/A| ||
+|11|6|1|Set Armor Display thickest|N/A| ||
+|11|7|2|Eat Food|1E0C:45FC| ||
+|11|8|1|Attack/Fire|1E0C:4350| ||
+|11|9|1|Frees neck movement?|N/A| ||
 
 ### Actions Comments
 #### Set Neck Angle
