@@ -11,6 +11,8 @@ The Contest file consists of five main data structures:
   * Includes species, Dino properties, initial map location and Dino names 
 * Level information 
   * This is the normal level data structure
+* Level Food Array
+  * X and Y Coordinates of each piece of food
 * Contest action data
   * This is the result of decision data simulated on the Contest Server. Includes everything from fighting moves to regular movements, neck movements, fire actions, and death as well
 
@@ -54,6 +56,12 @@ The Contest file consists of five main data structures:
 |Team Dino Rotation|2 * Num Dinos	
 |Some Other Data|2 * Num Dinos||
 |Dino Names|Zero Terminated, must be less than 50 chars|This logs the file offset of the Dino name and when the L key is pressed, looks up the name from the file|
+
+## Level Data & Food Array
+
+The Level Data is the same as what the game reads for the current level. The X and Y coordinates for the food items, however, is unique to the Contest File. This is an array of 16-bit numbers, X coordinate followed by Y coordinate. There is some logic to negate the coordinates given in the data but it is unclear how this negation is performed.
+
+If the number of Food items is 0, two bytes should still be added after the level data.
 
 ## Contest Data Structure
 
