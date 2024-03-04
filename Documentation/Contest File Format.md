@@ -121,6 +121,13 @@ Directly proportional to Argument 1 (speed)|The neck angle can be set via two mo
 
 The tail angle is a visual tell of how agile a dino is while making a turn; the steeper the angle, the more agile the dino can be. Argument 1 is the tail speed. Argument 2 is the tail angle. This is a single byte which can represent a positive or negative number. To move the tail left, use a negative number. To move the tail right, use a positive number. 0 sets the tail straight.
 
+##### Function Argument Mapping
+|Argument|Contest Argument Mapping|
+|---|---|
+|ax|Dino number (sent with encoded byte)||
+|bx|Contest Argument 2||
+|dx|Contest Argument 1||
+
 #### Move Dino
 
 This command is used to move the dino one "step". The arguments set the heading and speed and other information about the dino. The first argument controls the relative heading of the dino. To set heading to the left, use a negative number. To set the heading to the right, use a positive number. Heading 0 keeps the dino going straight in whatever direction it is pointed. It is best to gradually adjust the heading when making turns. The second argument communicates information about the dino. The third argument sets a array variable for the dino related to movement.
@@ -142,6 +149,15 @@ Contest argument 2 is used for multiple purposes.
 
 ##### Contest Argument 3
 Contest argument 3 is used to directly feed an array which the doMove function uses at ds:65b8. 
+
+##### Function Argument Mapping
+|Argument|Contest Argument Mapping|
+|---|---|
+|ax|Contest Argument 1||
+|bx|Contest Argument 2, OR 0xF||
+|dx|Contest Argument 2, OR 0x70||
+|stack argument var1|Contest Argument 2, OR (0x1 << 7)||
+|ds:65b8|Contest Argument 3||
 
 ##### How it works
 
@@ -194,6 +210,13 @@ Movement Details
 
 The Dino's abdomen expands/contracts based on the arguments to simulate breathing and show Dino Status (Rested, Tired, etc)
 
+##### Function Argument Mapping
+|Argument|Contest Argument Mapping|
+|---|---|
+|ax|Dino number (sent with encoded byte)||
+|bx|Contest Argument 2||
+|dx|Contest Argument 1||
+
 #### Step Left/Right
 
 Causes selected Dino to do fighting step side-to-side and rotate based on supplied argument. Quadruped and snake dinos use this
@@ -201,6 +224,12 @@ Causes selected Dino to do fighting step side-to-side and rotate based on suppli
 #### Step Forward/Back
 
 Causes selected Dino to do fighting step forward or back and rotate based on supplied argument. Quadruped and snake dinos use this
+
+##### Function Argument Mapping
+|Argument|Contest Argument Mapping|
+|---|---|
+|ax|Contest Argument 1||
+|dx|1 (constant)||
 
 #### Die
 
@@ -222,6 +251,11 @@ Updates the same byte array as Special Action 11-9 to 1. Associated with firing?
 
 The Dino does a Call/Roar
 
+##### Function Argument Mapping
+|Argument|Contest Argument Mapping|
+|---|---|
+|ax|Dino Number (send with encoded byte)||
+
 ### Special Actions
 This is a special action which based on the argument selects a unique action. Special action 7 requires an additional argument
 
@@ -236,6 +270,23 @@ Special Actions 1-6 all map to the same operation and set a value in an array. T
 |11|4|0|Set Armor Display medium|N/A| ||
 |11|5|0|Set Armor Display thick|N/A| ||
 |11|6|0|Set Armor Display thickest|N/A| ||
+
+#### Eat Food
+
+This function is not only used to search for food but also to manage food pieces that are present? More reversing is required to fully understand what this function is doing.
+
+ds:2C32 is an array of the number of food pieces and how much "energy" is left in the food. The food has about 93 "units" of energy, starting at 128. Once the "units" are below 35, the variable holding the max number of food items is decremented by one. 
+
+|Argument|Contest Argument Mapping|
+|---|---|
+|ax|Dino Number (send with encoded byte)||
+|ds:2C32|Value controlled by Contest Argument 1||
+
+#### Fire
+
+|Argument|Contest Argument Mapping|
+|---|---|
+|ax|Dino Number (send with encoded byte)||
 
 #### 11-9
 ds:5B5C + (dinoNum * 0x4B)
