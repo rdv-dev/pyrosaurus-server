@@ -3,7 +3,7 @@ import (
 	"fmt"
 	"encoding/binary"
 	"errors"
-	// "github.com/algae-disco/pyrosaurus-server/ContestServer/Dino"
+	// "github.com/rdv-dev/pyrosaurus-server/ContestServer/Dino"
 )
 
 const (

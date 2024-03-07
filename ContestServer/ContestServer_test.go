@@ -4,8 +4,8 @@ import (
 	"testing"
 	"os"
 	"io/ioutil"
-	"github.com/algae-disco/pyrosaurus-server/ContestServer/util"
-	"github.com/algae-disco/pyrosaurus-server/ContestServer"
+	"github.com/rdv-dev/pyrosaurus-server/ContestServer/util"
+	"github.com/rdv-dev/pyrosaurus-server/ContestServer"
 	// "https://github.com/stretchr/testify/assert"
 
 	"fmt"

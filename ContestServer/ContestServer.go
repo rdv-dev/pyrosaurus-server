@@ -4,7 +4,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math/rand"
-	"github.com/algae-disco/pyrosaurus-server/ContestServer/util"
+	"github.com/rdv-dev/pyrosaurus-server/ContestServer/util"
+	"github.com/rdv-dev/pyrosaurus-server/Database"
 )
 
 const (
@@ -203,6 +204,36 @@ func ExportContest(team1, team2 *util.ContestEntry, levelData []byte, result *Co
 	output = append(output, result.Actions...)
 
 	return output, nil
+}
+
+func SaveContest(team1, team2 *util.ContestEntry, levelData []byte, result *ContestResult, team1PlayerId uint64, team2EntryId uint64) (error) {
+	outdata, err := ExportContest(team1, team2, levelData, result)
+
+	if err != nil {
+		return err
+	}
+
+	Database.InsertContest(team1PlayerId, team2EntryId, outdata)
+
+	return nil
+}
+
+func FindOpponent(currentPlayerId uint64) (uint64, *util.ContestEntry) {
+	opponentEntryId, opponentEntry, err := Database.FindOpponentEntry(currentPlayerId)
+
+	if err != nil {
+		fmt.Println("Error finding opponent", err)
+		return 0, nil
+	}
+
+	opponent, err2 := util.NewContestEntry(opponentEntry)
+	if err2 != nil {
+		fmt.Println("Error parsing opponent contest entry", err)
+		return 0, nil
+	}
+
+	return opponentEntryId, opponent
+
 }
 
 func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
@@ -584,7 +615,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 					case 2:
 						move[i].moveCode = 0xA
 						// delay[i].movement = 14
-					case 3:
+					case 4:
 						move[i].moveCode = 0xB
 					case 5:
 						move[i].moveCode = 0xB

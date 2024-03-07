@@ -13,9 +13,12 @@ import (
 	"encoding/binary"
 	"encoding/base64"
 	"errors"
+
+	"github.com/rdv-dev/pyrosaurus-server/Database"
 )
 
 type PyroUser struct {
+	InternalPlayerId uint64
 	PyroUserId uint32
 	PyroCheckId uint16
 	PyroVersion byte
@@ -56,6 +59,8 @@ func init() {
 		fmt.Println("Error decoding key Array")
 		os.Exit(1)
 	}
+
+	Database.InitializeDatabase()
 }
 
 // func LoadValidationKey() { // ([]byte)
@@ -133,14 +138,38 @@ func DoChallenge(user *PyroUser) (int, error) {
 	fmt.Printf("Version: %d\n", pyroVersion)
 	fmt.Printf("Checksum: %d\n", pyroDatalen)
 
+	createNewUser := false
+	var playerId uint64
+
 	if ((checkByte1 + checkByte2) == 255 && 
 		pyroString == "PYROB0" &&
 		(pyroVersion == 2 || pyroVersion == 3)) {
-			user.Conn.Write([]byte{0x27}) //validated pyroid
-			validated = 1
-			user.PyroUserId = pyroUserID
-			user.PyroCheckId = pyroCheckId
-			user.PyroVersion = pyroVersion
+			if pyroUserID > 0 {
+				playerId, err = Database.GetPlayerByID(pyroUserID)
+				if err != nil {
+					user.Conn.Write([]byte{0x63})
+					fmt.Println("Error during DoChallenge", err)
+				}
+			} else {
+				playerId = 0
+				createNewUser = true
+			}
+			if playerId > 0 {
+				user.Conn.Write([]byte{0x27}) //validated pyroid
+				validated = 1
+				user.InternalPlayerId = playerId
+				user.PyroUserId = pyroUserID
+				user.PyroCheckId = pyroCheckId
+				user.PyroVersion = pyroVersion
+			} else {
+				if createNewUser {
+					user.Conn.Write([]byte{0x27}) //validated pyroid
+					validated = 1
+					fmt.Println("Creating new user...")
+				} else {
+					user.Conn.Write([]byte{0x63})
+				}
+			}
 		} else {
 		user.Conn.Write([]byte{0x63})
 	}
@@ -205,15 +234,18 @@ func DoSpecialModes(user *PyroUser) (int, error) {
 	if user.PyroUserId == uint32(0) && user.PyroCheckId == uint16(0) {
 		// Pyro Id is 0, create new user and send user ID to them
 
-		user.PyroUserId = uint32(0xABEE)
+		newPlayerId, err := Database.CreatePlayer()
+		if err != nil {
+			fmt.Println("Error creating player")
+			return 0, err
+		}
+
+		user.PyroUserId = newPlayerId
 		user.PyroCheckId = uint16(0xCCD)
 		user.Arena = 0xA
 		user.Rating = 5
 		user.GamesAvailable = 255
 		user.LastOpponent = uint32(0)
-	}
-
-	if user.LastOpponent != uint32(0) {
 
 		fmt.Println("Selecting sub-mode 5")
 		user.Conn.Write([]byte{0x5, 0x5})
@@ -451,6 +483,8 @@ func GetFile(user *PyroUser) (*ContestEntryRaw, error) {
 	}
 
 	rawEntry := parseFile(fundata)
+
+	_ = Database.CreateContestEntry(rawEntry.TeamData, user.InternalPlayerId)
 
 	return rawEntry, nil
 }
