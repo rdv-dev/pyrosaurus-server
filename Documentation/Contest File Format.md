@@ -63,6 +63,10 @@ The Level Data is the same as what the game reads for the current level. The X a
 
 If the number of Food items is 0, two bytes should still be added after the level data.
 
+The X and Y coordinates are stored at arrays ds:5AF6 and ds:654A respectively.
+
+The array that controls the size of the food display on the map is at ds:2C32. This isn't necessarily how much food is available at the food. Increasing the value to 255 (0xFF) simply makes the food appear to be bigger on the map.
+
 ## Contest Data Structure
 
 The Contest Data is a series of Game Tick Frame Structures which encapsulate a set of Actions which were recorded from each Dino at that point-in-time. A Dino's action may or may not be included in any given Frame Structure. If too many frames with actions on the same dino are encountered in succession, they are "dropped" as an animation may still be running, causing the action data to be "out of sync" with what is happening on the screen. Manually tuned delays are included as a guideline for Dino AI. 
@@ -111,7 +115,7 @@ There are 12 actions available to perform on Dinos. This is a list of these acti
 |11|Up to 2|Special Actions| | |9D4B:916||
 
 ### Special Actions
-The first argument supplied with Action Code 11 (Special Actions) corresponds to which Action to perform. All Action except Action 7 do not take any additional arguments. The Argument Code/Action corresponds
+The first argument supplied with Action Code 11 (Special Actions) corresponds to which Action to perform. All Action except Action 7 do not take any additional arguments.
 |Action Code|Argument Code|# of Arguments|Description|Function Breakpoint|Contest Trace Breakpoint|
 |--|--|--|--|--|--|
 |11|0|0|Causes dino to die|N/A|9D4B:916||
@@ -283,7 +287,7 @@ Special Actions 1-6 all map to the same operation and set a value in an array. T
 
 This function is not only used to search for food but also to manage food pieces that are present? More reversing is required to fully understand what this function is doing.
 
-ds:2C32 is an array of the number of food pieces and how much "energy" is left in the food. The food has about 93 "units" of energy, starting at 128. Once the "units" are below 35, the variable holding the max number of food items is decremented by one. 
+ds:2C32 is an array which controls how large the food appears on the screen. The food starts at 128 and decreases are determined by the server. Once the size reaches below 35, the variable holding the max number of food items is decremented by one. 
 
 |Argument|Contest Argument Mapping|
 |---|---|
