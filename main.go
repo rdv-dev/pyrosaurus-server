@@ -5,10 +5,11 @@ import (
 	"os"
 	"io/ioutil"
 	"time"
-	"github.com/algae-disco/pyrosaurus-server/ContestServer"
-	"github.com/algae-disco/pyrosaurus-server/ContestServer/util"
-	"github.com/algae-disco/pyrosaurus-server/ModemServer"
-	"strconv"
+	"github.com/rdv-dev/pyrosaurus-server/ContestServer"
+	"github.com/rdv-dev/pyrosaurus-server/ContestServer/util"
+	"github.com/rdv-dev/pyrosaurus-server/ModemServer"
+	// "github.com/rdv-dev/pyrosaurus-server/Database"
+	// "strconv"
 )
 
 const (
@@ -181,86 +182,63 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 			if err != nil {
 				fmt.Println("Error processing player team entry", err.Error())
 			}
-			// if 4, process message
 
-			var filePath string
+			team2EntryId, team2 := ContestServer.FindOpponent(job.InternalPlayerId)
 
-			if job.PyroUserId == uint32(44014) {
-				filePath = "/home/rob/pyro-c/db/12345/ENTRY.bin"
-			}
+			if team2 != nil {
+				result, err := ContestServer.RunContest(team1, team2)
 
-			if job.PyroUserId == uint32(12345) {
-				filePath = "/home/rob/pyro-c/db/44014/ENTRY.bin"
-			}
-
-			rawFile, err := os.Open(filePath)
-
-			if err != nil {
-				fmt.Println("unable to open team file")
-				job.Mode = 0
-			}
-
-			teamData, err := ioutil.ReadAll(rawFile)
-
-			team2, err := util.NewContestEntry(teamData)
-
-			if err != nil {
-				fmt.Println("Error processing enemy team entry", err.Error())
-			}
-
-			result, err := ContestServer.RunContest(team1, team2)
-
-			fmt.Printf("Contest length: %d\n", len(result.Actions))
-
-			if err != nil {
-				fmt.Println("Failed to run contest!", err.Error())
-				job.Mode = 0
-			}
-
-
-			if len(result.Actions) < 0 {
-				fmt.Println("No result produced")
-				job.Mode = 0
-			} else {
-
-				var levelData []byte
-
-				levelFile, err := os.Open("/home/rob/pyro-c/db/levels/LEVEL.000")
+				fmt.Printf("Contest length: %d\n", len(result.Actions))
 
 				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+					fmt.Println("Failed to run contest!", err.Error())
+					job.Mode = 0
+				}
+
+
+				if len(result.Actions) < 0 {
+					fmt.Println("No result produced")
+					job.Mode = 0
 				} else {
-					levelData, err = ioutil.ReadAll(levelFile)
+
+					var levelData []byte
+
+					// levelFile, err := os.Open("/home/rob/pyro-c/db/levels/LEVEL.000")
+					levelFile, err := os.Open("Assets/Levels/LEVEL.000")
+
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					} else {
+						levelData, err = ioutil.ReadAll(levelFile)
+
+						if err != nil {
+							fmt.Println(err)
+							os.Exit(1)
+						}
+					}
+
+					// outdata, err := ContestServer.ExportContest(team1, team2, levelData, result)
+					ContestServer.SaveContest(team1, team2, levelData, result, job.InternalPlayerId, team2EntryId)
 
 					if err != nil {
 						fmt.Println(err)
 						os.Exit(1)
 					}
+
+					// Database.InsertContest(job.InternalPlayerId, team2EntryId, outdata)
+
+					// job.Contest = outdata
 				}
+			} else {
 
-				outdata, err := ContestServer.ExportContest(team1, team2, levelData, result)
-
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-
-				job.Contest = outdata
-
-				fmt.Println("Writing entry to file...")
-				filePath := "/home/rob/pyro-c/db/" + strconv.FormatUint(uint64(job.PyroUserId), 10) + "/ENTRY.bin"
-				f, err := os.Create(filePath)
-				if err != nil {
-					fmt.Println("Error writing file", err.Error())
-					os.Exit(1)
-				}
-				// defer server.Close()
-
-				f.Write(contestEntry.TeamData)
-
-				f.Close()
 			}
+
+
+			// if 4, process message
+
+			
+			// }
 
 
 
