@@ -11,6 +11,11 @@ apt install xfce4 xrdp net-tools chromium-browser git firefox golang ghex xfce4-
 
 Use the power manager to disable any screensaver.
 
+## Linux Dev Environment Setup
+```
+apt install net-tools git golang ghex gedit
+```
+
 For installing Sublime Text, run the below commands first.
 ```
 apt-get install apt-transport-https
@@ -30,17 +35,17 @@ If you are unfamiliar, read up on setting up the GOPATH [here](https://go.dev/do
 Run the following commands to setup the directory for pyrosaurus-server:
 ```
 mkdir -p ~/go/bin
-mkdir -p ~/go/src/github.com/algae-disco
+mkdir -p ~/go/src/github.com/rdv-dev
 ```
 
 Clone the repository:
 ```
-git clone https://github.com/algae-disco/pyrosaurus-server
+git clone https://github.com/rdv-dev/pyrosaurus-server
 ```
 
 Build the package:
 ```
-cd ~/go/src/github.com/algae-disco/pyrosaurus-server
+cd ~/go/src/github.com/rdv-dev/pyrosaurus-server
 go build
 ```
 
