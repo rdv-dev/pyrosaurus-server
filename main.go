@@ -3,7 +3,7 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"io/ioutil"
+	"io"
 	"time"
 	"github.com/rdv-dev/pyrosaurus-server/ContestServer"
 	"github.com/rdv-dev/pyrosaurus-server/ContestServer/util"
@@ -210,7 +210,7 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 						fmt.Println(err)
 						os.Exit(1)
 					} else {
-						levelData, err = ioutil.ReadAll(levelFile)
+						levelData, err = io.ReadAll(levelFile)
 
 						if err != nil {
 							fmt.Println(err)
@@ -247,19 +247,46 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 
 			// export contest, send file
 
+			job.Conn.Write([]byte{0x03, 0x03})
+
+			err := ModemServer.CheckForContest(job)
+			if err != nil {
+				fmt.Println("Failed to check for contest", err)
+			}
+
+			idTotal := 0
+			mmode := make([]byte, 0)
+
+			for idTotal < 2 {
+				nread, err := job.Conn.Read(job.Data)
+
+				idTotal += nread
+
+				if err != nil {
+					fmt.Println("Error reading from socket: Mode", err.Error())
+					break;
+				}
+
+				mmode = append(mmode, job.Data[:nread]...)
+			}
+
+			// user.Mode = int(mmode[0])
+
+			sentFile, err := ModemServer.SendFile(job, job.Contest)
+
 			// success, err := ModemServer.SendFile(job, 0) // contest
 
-			// if err != nil {
-			// 	fmt.Println("Error sending file", err.Error())
-			// }
+			if err != nil {
+				fmt.Println("Error sending file", err.Error())
+			}
 
-			// if success == 1 {
-			// 	success = 1
-			// }
+			if sentFile == 1 {
+				fmt.Println("Sent Contest file!")
+			}
 
-			fmt.Println("Pass handling Send Contest File directly")
+			// fmt.Println("Pass handling Send Contest File directly")
 
-			job.Conn.Write([]byte{0x03, 0x32})
+			// job.Conn.Write([]byte{0x03, 0x32})
 
 
 		case 7:
