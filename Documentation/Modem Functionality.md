@@ -131,6 +131,9 @@ Pyrosaurus ships with a Modem Driver as a secondary executable file called MODEM
 
 For tracing the Modem Driver, the best way to find out which memory segment the executable is loaded to is once a call is started, quick enable debugging and pause emulation while the Modem Driver is initializing the "modem", enter any breakpoints, then unpause emulation. Once this is set, normally the executable is loaded to the same segment so breakpoints don't always need to be adjusted.
 
+## Tracing
+The segment for traces is 4E3A.
+
 ## Community Modem Driver 
 Since the Modem Driver is a secondary executable, it is possible to develop a community Modem Driver as well. 
 A community Modem Driver would be executed in the same way by the Game - it doesn't care about what MODEM.EXE does. 
