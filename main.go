@@ -184,6 +184,7 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 			}
 
 			team2EntryId, team2 := ContestServer.FindOpponent(job.InternalPlayerId)
+            fmt.Printf("Found opponent: %d\n", team2EntryId)
 
 			if team2 != nil {
 				result, err := ContestServer.RunContest(team1, team2)
@@ -218,17 +219,15 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 						}
 					}
 
-					// outdata, err := ContestServer.ExportContest(team1, team2, levelData, result)
-					ContestServer.SaveContest(team1, team2, levelData, result, job.InternalPlayerId, team2EntryId)
+					outdata, err := ContestServer.ExportContest(team1, team2, levelData, result)
+					//ContestServer.SaveContest(team1, team2, levelData, result, job.InternalPlayerId, team2EntryId)
 
 					if err != nil {
 						fmt.Println(err)
 						os.Exit(1)
 					}
 
-					// Database.InsertContest(job.InternalPlayerId, team2EntryId, outdata)
-
-					// job.Contest = outdata
+					job.Contest = outdata
 				}
 			} else {
 
@@ -240,41 +239,19 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 			
 			// }
 
-
-
 		case 3:
 			// Server sends data
 
 			// export contest, send file
 
-			job.Conn.Write([]byte{0x03, 0x03})
+			job.Conn.Write([]byte{0x03})
 
 			err := ModemServer.CheckForContest(job)
 			if err != nil {
 				fmt.Println("Failed to check for contest", err)
 			}
 
-			idTotal := 0
-			mmode := make([]byte, 0)
-
-			for idTotal < 2 {
-				nread, err := job.Conn.Read(job.Data)
-
-				idTotal += nread
-
-				if err != nil {
-					fmt.Println("Error reading from socket: Mode", err.Error())
-					break;
-				}
-
-				mmode = append(mmode, job.Data[:nread]...)
-			}
-
-			// user.Mode = int(mmode[0])
-
 			sentFile, err := ModemServer.SendFile(job, job.Contest)
-
-			// success, err := ModemServer.SendFile(job, 0) // contest
 
 			if err != nil {
 				fmt.Println("Error sending file", err.Error())
@@ -283,11 +260,12 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 			if sentFile == 1 {
 				fmt.Println("Sent Contest file!")
 			}
+            
+            job.Mode = 0
 
 			// fmt.Println("Pass handling Send Contest File directly")
 
 			// job.Conn.Write([]byte{0x03, 0x32})
-
 
 		case 7:
 			success, err := ModemServer.DoTestConnection(job)

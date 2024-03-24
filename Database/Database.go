@@ -225,7 +225,7 @@ func FindOpponentEntry(notPlayerId uint64) (uint64, []byte, error) {
 	return entryId, entry, nil
 }
 
-// InsertContest_DATA adds a new contest_data to the CONTEST_DATA table.
+// InsertContest adds a new contest data to the CONTEST_DATA table.
 func InsertContest(myInternalId uint64, opponentEntryId uint64, contest_data []byte) error {
 	var myEntryId uint64
 	err := db.QueryRow("SELECT ENTRY_ID FROM PLAYER_ENTRY WHERE PLAYER_ID = ?", myInternalId).Scan(&myEntryId)
@@ -236,15 +236,25 @@ func InsertContest(myInternalId uint64, opponentEntryId uint64, contest_data []b
 	return err
 }
 
-// // GetContest_DATAByID retrieves a contest_data by its ID.
-// func GetContestEntryByID(db *sql.DB, contest_dataID int64) (string, error) {
-// 	var contest_dataName string
-// 	err := db.QueryRow("SELECT Name FROM CONTEST_DATA WHERE ID = ?", contest_dataID).Scan(&contest_dataName)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	return contest_dataName, nil
-// }
+// GetContestByPlayerId retrieves a contest data by Player ID
+func GetContestByPlayerId(myInternalId uint64) ([]byte, error) {
+	var contest_data []byte
+	err := db.QueryRow("SELECT CONT_DATA FROM CONTEST_DATA WHERE RETRIEVED = 0 AND ENTRY_ID_0 = ?", myInternalId).Scan(&contest_data)
+	log.Print("SELECT CONT_DATA FROM CONTEST_DATA WHERE RETRIEVED = 0 AND ENTRY_ID_0 = ",myInternalId)
+	if err != nil {
+		return nil, err
+	}
+
+	return contest_data, nil
+}
+
+func SetContestRetrieved(myInternalId uint64) (error) {
+    //_, err := db.Exec("UPDATE CONTEST_DATA SET RETRIEVED = 1 WHERE RETRIEVED = 0 AND ENTRY_ID_0 = ? ", myInternalId)
+	//if err != nil {
+//		return err
+//	}
+	return nil
+}
 
 // func main() {
 // 	db, err := sql.Open("sqlite3", dbFile)

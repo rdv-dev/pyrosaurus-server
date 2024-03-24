@@ -308,7 +308,9 @@ func DoSpecialModes(user *PyroUser) (int, error) {
 			mmode = append(mmode, user.Data[:nread]...)
 		}
 
-		// user.Mode = int(mmode[0])
+		 user.Mode = int(mmode[0])
+
+		user.Conn.Write([]byte{0x3})
 
 		sentFile, err := SendFile(user, user.Contest)
 
@@ -339,6 +341,17 @@ func DoSpecialModes(user *PyroUser) (int, error) {
 	// defer server.Close()
 
 	return 1, nil
+}
+
+func CheckForContest(user *PyroUser) (error) {
+
+	contest_data, err := Database.GetContestByPlayerId(user.InternalPlayerId)
+	if err != nil {
+		return err
+	}
+
+	user.Contest = contest_data
+	return nil
 }
 
 func GetFile(user *PyroUser) (*ContestEntryRaw, error) {
@@ -493,38 +506,46 @@ func SendFile(user *PyroUser, contents []byte) (int, error) {
 
 	fundata := make([]byte, 0)
 
-	fmt.Println("Sending code 3...")
-	user.Conn.Write([]byte{0x03})
+	//fmt.Println("Sending code 3...")
+	//user.Conn.Write([]byte{0x03})
 
-	nread, err := user.Conn.Read(user.Data)
+	//fmt.Println("Sending code 14...")
+	//user.Conn.Write([]byte{0x14})
 
-	if err != nil {
-		return 0, errors.New("Error reading mode")
-	}
+	//nread, err := user.Conn.Read(user.Data)
 
-	if user.Data[0] == 0x03 {
-		fmt.Println("Mode 3 confirmed")
-	} else {
-		fmt.Printf("Got this number: %d", int(user.Data[0]))
-	}
+	//if err != nil {
+	//	return 0, errors.New("Error reading mode")
+	//}
 
-	fmt.Println("Normal Contest available (0x14)...")
-	user.Conn.Write([]byte{0x14})
+    found14 := 0
+    
+    user.Conn.Write([]byte{0x14})
 
-	// fmt.Println("Sending server ready (1)...")
-	// conn.Write([]byte{0x1})
 
-	nread, err = user.Conn.Read(user.Data)
+    //if user.Data[0] == 0x03 {
+    //    fmt.Println("Mode 3 confirmed")
+    //} else {
+    //    fmt.Printf("Got this number: %d\n", int(user.Data[0]))
+    //}
 
-	if err != nil {
-		return 0, errors.New("Error reading mode")
-	}
+    fmt.Println("Normal Contest available (0x14)...")
 
-	if user.Data[0] == 0x14 {
-		fmt.Println("Got 0x14")
-	} else {
-		fmt.Printf("Got this number: %d", int(user.Data[0]))
-	}
+    fmt.Println("Sending server ready (1)...")
+    user.Conn.Write([]byte{0x1})
+
+    nread, err := user.Conn.Read(user.Data)
+
+    if err != nil {
+        return 0, errors.New("Error reading mode")
+    }
+
+    if user.Data[0] == 0x14 {
+        fmt.Println("Got 0x14")
+        found14 += 1
+    } else {
+        fmt.Printf("Got this number: %d\n", int(user.Data[0]))
+    }
 
 	fundata = append(fundata, user.Data[:nread]...)
 
