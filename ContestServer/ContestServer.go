@@ -255,7 +255,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		numDinos: team1.NumDinos + team2.NumDinos}
 
 	// testTimeLimit := 60 * 5 // 5 minutes, 300 seconds, TODO based on level data
-	testTimeLimit := 30 * ACTIONS_PER_SECOND
+	testTimeLimit := 300 * ACTIONS_PER_SECOND
 
 	// arenaFrames := testTimeLimit * ACTIONS_PER_SECOND
 	arenaFrames := testTimeLimit
@@ -590,7 +590,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 
 					// arg0 := 8
 					// arg2 := 0x10 | 0x0A // walk
-					arg2 := 0x10 | 0x04  // run
+					arg2 := 0x11 | 0x04  // run
 
 					// delay[i].movement = 20 // walk
 					delay[i].movement = 15 // run
