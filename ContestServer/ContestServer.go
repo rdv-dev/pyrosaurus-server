@@ -254,8 +254,8 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		dinos: make([]*util.Dino, team1.NumDinos + team2.NumDinos),
 		numDinos: team1.NumDinos + team2.NumDinos}
 
-	// testTimeLimit := 60 * 5 // 5 minutes, 300 seconds, TODO based on level data
-	testTimeLimit := 300 * ACTIONS_PER_SECOND
+	//testTimeLimit := 60 * 5 // 5 minutes, 300 seconds, TODO based on level data
+	testTimeLimit := 30 * ACTIONS_PER_SECOND
 
 	// arenaFrames := testTimeLimit * ACTIONS_PER_SECOND
 	arenaFrames := testTimeLimit
@@ -285,7 +285,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 	velocity := make([]*Vector, 0)
 	move := make([]*DinoMovement, 0)
 
-	initFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
+	//initFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
 
 	for i:=0; i<team1.NumDinos + team2.NumDinos; i++ {
 		for j:=i+1; j<team1.NumDinos + team2.NumDinos; j++ {
@@ -341,8 +341,8 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 			tail: 0})
 
 		// turn on dino ?
-		initFrame.Put(&Action{code: 9, dino: byte(i), args: make([]byte, 0)})
-		initFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{byte(9)}})
+		//initFrame.Put(&Action{code: 9, dino: byte(i), args: make([]byte, 0)})
+		//initFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{byte(9)}})
 
 		// initFrame.Put(&Action{code: 2, dino: byte(i), args: []byte{byte(5), byte(0x81), byte(0)}})
 		// delay[i].movement = 100
@@ -356,8 +356,8 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 		// }
 	}
 
-	cr.Actions = append(cr.Actions, byte(initFrame.NumActions))
-	cr.Actions = append(cr.Actions, initFrame.Actions...)
+	//cr.Actions = append(cr.Actions, byte(initFrame.NumActions))
+	//cr.Actions = append(cr.Actions, initFrame.Actions...)
 
 	// distPairslen := len(distPairs)
 
@@ -369,37 +369,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 
 	// cf := ContestFrame { Actions: make([]byte, 0), NumActions: 0 }
 
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0xE), byte(0x10|0x4), byte(0x0)}})
-	// cr.GenerateDelay(9)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x10|0x4), byte(0xA)}})
-	// cr.GenerateDelay(10)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x10|0x4), byte(0xA)}})
-	// cr.GenerateDelay(10)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x10|0x4), byte(0xB)}})
-	// cr.GenerateDelay(11)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x10|0x4), byte(0xB)}})
-	// cr.GenerateDelay(11)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x10|0x4), byte(0xB)}})
-	// cr.GenerateDelay(11)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x10|0xA), byte(0xF)}})
-	// cr.GenerateDelay(15)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x10|0xA), byte(0xD)}})
-	// cr.GenerateDelay(13)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x10|0xA), byte(5)}})
-	// cr.GenerateDelay(5)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x10|0xA), byte(5)}})
-	// cr.GenerateDelay(5)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x1), byte(0x00|0x1), byte(5)}})
-	// cr.GenerateDelay(5)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x00|0xA), byte(7)}})
-	// cr.GenerateDelay(7)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x0), byte(0x00|0x1), byte(0)}})
-	// cr.GenerateDelay(1)
-	// cr.Push(&Action{code: 2, dino: byte(0), args: []byte{byte(0x1), byte(0x00|0x1), byte(3)}})
-
 	for arenaFrames > 0 {
-
-	// for arenaFrames < 0 {
 
 		cf := ContestFrame { Actions: make([]byte, 0), NumActions: 0 }
 
@@ -454,7 +424,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 
 		// neck/tail movement
 		for i:=0; i<arena.numDinos; i++ {
-			if delay[i].neck <= 0 && neckLocked == 0 {
+			if delay[i].neck <= 0 {
 				// if i == 0 {
 				// 	shakeAngle := byte(10)
 
@@ -467,6 +437,7 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 				// 	delay[i].neck = 0x3
 
 				// } else {
+                if neckLocked == 0 {
 					neckAngle := byte(30)
 					
 					if arenaFrames % 2 != 0 {
@@ -477,11 +448,10 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 					cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x11, neckAngle}})
 
 					delay[i].neck = 0xF
-				// }
-			} else {
-				cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x05, byte(30)}})
-			}
-			
+                } else {
+				    cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x05, byte(30)}})
+				}
+			} 
 
 			if delay[i].tail <= 0 {
 				tailAngle := byte(30)
@@ -508,20 +478,6 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 			// evaluate decisions
 			decisions := EvaluateDecision(arena.dinos[i])
 
-			// decisions := make([]*DecisionResult, 0)
-
-			// if delay[i].movement <= 0 && i < team1.NumDinos {
-			// 	cf.Put(RandomMovement(r1, i))
-			// 	delay[i].movement = 80
-			// }
-
-			// if delay[i].movement <= 0 && i >= team1.NumDinos {
-			// 	cf.Put(RandomMovement(r2, i))
-			// 	delay[i].movement = 80
-			// }
-
-			// cf.Put(&Action{code: 2, dino: byte(i), args: []byte{byte(5), byte(0x80|0xA), byte(gameStruct)}})
-			
 			// fmt.Printf("Dino %d decided on movement %d\n", i, decisions[0].Movement)
 			if len(decisions) > 0 {
 				chosen := 0
