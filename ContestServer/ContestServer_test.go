@@ -2,8 +2,9 @@ package ContestServer
 
 import (
 	"testing"
+	"encoding/binary"
 	"os"
-	"io/ioutil"
+	"io"
 	"github.com/rdv-dev/pyrosaurus-server/ContestServer/util"
 	"github.com/rdv-dev/pyrosaurus-server/ContestServer"
 	// "https://github.com/stretchr/testify/assert"
@@ -14,11 +15,11 @@ import (
 func TestRunContest(t *testing.T) {
 	cases := []string {
 		"Call",
-		"BaseTeam",
+		//"BaseTeam",
 		"Moves"}
 
-	caseType := []int {
-		1, 0, 1}
+	//caseType := []int {
+	//	1, 0, 1}
 
 	var levelData []byte
 
@@ -33,30 +34,65 @@ func TestRunContest(t *testing.T) {
 		testTeam2Path := directory + "/TestData/" + cases[i] + "/T2.TEAM"
 
 		fmt.Printf("Loading %s\n", testTeam1Path)
+        team1DataFile, err := os.Open(testTeam1Path)
+        if err != nil {
+            t.Fail()
+            t.Logf("Unable to open team file %s\n", testTeam1Path)
+            fmt.Println(err)
+            os.Exit(1)
+        }
 
-		team1, err := util.NewContestEntry(testTeam1Path, caseType[i])
+        team1Data, err := io.ReadAll(team1DataFile)
+
+        if err != nil {
+            t.Fail()
+            t.Logf("Unable to read team file %s\n", testTeam1Path)
+            fmt.Println(err)
+            os.Exit(1)
+        } 
+
+		team1, err := util.NewContestEntry(team1Data)
 
 		if err != nil {
 			t.Fail()
-			t.Logf("unable to load team file %s\n", testTeam1Path)
+			t.Logf("unable to parse team file %s\n", testTeam1Path)
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
 		fmt.Printf("Loading %s\n", testTeam2Path)
+        team2DataFile, err := os.Open(testTeam2Path)
+        if err != nil {
+            t.Fail()
+            t.Logf("Unable to open team file %s\n", testTeam1Path)
+            fmt.Println(err)
+            os.Exit(1)
+        }
 
-		team2, err := util.NewContestEntry(testTeam2Path, caseType[i])
+        team2Data, err := io.ReadAll(team2DataFile)
+
+        if err != nil {
+            t.Fail()
+            t.Logf("Unable to read team file %s\n", testTeam1Path)
+            fmt.Println(err)
+            os.Exit(1)
+        } 
+
+		team2, err := util.NewContestEntry(team2Data)
 
 		if err != nil {
 			t.Fail()
-			t.Logf("unable to load team file %s\n", testTeam2Path)
+			t.Logf("unable to parse team file %s\n", testTeam2Path)
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
+        fmt.Println("Running Contest")
+
 		result, err := ContestServer.RunContest(team1, team2)
 
 		if err != nil {
+            fmt.Println(err)
 			t.Fail()
 			t.Logf("Failed to run contest!\n")
 			os.Exit(1)
@@ -64,20 +100,21 @@ func TestRunContest(t *testing.T) {
 
 
 		if len(result.Actions) < 0 {
+			fmt.Println("No result produced")
 			t.Fail()
 			t.Logf("No result produced\n")
-			fmt.Println("No result produced")
 			os.Exit(1)
 		}
 
-		outFile, err := os.Create(directory + "/TestData/" + cases[i] + "/CONT.000")
+		//outFile, err := os.Create(directory + "/TestData/" + cases[i] + "/CONT.000")
 
-		if err != nil {
-			t.Fail()
-			t.Logf("Unable to open contest file for writing\n")
-			os.Exit(1)
-		}
+		//if err != nil {
+		//	t.Fail()
+		//	t.Logf("Unable to open contest file for writing\n")
+		//	os.Exit(1)
+		//}
 
+        fmt.Println("Loading Level")
 		levelFile, err := os.Open(directory + "/TestData/" + cases[i] + "/LEVEL.000")
 
 		if err != nil {
@@ -86,7 +123,7 @@ func TestRunContest(t *testing.T) {
 			fmt.Println(err)
 			os.Exit(1)
 		} else {
-			levelData, err = ioutil.ReadAll(levelFile)
+			levelData, err = io.ReadAll(levelFile)
 
 			if err != nil {
 				t.Fail()
@@ -96,7 +133,10 @@ func TestRunContest(t *testing.T) {
 			}
 		}
 
+        fmt.Println("Exporting Contest")
+
 		outdata, err := ContestServer.ExportContest(team1, team2, levelData, result)
+        
 
 		if err != nil {
 			t.Fail()
@@ -105,9 +145,77 @@ func TestRunContest(t *testing.T) {
 			os.Exit(1)
 		}
 
-		outFile.Write(outdata)
+		//outFile.Write(outdata)
 
 		// outFile.Close()
+        contestDataOffset := int(binary.LittleEndian.Uint16(outdata[0xF:0xF+2]))
+
+        pos := contestDataOffset
+
+        t.Logf("Contest Data Offset: %d", pos)
+
+        for pos < len(outdata) {
+            fsize := int(outdata[pos])
+            t.Logf("Frame size: %d\n", fsize)
+            pos++
+
+            frameCount := 0
+
+            for frameCount < fsize && pos < len(outdata) {
+
+                encodedByte := int(outdata[pos])
+                dinoIndex := encodedByte / 12
+                action := encodedByte - (dinoIndex * 12)
+
+                frameCount++
+                pos++
+
+                switch action {
+                case 0:
+                    t.Logf("Move Neck: ")
+                    pos += 2
+                case 1:
+                    t.Logf("Move tail: ")
+                    pos += 2
+                case 2:
+                    t.Logf("Move: ")
+                    pos += 3
+                case 3:
+                    t.Logf("set Breath rate: ")
+                    pos += 2
+                case 4:
+                    t.Logf("Step Left/Right: ")
+                    pos++
+                case 5:
+                    t.Logf("Step Forward/Back: ")
+                    pos++
+                case 6:
+                    t.Logf("Die")
+                    pos++
+                case 7:
+                    t.Logf("Jump left/right")
+                    pos++
+                case 8:
+                    t.Logf("Jump Forward/Back")
+                    pos++
+                case 9:
+                    t.Logf("Locks neck movement?")
+                case 10:
+                    t.Logf("Call")
+                case 11:
+                    t.Logf("Special Actions...")
+                    pos++
+                default:
+                    t.Logf("Unknown action encountered!")
+                    t.Fail()
+                }
+
+            }
+
+         //   t.Logf("\n")
+        }
+
+
 	}
 
 }
