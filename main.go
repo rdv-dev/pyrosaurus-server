@@ -156,7 +156,7 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 				fmt.Println("Error during special mode", err.Error())
 			}
 
-			time.Sleep(10*time.Second)
+			time.Sleep(1*time.Second)
 
 			if success == 1 {
 				job.Mode = 0
