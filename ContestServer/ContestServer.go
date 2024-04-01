@@ -545,11 +545,11 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 					}
 
 					// arg0 := 8
-					// arg2 := 0x10 | 0x0A // walk
-					arg2 := 0x11 | 0x04  // run
+					// arg2 := 0x90 | 0x0A // walk
+					arg2 := 0x90 | 0x04  // run
 
 					// delay[i].movement = 20 // walk
-					delay[i].movement = 15 // run
+					delay[i].movement = 20 // run
 
 					// switch move[i].count {
 					// case 0:
@@ -564,17 +564,21 @@ func RunContest(team1, team2 *util.ContestEntry) (*ContestResult, error) {
 					switch move[i].count { // run
 					case 0:
 						move[i].moveCode = 0
-						delay[i].movement = 12
+						//delay[i].movement = 15
 					case 1:
 						move[i].moveCode = 9
-						delay[i].movement = 14
+						//delay[i].movement = 14
 					case 2:
 						move[i].moveCode = 0xA
-						// delay[i].movement = 14
+						delay[i].movement = 10
 					case 4:
-						move[i].moveCode = 0xB
+						move[i].moveCode = 0xA
+                        delay[i].movement = 10
 					case 5:
 						move[i].moveCode = 0xB
+                        delay[i].movement = 10
+                    default:
+                        delay[i].movement = 10
 					}
 
 					fmt.Printf("Dino %d rot: %d move: %x\n", i, rotation, move[i].moveCode)
