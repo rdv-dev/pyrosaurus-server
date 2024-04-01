@@ -8,18 +8,12 @@ The Modem Driver is the gateway to the Pyrosaurus game servers. It performs the 
 When a player first starts up the game they are presented with the option to test the Modem connectivity. This test process is described below in the [Modem Test Procedure](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md#modem-test-procedure) section.
 
 ## Challenge Procedure
-One of the first operations of the Modem Driver is to use a Challenge Procedure. The Modem Server must send the following bytes in sequence before any functionality is invoked:
+One of the first operations of the Modem Driver is to use a Challenge Procedure. The Modem Server must send the following bytes in sequence with a time gap between each byte before any functionality is invoked:
 * 0x32
 * 0x3C
 * 0x46
 
-### Note
-The challenge procedure currently needs a modification to a jump instruction in order for it to send the identity data. If we figure out how to get the return value it is expecting without this modification, then this will no longer be needed.
-
-Use a hex editor and follow these steps to make the change.
-* Navigate to byte 0xB17
-  * Validate surrounding bytes: 9C 0B D2 *7C* 15 7F 05
-* Set byte to 0x74
+The purpose of the time gap was a way to determine whether the phone line was too noisy. For example, if the noise was interpreted as binary data quite quickly by the modem, then the program could conclude that the integrity of any true data being sent from the server to the client would not hold up. At the time, they still probably sent each byte with a time delay as well, and we can simulate the same by waiting 250 milliseconds between each byte.
 
 If this test is passed, then the Modem Driver sends Identity Information (see [table](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md#identity-information-table) below) to the Modem Server.
 

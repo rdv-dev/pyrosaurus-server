@@ -90,13 +90,20 @@ func DoChallenge(user *PyroUser) (int, error) {
 
 	validated := 0
 
-	x, err := user.Conn.Write([]byte{0x32, 0x3C, 0x46}) // challenge bytes
+    // Space out the timing of the challenge key
+    _, err := user.Conn.Write([]byte{0x32}) // challenge bytes
+    time.Sleep(250 * time.Millisecond)
 
 	if err != nil {
 		return -1, errors.New("Error with writing to connection")
-	}
+    }
 
-	fmt.Println("Challenge key sent! " + string(x))
+	user.Conn.Write([]byte{0x3C}) // challenge bytes
+    time.Sleep(250 * time.Millisecond)
+
+	user.Conn.Write([]byte{0x46}) // challenge bytes
+
+	fmt.Println("Challenge key sent! ")
 
 	// data := make([]byte, 1024)
 	identity := make([]byte, 0)
@@ -145,7 +152,7 @@ func DoChallenge(user *PyroUser) (int, error) {
 		pyroString == "PYROB0" &&
 		(pyroVersion == 2 || pyroVersion == 3)) {
 			if pyroUserID > 0 {
-				playerId, err = Database.GetPlayerByID(pyroUserID)
+                playerId, err = Database.GetPlayerByID(pyroUserID)
 				if err != nil {
 					user.Conn.Write([]byte{0x63})
 					fmt.Println("Error during DoChallenge", err)
