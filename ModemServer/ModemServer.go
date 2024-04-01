@@ -336,7 +336,8 @@ func DoSpecialModes(user *PyroUser) (int, error) {
 	// SUB-MODE 7 - get BACKUP data
 
 	// SUB-MODE 8 - Set modem return code to 0x14
-
+    //      no need to implement, causes "noise" error and 
+    //      does not advance game to Receive Contest state
 	// SUB-MODE 9 - Send BACKUP block
 
 	fmt.Println("Sending 0x64 for 'we're done!'...")
