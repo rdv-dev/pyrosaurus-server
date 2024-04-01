@@ -151,6 +151,10 @@ func DoChallenge(user *PyroUser) (int, error) {
 	if ((checkByte1 + checkByte2) == 255 && 
 		pyroString == "PYROB0" &&
 		(pyroVersion == 2 || pyroVersion == 3)) {
+            // set the Pyro Version
+		    user.PyroVersion = pyroVersion
+
+            // perform other processing on User Id
 			if pyroUserID > 0 {
                 playerId, err = Database.GetPlayerByID(pyroUserID)
 				if err != nil {
@@ -160,6 +164,7 @@ func DoChallenge(user *PyroUser) (int, error) {
 			} else {
 				playerId = 0
 				createNewUser = true
+                user.PyroVersion = pyroVersion
 			}
 			if playerId > 0 {
 				user.Conn.Write([]byte{0x27}) //validated pyroid
@@ -167,7 +172,6 @@ func DoChallenge(user *PyroUser) (int, error) {
 				user.InternalPlayerId = playerId
 				user.PyroUserId = pyroUserID
 				user.PyroCheckId = pyroCheckId
-				user.PyroVersion = pyroVersion
 			} else {
 				if createNewUser {
 					user.Conn.Write([]byte{0x27}) //validated pyroid
@@ -292,10 +296,10 @@ func DoSpecialModes(user *PyroUser) (int, error) {
 		user.Conn.Write([]byte{ byte(sum) })
 	}
 
-	// SUB-MODE 6 - check for contest, if one is available, send it
-	// somehow switch to mode 3?
+	// SUB-MODE 6 - only available for version > 2
+    //      check for contest, if one is available, send it
 
-	if len(user.Contest) > 0 {
+	if len(user.Contest) > 0 && user.PyroVersion > 2 {
 		fmt.Println("Selecting sub-mode 6")
 		user.Conn.Write([]byte{0x6, 0x6})
 
