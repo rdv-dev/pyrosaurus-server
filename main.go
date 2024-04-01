@@ -218,16 +218,21 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 							os.Exit(1)
 						}
 					}
+                    
+                    if job.PyroVersion > 2 {
+                        // Modded MODEM versions 
+                        outdata, err := ContestServer.ExportContest(team1, team2, levelData, result)
 
-					outdata, err := ContestServer.ExportContest(team1, team2, levelData, result)
-					//ContestServer.SaveContest(team1, team2, levelData, result, job.InternalPlayerId, team2EntryId)
+                        if err != nil {
+                            fmt.Println(err)
+                            os.Exit(1)
+                        }
 
-					if err != nil {
-						fmt.Println(err)
-						os.Exit(1)
-					}
-
-					job.Contest = outdata
+                        job.Contest = outdata
+                    } else {
+                        // Original MODEM version
+                        ContestServer.SaveContest(team1, team2, levelData, result, job.InternalPlayerId, team2EntryId)
+                    }
 				}
 			} else {
 
@@ -249,23 +254,22 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 			err := ModemServer.CheckForContest(job)
 			if err != nil {
 				fmt.Println("Failed to check for contest", err)
-			}
+                // Contest not available
+			    job.Conn.Write([]byte{0x21})
+			} else {
 
-			sentFile, err := ModemServer.SendFile(job, job.Contest)
+                sentFile, err := ModemServer.SendFile(job, job.Contest)
 
-			if err != nil {
-				fmt.Println("Error sending file", err.Error())
-			}
+                if err != nil {
+                    fmt.Println("Error sending file", err.Error())
+                }
 
-			if sentFile == 1 {
-				fmt.Println("Sent Contest file!")
-			}
-            
+                if sentFile == 1 {
+                    fmt.Println("Sent Contest file!")
+                }
+            }
+
             job.Mode = 0
-
-			// fmt.Println("Pass handling Send Contest File directly")
-
-			// job.Conn.Write([]byte{0x03, 0x32})
 
 		case 7:
 			success, err := ModemServer.DoTestConnection(job)
