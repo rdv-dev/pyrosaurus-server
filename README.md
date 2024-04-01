@@ -13,7 +13,7 @@ For reversing, debugging and testing of the game I recommend using DOSBox-X as t
 See [build instructions here](Documentation/Build-instructions.md).
 
 ## Current Functionality
-The pyrosaurus-server project imitates the original Evryware network, communicating directly with the game's modem utility program. Currently this server is coded to communicate with a modified version of this modem utility, [available here](Mods/MODEM.EXE).
+The pyrosaurus-server project imitates the original Evryware network, communicating directly with the game's modem utility program. A modified modem utility is [available here](Mods/MODEM.EXE) which allows sending the team and downloading the contest all at once. This greatly increaces the pacing of games.
 
 What is working:
 * Sending teams
