@@ -28,8 +28,8 @@ To see what has been documented so far from reverse engineering research and som
 ## Planned Features
 * Enable Playback functionality for Contests
   * See technical documentation [here](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Contest%20File%20Format.md)!
-* Interface with Pyrosaurus Modem functionality
-  * Progress is being made here! [See this page for documentation](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md).
+* Interface with Pyrosaurus Modem functionality - Complete!
+  * [See this page for documentation](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md).
 
 ## How Do I Get This Game?
 You can download it directly from this repository [here](https://github.com/algae-disco/pyrosaurus-server/blob/main/Mods/pyro20.exe). Optionally you can download the game from archive.org . Note that the following link at [this location](https://web.archive.org/web/20010516030044/http://www.evryware.com/pyrosaurus/pyro20.exe) points directly to a EXE file captured on May 16, 2001. 
