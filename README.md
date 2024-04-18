@@ -20,19 +20,24 @@ What is working:
 * Receiving contests
 * Reading team entries
 * Compiling contest headers
-* Partial arena (contest) emulation
 
 ## Documentation
-To see what has been documented so far from reverse engineering research and some of the functionality relevant to this server, see the [Documentation here](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/README.md).
+To see what has been documented so far from reverse engineering research and some of the functionality relevant to this server, see the [Documentation here](Documentation/README.md).
 
 ## Planned Features
 * Enable Playback functionality for Contests
-  * See technical documentation [here](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Contest%20File%20Format.md)!
-* Interface with Pyrosaurus Modem functionality - Complete!
-  * [See this page for documentation](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Modem%20Functionality.md).
+  * See technical documentation [here](Documentation/Contest%20File%20Format.md)!
+  * Map movement - In Progress
+    * Atomic movement reversing complete. Coordinate system and movement model In Progress, implementation of movement types Pending
+  * Decision support - Pending
+  * Neck and tail movement - In Progress
+  * Fight support - Pending
+* Other features
+  * Support for a campaign mode
+  * Support for custom tournaments
 
 ## How Do I Get This Game?
-You can download it directly from this repository [here](https://github.com/algae-disco/pyrosaurus-server/blob/main/Mods/pyro20.exe). Optionally you can download the game from archive.org . Note that the following link at [this location](https://web.archive.org/web/20010516030044/http://www.evryware.com/pyrosaurus/pyro20.exe) points directly to a EXE file captured on May 16, 2001. 
+You can download it directly from this repository [here](Mods/pyro20.exe). Optionally you can download the game from archive.org . Note that the following link at [this location](https://web.archive.org/web/20010516030044/http://www.evryware.com/pyrosaurus/pyro20.exe) points directly to a EXE file captured on May 16, 2001. 
 
 Which ever source you download from, use the hashes below to validate you have the correct file.
 
