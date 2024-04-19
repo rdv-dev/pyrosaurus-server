@@ -16,6 +16,7 @@ func TestMoves(t *testing.T) {
 	cases := []string {
 		"Boss1",
 		"Moves",
+        "BaseTeam",
         "Call",
     }
 

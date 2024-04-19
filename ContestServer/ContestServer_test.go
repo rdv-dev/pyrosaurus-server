@@ -16,7 +16,9 @@ func TestRunContest(t *testing.T) {
 	cases := []string {
 		"Call",
 		"Boss1",
-		"Moves"}
+        "BaseTeam",
+		"Moves",
+    }
 
 	//caseType := []int {
 	//	1, 0, 1}
