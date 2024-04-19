@@ -1,7 +1,7 @@
 package util
 
 import (
-	"fmt"
+//	"fmt"
 	"encoding/binary"
 )
 
@@ -29,6 +29,11 @@ const (
 	DECISION_FOOD = 16
 	DECISION_GO_SPEED = 17
 	DECISION_PACK = 18
+
+    DECISION_DONT_MOVE = byte(0)
+    DECISION_CREEP = byte(1)
+    DECISION_WALK = byte(2)
+    DECISION_RUN = byte(3)
 )
 
 type Decision struct {
@@ -58,7 +63,7 @@ func NewDecisions(decisions []byte) []*Decision {
 	retDeci := make([]*Decision, int(decisions[0]))	
 
 	for i:=0; i<int(decisions[0]); i++ {
-		fmt.Printf("Decision Index Movement: %d\n", 1 + (i * DECISION_SIZE) + DECISION_MOVEMENT)
+		//fmt.Printf("Decision Index Movement: %d\n", int(decisions[1 + (i * DECISION_SIZE) + DECISION_MOVEMENT]))
 
 		retDeci[i] = &Decision {
 			Movement: int(decisions[1 + (i * DECISION_SIZE) + DECISION_MOVEMENT]),
@@ -89,6 +94,7 @@ func NewDecisions(decisions []byte) []*Decision {
 type Dino struct {
 	Team uint32
 	species []byte
+    HasLegs bool
 	Moves []*Moves
 	DoMove *Moves
 	fitePoints []byte
@@ -100,35 +106,36 @@ type Dino struct {
 	Xpos float64
 	Ypos float64
 	Angle float64
-	neckAngle float64
+	neckAngle int
 	attacking []byte
 	attackedBy []byte
 	
 }
 
-func NewDino(inTeam *ContestEntry, species int, dino int) *Dino {
-	fmt.Printf("Moves Offset: %d Species: %d\n", inTeam.MovesOffset, species)
+func NewDino(inTeam *ContestEntry, species, dino int, xBound, yBound float64) *Dino {
+	//fmt.Printf("Moves Offset: %d Species: %d\n", inTeam.MovesOffset, species)
 	movesStart := inTeam.MovesOffset + (MOVE_DATA_LEN * species)
 	movesEnd := inTeam.MovesOffset + (MOVE_DATA_LEN * species) + MOVE_DATA_LEN
 
-	fmt.Printf("Moves Start offset: %d Moves End Offset: %d Diff: %d\n", movesStart, movesEnd, movesEnd-movesStart)
+	//fmt.Printf("Moves Start offset: %d Moves End Offset: %d Diff: %d\n", movesStart, movesEnd, movesEnd-movesStart)
 
 	decisionStart := inTeam.DecisionsOffset + (DECISIONS_LEN * species)
 	decisionEnd := inTeam.DecisionsOffset + (DECISIONS_LEN * species) + DECISIONS_LEN
 
-	fmt.Printf("Decision Start offset: %d Decision End Offset: %d Diff: %d\n", decisionStart, decisionEnd, decisionEnd-decisionStart)
+	//fmt.Printf("Decision Start offset: %d Decision End Offset: %d Diff: %d\n", decisionStart, decisionEnd, decisionEnd-decisionStart)
 
 	dinoXPosIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE)) + (dino * TEAM_X_POS_LEN) + decisionEnd
 	dinoYPosIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE + TEAM_X_POS_LEN)) + (dino * TEAM_Y_POS_LEN) + decisionEnd
 	dinoRotnIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE + TEAM_X_POS_LEN + TEAM_Y_POS_LEN)) + (dino * TEAM_ROT_LEN) + decisionEnd
 
-	fmt.Printf("Dino Offsets XPos: %d YPos: %d Rotn: %d\n", dinoXPosIndex, dinoYPosIndex, dinoRotnIndex)
-	fmt.Printf("Dino Values  XPos: %f YPos: %f Rotn: %f\n",float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360))
+	//fmt.Printf("Dino Offsets XPos: %d YPos: %d Rotn: %d\n", dinoXPosIndex, dinoYPosIndex, dinoRotnIndex)
+	//fmt.Printf("Dino Values  XPos: %f YPos: %f Rotn: %f\n",float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360))
 
 	return &Dino {
 		Team: inTeam.Team,
 		species: make([]byte, SPECIES_LEN),
-		Moves: NewMoves(inTeam.TeamData[movesStart:movesEnd]),
+        HasLegs: true,
+		Moves: NewMoves(inTeam.TeamData[movesStart:movesEnd], xBound, yBound),
 		fitePoints: make([]byte, FITE_DATA1_LEN),
 		fiteXPos: make([]byte, FITE_DATA2_LEN),
 		fiteYPos: make([]byte, FITE_DATA3_LEN),
