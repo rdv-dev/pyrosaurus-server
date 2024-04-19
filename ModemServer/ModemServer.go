@@ -176,7 +176,6 @@ func DoChallenge(user *PyroUser) (int, error) {
 				if createNewUser {
 					user.Conn.Write([]byte{0x27}) //validated pyroid
 					validated = 1
-					fmt.Println("Creating new user...")
 				} else {
 					user.Conn.Write([]byte{0x63})
 				}
