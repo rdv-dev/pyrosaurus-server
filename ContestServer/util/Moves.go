@@ -19,9 +19,9 @@ const (
 )
 
 type MovePoint struct {
-	X int16
-	Y int16
-	GoalSize int16
+	X float64
+	Y float64
+	GoalSize float64
 }
 
 type Moves struct {
@@ -30,7 +30,13 @@ type Moves struct {
 	ToPoint int
 }
 
-func NewMoves(moves []byte) []*Moves {
+func (p * Moves) PrintPoints() {
+    for i:=0; i<len(p.Points); i++ {
+        fmt.Printf("X: %f Y: %f GoalSize: %f\n", p.Points[i].X, p.Points[i].Y, p.Points[i].GoalSize)
+    }
+}
+
+func NewMoves(moves []byte, levelX, levelY float64) []*Moves {
 	retMoves := make([]*Moves, 0)
 	i := 0
 	for i<len(moves) {
@@ -40,7 +46,7 @@ func NewMoves(moves []byte) []*Moves {
 
 			if numPoints <= 10 {
 
-				fmt.Printf("Loading moves...\nNum Points: %d\n", numPoints)
+				//fmt.Printf("Loading moves...\nNum Points: %d\n", numPoints)
 
 				m := make([]*MovePoint, numPoints)
 
@@ -48,12 +54,37 @@ func NewMoves(moves []byte) []*Moves {
 				i++
 
 				for p:=0; p<numPoints; p++ {
-					m[p] = &MovePoint {
-						X: int16(binary.LittleEndian.Uint16(moves[i:i+2])),
-						Y: int16(binary.LittleEndian.Uint16(moves[i+2:i+4])),
-						GoalSize: int16(moves[i+4:i+5][0])}
+                    var x, y, gs float64
+                    x = float64(int16(binary.LittleEndian.Uint16(moves[i:i+2])))
+                    y = float64(int16(binary.LittleEndian.Uint16(moves[i+2:i+4])))
+                    gs = float64(int16(moves[i+4:i+5][0]))
 
-					fmt.Printf("X:%d Y:%d S:%d\n", int16(binary.LittleEndian.Uint16(moves[i:i+2])), int16(binary.LittleEndian.Uint16(moves[i+2:i+4])),int16(moves[i+4:i+5][0]))
+                    if x < 0 {
+                        if x < (float64(levelX) * -1) {
+                            x = float64(levelX) + 100 + gs
+                        }
+                    } else {
+                        if x > float64(levelX) {
+                            x = float64(levelX) - 100 - gs
+                        }
+                    }
+                    if y < 0 {
+                        if y < (float64(levelY) * -1) {
+                            y = float64(levelY) + 100 + gs
+                        }
+                    } else {
+                        if y > float64(levelY) {
+                            y = float64(levelY) - 100 - gs
+                        }
+                    }
+
+					m[p] = &MovePoint {
+						X: x,
+						Y: y,
+						GoalSize: float64(int16(moves[i+4:i+5][0])),
+                    }
+
+					//fmt.Printf("X:%f Y:%f S:%f\n", x, y, gs)
 
 					i+=5
 				}

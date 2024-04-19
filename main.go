@@ -175,6 +175,22 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 			}
 
 			// fmt.Sprintf("%s", fileData[0])
+            var levelData []byte
+
+            // levelFile, err := os.Open("/home/rob/pyro-c/db/levels/LEVEL.000")
+            levelFile, err := os.Open("Assets/Levels/LEVEL.000")
+
+            if err != nil {
+                fmt.Println(err)
+                os.Exit(1)
+            } else {
+                levelData, err = io.ReadAll(levelFile)
+
+                if err != nil {
+                    fmt.Println(err)
+                    os.Exit(1)
+                }
+            }
 
 			// if 2, process entry, run contest
 			team1, err := util.NewContestEntry(contestEntry.TeamData)
@@ -187,7 +203,7 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
             fmt.Printf("Found opponent: %d\n", team2EntryId)
 
 			if team2 != nil {
-				result, err := ContestServer.RunContest(team1, team2)
+				result, err := ContestServer.RunContest(team1, team2, levelData)
 
 				fmt.Printf("Contest length: %d\n", len(result.Actions))
 
@@ -202,22 +218,6 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 					job.Mode = 0
 				} else {
 
-					var levelData []byte
-
-					// levelFile, err := os.Open("/home/rob/pyro-c/db/levels/LEVEL.000")
-					levelFile, err := os.Open("Assets/Levels/LEVEL.000")
-
-					if err != nil {
-						fmt.Println(err)
-						os.Exit(1)
-					} else {
-						levelData, err = io.ReadAll(levelFile)
-
-						if err != nil {
-							fmt.Println(err)
-							os.Exit(1)
-						}
-					}
                     
                     if job.PyroVersion > 2 {
                         // Modded MODEM versions 

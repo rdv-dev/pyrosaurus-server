@@ -65,7 +65,7 @@ func NewContestEntry(teamData []byte) (*ContestEntry, error) {
 	colorsNamesOffset := int(binary.LittleEndian.Uint16(teamData[12:14]))
 	numDinos := int(teamData[dinosOffset])
 
-	fmt.Printf("User ID: %d, numSpecies: %d, dinosOffset: %d, numDinos: %d\n", pyroUserId, numSpecies, dinosOffset, numDinos)
+	//fmt.Printf("User ID: %d, numSpecies: %d, dinosOffset: %d, numDinos: %d\n", pyroUserId, numSpecies, dinosOffset, numDinos)
 
 	offsets := make([]int, 6)
 
@@ -95,7 +95,7 @@ func NewContestEntry(teamData []byte) (*ContestEntry, error) {
 		
 	}
 
-	fmt.Printf("Offsets:\nSpecies: %d, Move: %d, FITE 1,2,3: %d,%d,%d, Decisions: %d\n",offsets[0], offsets[1], offsets[2], offsets[3], offsets[4], offsets[5])
+	//fmt.Printf("Offsets:\nSpecies: %d, Move: %d, FITE 1,2,3: %d,%d,%d, Decisions: %d\n",offsets[0], offsets[1], offsets[2], offsets[3], offsets[4], offsets[5])
 
 	return &ContestEntry{
 		PyroUserId: pyroUserId,

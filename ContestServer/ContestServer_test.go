@@ -15,7 +15,7 @@ import (
 func TestRunContest(t *testing.T) {
 	cases := []string {
 		"Call",
-		//"BaseTeam",
+		"Boss1",
 		"Moves"}
 
 	//caseType := []int {
@@ -87,9 +87,28 @@ func TestRunContest(t *testing.T) {
 			os.Exit(1)
 		}
 
+        fmt.Println("Loading Level")
+		levelFile, err := os.Open(directory + "/TestData/" + cases[i] + "/LEVEL.000")
+
+		if err != nil {
+			t.Fail()
+			t.Logf("Unable to open Level File\n")
+			fmt.Println(err)
+			os.Exit(1)
+		} else {
+			levelData, err = io.ReadAll(levelFile)
+
+			if err != nil {
+				t.Fail()
+				t.Logf("Failed to load Level File\n")
+				fmt.Println(err)
+				os.Exit(1)
+			}
+		}
+
         fmt.Println("Running Contest")
 
-		result, err := ContestServer.RunContest(team1, team2)
+		result, err := ContestServer.RunContest(team1, team2, levelData, 0)
 
 		if err != nil {
             fmt.Println(err)
@@ -114,24 +133,6 @@ func TestRunContest(t *testing.T) {
 		//	os.Exit(1)
 		//}
 
-        fmt.Println("Loading Level")
-		levelFile, err := os.Open(directory + "/TestData/" + cases[i] + "/LEVEL.000")
-
-		if err != nil {
-			t.Fail()
-			t.Logf("Unable to open Level File\n")
-			fmt.Println(err)
-			os.Exit(1)
-		} else {
-			levelData, err = io.ReadAll(levelFile)
-
-			if err != nil {
-				t.Fail()
-				t.Logf("Failed to load Level File\n")
-				fmt.Println(err)
-				os.Exit(1)
-			}
-		}
 
         fmt.Println("Exporting Contest")
 
@@ -152,7 +153,7 @@ func TestRunContest(t *testing.T) {
 
         pos := contestDataOffset
 
-        t.Logf("Contest Data Offset: %d", pos)
+        t.Logf("Contest Data Offset: %d, size: %d", pos, len(outdata))
 
         for pos < len(outdata) {
             fsize := int(outdata[pos])
@@ -172,16 +173,16 @@ func TestRunContest(t *testing.T) {
 
                 switch action {
                 case 0:
-                    t.Logf("Move Neck: ")
+                    //t.Logf("Move Neck: ")
                     pos += 2
                 case 1:
-                    t.Logf("Move tail: ")
+                    //t.Logf("Move Tail: ")
                     pos += 2
                 case 2:
-                    t.Logf("Move: ")
+                    t.Logf("Move Dino(%d): Rot: %d Arg1: %d Arg2: %d", dinoIndex, int(outdata[pos]), int(outdata[pos+1]), int(outdata[pos+2]))
                     pos += 3
                 case 3:
-                    t.Logf("set Breath rate: ")
+                    t.Logf("Set Breath Rate: ")
                     pos += 2
                 case 4:
                     t.Logf("Step Left/Right: ")
@@ -193,7 +194,7 @@ func TestRunContest(t *testing.T) {
                     t.Logf("Die")
                     pos++
                 case 7:
-                    t.Logf("Jump left/right")
+                    t.Logf("Jump Left/Right")
                     pos++
                 case 8:
                     t.Logf("Jump Forward/Back")
@@ -203,19 +204,30 @@ func TestRunContest(t *testing.T) {
                 case 10:
                     t.Logf("Call")
                 case 11:
-                    t.Logf("Special Actions...")
+                    //t.Logf("Special Actions...")
                     pos++
                 default:
                     t.Logf("Unknown action encountered!")
                     t.Fail()
                 }
-
-            }
-
-         //   t.Logf("\n")
+            } // frame details
+        } // for each frame
+        t.Log("Writing to file...")
+        contestf, err := os.Create(cases[i] + ".bin")
+        if err != nil {
+            t.Log("Unable to open contest file for writing")
+            fmt.Println(err)
+            t.Fail()
         }
 
+        _, err = contestf.Write(outdata)
+        if err != nil {
+            t.Log("Unable to open contest file for writing")
+            fmt.Println(err)
+            t.Fail()
+        }
 
-	}
+        defer contestf.Close()
 
+	} // for each test
 }
