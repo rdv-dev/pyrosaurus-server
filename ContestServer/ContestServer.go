@@ -586,7 +586,7 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 					}
 
 					if arena.Dinos[i].DoMove != nil {
-                        pi := arena.Dinos[i].DoMove.ToPoint
+                        pi := int(math.Min(float64(arena.Dinos[i].DoMove.ToPoint), float64(len(arena.Dinos[i].DoMove.Points) - 1)))
                         // Do we need to bound points here? Data is corrected when loaded initially.
                         // Simply need to redirect dinos when approaching boundaries
                         mx := arena.Dinos[i].DoMove.Points[pi].X
