@@ -203,7 +203,7 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
             fmt.Printf("Found opponent: %d\n", team2EntryId)
 
 			if team2 != nil {
-				result, err := ContestServer.RunContest(team1, team2, levelData)
+				result, err := ContestServer.RunContest(team1, team2, levelData, 0)
 
 				fmt.Printf("Contest length: %d\n", len(result.Actions))
 
