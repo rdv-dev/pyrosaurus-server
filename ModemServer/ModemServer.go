@@ -508,7 +508,11 @@ func GetFile(user *PyroUser) (*ContestEntryRaw, error) {
 
 	rawEntry := parseFile(fundata)
 
-	_ = Database.CreateContestEntry(rawEntry.TeamData, user.InternalPlayerId)
+	err := Database.CreateContestEntry(rawEntry.TeamData, user.InternalPlayerId)
+
+	if err != nil {
+		fmt.Println("Error creating contest entry, InternalPlayerId:",user.InternalPlayerId,":",err)
+	}
 
 	return rawEntry, nil
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"time"
+	"errors"
 
 	// "github.com/rdv-dev/pyrosaurus-server/ContestServer/util"
 
@@ -197,21 +198,26 @@ func GetPlayerByID(pyroId uint32) (uint64, error) {
 }
 
 // // InsertContEST_ENTRY adds a new contest_entry to the CONTEST_ENTRY table.
-func CreateContestEntry(entryData []byte, playerId uint64) (int64) {
+func CreateContestEntry(entryData []byte, playerId uint64) (error) {
+	if playerId <= 0 {
+		return errors.New("PlayerId is invalid")
+	}
+
 	result, err := db.Exec("INSERT INTO CONTEST_ENTRY (UPLOADED, ENTRY_DATA) VALUES (datetime('now'), ?)", entryData)
 	if err != nil {
-		log.Fatal("Insert into CONTEST_ENTRY failed", err)
-		return 0
+		//log.Fatal("Insert into CONTEST_ENTRY failed", err)
+		return err
 	}
 
 	entryId, _ := result.LastInsertId()
 
 	_, err = db.Exec("INSERT INTO PLAYER_ENTRY (PLAYER_ID, ENTRY_ID) VALUES (?, ?)", playerId, entryId)
 	if err != nil {
-		log.Fatal("Insert into PLAYER_ENTRY failed", err)
+		//log.Fatal("Insert into PLAYER_ENTRY failed", err)
+		return err
 	}
 
-	return entryId
+	return nil
 }
 
 func FindOpponentEntry(notPlayerId uint64) (uint64, []byte, error) {
@@ -232,7 +238,7 @@ func InsertContest(myInternalId uint64, opponentEntryId uint64, contest_data []b
 	if err != nil {
 		log.Fatal("Failed to insert contest data", err)
 	}
-	_, err = db.Exec("INSERT INTO CONTEST_DATA (ENTRY_ID_0, ENTRY_ID_1, CONT_DATA) VALUES (?, ?, ?)", myInternalId, opponentEntryId, contest_data)
+	_, err = db.Exec("INSERT INTO CONTEST_DATA (ENTRY_ID_0, ENTRY_ID_1, CONT_DATA, RETRIEVED) VALUES (?, ?, ?, ?)", myInternalId, opponentEntryId, contest_data, 0)
 	return err
 }
 
