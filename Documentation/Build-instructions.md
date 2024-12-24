@@ -16,19 +16,6 @@ Use the power manager to disable any screensaver.
 apt install net-tools git golang ghex gedit
 ```
 
-For installing Sublime Text, run the below commands first.
-```
-apt-get install apt-transport-https
-apt install ca-certificates
-```
-
-Next, follow [these instructions](https://www.sublimetext.com/docs/linux_repositories.html) from Sublime:
-
-Finally, install Sublime:
-```
-apt install sublime-text
-```
-
 ## Setup Go Environment
 If you are unfamiliar, read up on setting up the GOPATH [here](https://go.dev/doc/gopath_code).
 
@@ -36,6 +23,7 @@ Run the following commands to setup the directory for pyrosaurus-server:
 ```
 mkdir -p ~/go/bin
 mkdir -p ~/go/src/github.com/rdv-dev
+cd ~/go/src/github.com/rdv-dev
 ```
 
 Clone the repository:
@@ -46,6 +34,8 @@ git clone https://github.com/rdv-dev/pyrosaurus-server
 Build the package:
 ```
 cd ~/go/src/github.com/rdv-dev/pyrosaurus-server
+go mod init
+go mod tidy
 go build
 ```
 
