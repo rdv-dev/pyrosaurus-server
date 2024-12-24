@@ -40,6 +40,8 @@ func main() {
 	// KeyArray = LoadValidationKey()
 	// ModemServer.LoadValidationKey()
 
+	go handleModemJobs(pyroJobs)
+
 	for {
 
 		conn, err := server.Accept()
@@ -73,7 +75,6 @@ func main() {
 
 			if validated == 1 {
 
-				go handleModemJobs(pyroJobs)
 
 				idTotal := 0
 				mmode := make([]byte, 0)
@@ -200,9 +201,10 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
 			}
 
 			team2EntryId, team2 := ContestServer.FindOpponent(job.InternalPlayerId)
-            fmt.Printf("Found opponent: %d\n", team2EntryId)
 
 			if team2 != nil {
+				
+				fmt.Printf("Found opponent: %d\n", team2EntryId)
 				result, err := ContestServer.RunContest(team1, team2, levelData, 0)
 
 				fmt.Printf("Contest length: %d\n", len(result.Actions))
@@ -235,7 +237,8 @@ func handleModemJobs(pyroJobs chan *ModemServer.PyroUser) {
                     }
 				}
 			} else {
-
+				// Failed to find opponent team
+				fmt.Println("Failed to find opponent! Wrapping up...")
 			}
 
 
