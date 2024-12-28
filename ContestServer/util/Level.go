@@ -44,8 +44,8 @@ type Level struct {
 
 func NewLevel(leveldata []byte) *Level {
     return &Level {
-        X: float64(binary.LittleEndian.Uint16(leveldata[0:2])),
-        Y: float64(binary.LittleEndian.Uint16(leveldata[2:4])),
+        X: float64(binary.LittleEndian.Uint16(leveldata[0:2]))/2,
+        Y: float64(binary.LittleEndian.Uint16(leveldata[2:4]))/2,
         MaxTime: int(binary.LittleEndian.Uint16(leveldata[56:58])),
         RawData: leveldata,
     }
