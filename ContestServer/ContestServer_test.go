@@ -14,10 +14,11 @@ import (
 
 func TestRunContest(t *testing.T) {
 	cases := []string {
-		"Call",
-		"Boss1",
-        "BaseTeam",
-		"Moves",
+		//"Call",
+		//"Boss1",
+        	//"BaseTeam",
+		//"Moves",
+		"SimpleMove1",
     }
 
 	//caseType := []int {
@@ -157,63 +158,63 @@ func TestRunContest(t *testing.T) {
 
         t.Logf("Contest Data Offset: %d, size: %d", pos, len(outdata))
 
-        for pos < len(outdata) {
-            fsize := int(outdata[pos])
-            t.Logf("Frame size: %d\n", fsize)
-            pos++
+        //for pos < len(outdata) {
+        //    fsize := int(outdata[pos])
+        //    t.Logf("Frame size: %d\n", fsize)
+        //    pos++
 
-            frameCount := 0
+        //    frameCount := 0
 
-            for frameCount < fsize && pos < len(outdata) {
+        //    for frameCount < fsize && pos < len(outdata) {
 
-                encodedByte := int(outdata[pos])
-                dinoIndex := encodedByte / 12
-                action := encodedByte - (dinoIndex * 12)
+        //        encodedByte := int(outdata[pos])
+        //        dinoIndex := encodedByte / 12
+        //        action := encodedByte - (dinoIndex * 12)
 
-                frameCount++
-                pos++
+        //        frameCount++
+        //        pos++
 
-                switch action {
-                case 0:
-                    //t.Logf("Move Neck: ")
-                    pos += 2
-                case 1:
-                    //t.Logf("Move Tail: ")
-                    pos += 2
-                case 2:
-                    t.Logf("Move Dino(%d): Rot: %d Arg1: %d Arg2: %d", dinoIndex, int(outdata[pos]), int(outdata[pos+1]), int(outdata[pos+2]))
-                    pos += 3
-                case 3:
-                    t.Logf("Set Breath Rate: ")
-                    pos += 2
-                case 4:
-                    t.Logf("Step Left/Right: ")
-                    pos++
-                case 5:
-                    t.Logf("Step Forward/Back: ")
-                    pos++
-                case 6:
-                    t.Logf("Die")
-                    pos++
-                case 7:
-                    t.Logf("Jump Left/Right")
-                    pos++
-                case 8:
-                    t.Logf("Jump Forward/Back")
-                    pos++
-                case 9:
-                    t.Logf("Locks neck movement?")
-                case 10:
-                    t.Logf("Call")
-                case 11:
-                    //t.Logf("Special Actions...")
-                    pos++
-                default:
-                    t.Logf("Unknown action encountered!")
-                    t.Fail()
-                }
-            } // frame details
-        } // for each frame
+        //        switch action {
+        //        case 0:
+        //            //t.Logf("Move Neck: ")
+        //            pos += 2
+        //        case 1:
+        //            //t.Logf("Move Tail: ")
+        //            pos += 2
+        //        case 2:
+        //            t.Logf("Move Dino(%d): Rot: %d Arg1: %d Arg2: %d", dinoIndex, int(outdata[pos]), int(outdata[pos+1]), int(outdata[pos+2]))
+        //            pos += 3
+        //        case 3:
+        //            t.Logf("Set Breath Rate: ")
+        //            pos += 2
+        //        case 4:
+        //            t.Logf("Step Left/Right: ")
+        //            pos++
+        //        case 5:
+        //            t.Logf("Step Forward/Back: ")
+        //            pos++
+        //        case 6:
+        //            t.Logf("Die")
+        //            pos++
+        //        case 7:
+        //            t.Logf("Jump Left/Right")
+        //            pos++
+        //        case 8:
+        //            t.Logf("Jump Forward/Back")
+        //            pos++
+        //        case 9:
+        //            t.Logf("Locks neck movement?")
+        //        case 10:
+        //            t.Logf("Call")
+        //        case 11:
+        //            //t.Logf("Special Actions...")
+        //            pos++
+        //        default:
+        //            t.Logf("Unknown action encountered!")
+        //            t.Fail()
+        //        }
+        //    } // frame details
+        //} // for each frame
         t.Log("Writing to file...")
         contestf, err := os.Create(cases[i] + ".bin")
         if err != nil {

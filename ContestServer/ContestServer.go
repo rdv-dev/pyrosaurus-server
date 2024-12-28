@@ -3,9 +3,9 @@ import (
 	"errors"
 	"encoding/binary"
 	"fmt"
-    "math"
+	"math"
 	"math/rand"
-    "time"
+	"time"
 	"github.com/rdv-dev/pyrosaurus-server/ContestServer/util"
 	"github.com/rdv-dev/pyrosaurus-server/Database"
 )
@@ -16,10 +16,13 @@ const (
 	TOTAL_DINOS_LEN = 1
 	CONTEST_HEADER_RECORD_LEN = 17
 	LEVEL_DATA_SIZE = 70
-    SPEED_CREEP = 0
-    SPEED_WALK = 1
-    SPEED_RUN = 2
-    TWOPI = math.Pi * 2
+	SPEED_CREEP = 0
+	SPEED_WALK = 1
+	SPEED_RUN = 2
+	TWOPI = math.Pi * 2
+	RAD = math.Pi / 180
+	DEG = 180 / math.Pi
+	TICK_CONVERT = 256 / 360
 )
 
 type ContestResult struct {
@@ -45,7 +48,7 @@ type Action struct {
 type DecisionResult struct {
 	Movement int
 	Score int
-    Speed byte
+	Speed byte
 	DecisionId int
 }
 
@@ -72,14 +75,15 @@ type Delays struct {
 }
 
 type Vector struct {
-	x float64
-	y float64
-	a float64
+	X float64
+	Y float64
+	A float64
 }
 
 type DinoMovement struct {
 	count int
 	moveCode int
+	speed float64
 }
 
 func NewContestResult() *ContestResult {
@@ -92,7 +96,7 @@ func (cf * ContestFrame) Put(action *Action) {
 	var encoded byte
 
 	encoded = (action.dino * byte(12)) + action.code
-	
+
 	cf.Actions = append(cf.Actions, encoded)
 	cf.Actions = append(cf.Actions, action.args...)
 	cf.NumActions += 1
@@ -110,9 +114,9 @@ func (cr *ContestResult) Push(action *Action) {
 
 func (cr *ContestResult) GenerateDelay(reps int) {
 	i := 0
-	
+
 	frame := ContestFrame { Actions: make([]byte, 0), NumActions: 0 }
-	
+
 	for i < reps {
 		frame.Put(&Action{code: 11, dino: byte(0), args: []byte{byte(10)}})
 		i++
@@ -249,7 +253,7 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 		return &ContestResult{}, errors.New("Team Pyro ID's cannot be the same")
 	}
 
-    level := util.NewLevel(leveldata)
+	level := util.NewLevel(leveldata)
 
 	cr := NewContestResult()
 
@@ -259,19 +263,19 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 	arena := &Arena {
 		Dinos: make([]*util.Dino, team1.NumDinos + team2.NumDinos),
 		NumDinos: team1.NumDinos + team2.NumDinos,
-    }
+	}
 
 	//testTimeLimit := 60 * 5 // 5 minutes, 300 seconds, TODO based on level data
 	//testTimeLimit := 30 * ACTIONS_PER_SECOND
 
-    arenaFrames := 0
+	arenaFrames := 0
 
-    if testTime > 0 {
-        arenaFrames = testTime * ACTIONS_PER_SECOND
-    } else {
-        arenaFrames = level.MaxTime * ACTIONS_PER_SECOND
-    }
-    fmt.Printf("level.MaxTime: %d", level.MaxTime)
+	if testTime > 0 {
+		arenaFrames = testTime * ACTIONS_PER_SECOND
+	} else {
+		arenaFrames = level.MaxTime * ACTIONS_PER_SECOND
+	}
+	fmt.Printf("level.MaxTime: %d\n", level.MaxTime)
 	// create dinos team 1
 	speciesTypeOffset := ((util.TEAM_QUEEN_ARRAY_LEN + util.TEAM_SPECIES_LEG_NUM_LEN) * team1.NumDinos) + team1.DinosOffset + 1
 
@@ -294,7 +298,8 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 	// set up delays
 	delay := make([]*Delays, 0)
 	pos := make([]*Vector, 0)
-    target := make([]*Vector, 0)
+	newPos := make([]*Vector, 0)
+	target := make([]*Vector, 0)
 	velocity := make([]*Vector, 0)
 	move := make([]*DinoMovement, 0)
 
@@ -306,22 +311,28 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 		}
 
 		pos = append(pos, &Vector {
-			x: arena.Dinos[i].Xpos,
-			y: arena.Dinos[i].Ypos,
-			a: arena.Dinos[i].Angle,
-        })
+			X: arena.Dinos[i].Xpos,
+			Y: arena.Dinos[i].Ypos,
+			A: (arena.Dinos[i].Angle + 180) * RAD,
+		})
 
-        target = append(target, &Vector {
-            x: 0.0,
-            y: 0.0,
-            a: 0.0,
-        })
+		newPos = append(pos, &Vector {
+			X: 0.0,
+			Y: 0.0,
+			A: 0.0,
+		})
+
+		target = append(target, &Vector {
+			X: 0.0,
+			Y: 0.0,
+			A: 0.0,
+		})
 
 		velocity = append(velocity, &Vector {
-            x: 0.0, 
-            y: 0.0, 
-            a: 0.0,
-        })
+			X: 0.0, 
+			Y: 0.0, 
+			A: 0.0,
+		})
 
 		sense = append(sense, &DinoSense {
 			see: make([]byte, team1.NumDinos + team2.NumDinos),
@@ -331,7 +342,7 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 			friend: make([]int, 0),
 			self: 0})
 
-		move = append(move, &DinoMovement {count: 0, moveCode: 0})
+		move = append(move, &DinoMovement {count: 0, moveCode: 0, speed:0,})
 
 		for j:=0; j<team1.NumDinos + team2.NumDinos; j++ {
 			// sense friend, enemy etc
@@ -373,10 +384,10 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 		// initFrame.Put(&Action{code: 6, dino: byte(i), args: []byte{byte(0), byte(0x64 | 0x10)}})
 
 		// if i == 0 {
-			// do a fire
-			// initFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{8}})
-			// delay the neck movement until fire has started
-			// delay[i].neck = 20
+		// do a fire
+		// initFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{8}})
+		// delay the neck movement until fire has started
+		// delay[i].neck = 20
 		// }
 	}
 
@@ -401,6 +412,24 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 			if delay[i].movement > 0 {
 				delay[i].movement--
 				// update position
+				if arena.Dinos[i].DoMove != nil {
+					pi := int(math.Min(float64(arena.Dinos[i].DoMove.ToPoint), float64(len(arena.Dinos[i].DoMove.Points) - 1)))
+					boundVector := CheckBoundsV(pos[i], level)
+					newPos[i], arena.Dinos[i].Rotate = CalculatePosition(pos[i], boundVector, arena.Dinos[i].DoMove.Points[pi])
+					
+
+					pos[i].X = pos[i].X + (newPos[i].X * move[i].speed)
+					pos[i].Y = pos[i].Y + (newPos[i].Y * move[i].speed)
+
+					// if we finished this movement, then we update our angle when we rotate
+				if delay[i].movement == 0 {
+						pos[i].A = newPos[i].A
+					} else {
+						// set rotation to 0 while we're moving
+						arena.Dinos[i].Rotate = 0
+					}
+
+				}
 			}
 
 			if delay[i].fire > 0 {
@@ -416,17 +445,17 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 				delay[i].neck--
 				// update neck angle
 				// if neckLocked == 0 {
-					// if delay[i].neck == 0 {
-						// cf.Put(&Action{code: byte(9), dino: byte(i), args: make([]byte,0)})
-						// cf.Put(&Action{code: byte(11), dino: byte(i), args: []byte{byte(8)}})
-						// neckLocked = 1
-						// delay[i].neck = 30
-					// }
+				// if delay[i].neck == 0 {
+				// cf.Put(&Action{code: byte(9), dino: byte(i), args: make([]byte,0)})
+				// cf.Put(&Action{code: byte(11), dino: byte(i), args: []byte{byte(8)}})
+				// neckLocked = 1
+				// delay[i].neck = 30
+				// }
 				// } else {
-					// if delay[i].neck == 4 {
-					// 	neckLocked = 0
-					// 	cf.Put(&Action{code: byte(11), dino: byte(i), args: []byte{byte(9)}})
-					// }
+				// if delay[i].neck == 4 {
+				//	 neckLocked = 0
+				//	 cf.Put(&Action{code: byte(11), dino: byte(i), args: []byte{byte(9)}})
+				// }
 				// }
 			}
 
@@ -437,33 +466,33 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 		}
 
 		// for i:=0; i<distPairslen; i++ {
-			// distance := math.Sqrt(math.Pow(arena.Dinos[distPairs[i].d1].Xpos - arena.dinos[distPairs[i].d2].Xpos,2) + math.Pow(arena.dinos[distPairs[i].d1].Ypos - arena.dinos[distPairs[i].d2].Ypos,2))
-			// sense smell
-			// sense hearing
-			// sense sight
-			// fire range
-			// friendly queen range
-			// enemy queen range
+		// distance := math.Sqrt(math.Pow(arena.Dinos[distPairs[i].d1].Xpos - arena.dinos[distPairs[i].d2].Xpos,2) + math.Pow(arena.dinos[distPairs[i].d1].Ypos - arena.dinos[distPairs[i].d2].Ypos,2))
+		// sense smell
+		// sense hearing
+		// sense sight
+		// fire range
+		// friendly queen range
+		// enemy queen range
 		// }
 
 		// neck/tail movement
 		for i:=0; i<arena.NumDinos; i++ {
 			if delay[i].neck <= 0 {
 				// if i == 0 {
-				// 	shakeAngle := byte(10)
+				//	 shakeAngle := byte(10)
 
-				// 	if arenaFrames % 2 != 0 {
-				// 		shakeAngle = byte(255) - shakeAngle
-				// 	} 
+				//	 if arenaFrames % 2 != 0 {
+				//		 shakeAngle = byte(255) - shakeAngle
+				//	 } 
 
-				// 	cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x4, shakeAngle}})
+				//	 cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x4, shakeAngle}})
 
-				// 	delay[i].neck = 0x3
+				//	 delay[i].neck = 0x3
 
 				// } else {
-                if neckLocked == 0 {
+				if neckLocked == 0 {
 					neckAngle := byte(30)
-					
+
 					if arenaFrames % 2 != 0 {
 						neckAngle = byte(255) - neckAngle
 					} 
@@ -472,8 +501,8 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 					cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x11, neckAngle}})
 
 					delay[i].neck = 0xF
-                } else {
-				    cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x05, byte(30)}})
+				} else {
+					cf.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x05, byte(30)}})
 				}
 			} 
 
@@ -487,16 +516,15 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 				// Tail
 				cf.Put(&Action{code: 1, dino: byte(i), args: []byte{0x11, tailAngle}})
 
-				
+
 				delay[i].tail = 0xF
 			}
 		}
 
 		// decisions
 		for i:=0; i<arena.NumDinos; i++ {
-            var rotation int
-            var arg0 byte
-            var arg2 int
+			var rotation int
+			var arg2 int
 
 			// fighting?
 
@@ -505,7 +533,7 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 			// evaluate decisions
 			decisions := EvaluateDecision(arena.Dinos[i])
 
-			// fmt.Printf("Dino %d decided on movement %d\n", i, decisions[0].Movement)
+			//fmt.Printf("Dino %d decided on movement %d\n", i, decisions[0].Movement)
 			if len(decisions) > 0 {
 				chosen := 0
 				maxScore := decisions[0].Score
@@ -521,16 +549,16 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 					cf.Put(&Action{code: 10, dino: byte(i), args: make([]byte, 0)})
 
 					switch arena.Dinos[i].Decisions[decisions[chosen].DecisionId].Priority {
-						case 0: 
-							delay[i].call = 16 * ACTIONS_PER_SECOND
-						case 1:
-							delay[i].call = 10 * ACTIONS_PER_SECOND
-						case 2:
-							delay[i].call = 8 * ACTIONS_PER_SECOND
-						case 3:
-							delay[i].call = 4 * ACTIONS_PER_SECOND
-						case 4:
-							delay[i].call = 2 * ACTIONS_PER_SECOND
+					case 0: 
+						delay[i].call = 16 * ACTIONS_PER_SECOND
+					case 1:
+						delay[i].call = 10 * ACTIONS_PER_SECOND
+					case 2:
+						delay[i].call = 8 * ACTIONS_PER_SECOND
+					case 3:
+						delay[i].call = 4 * ACTIONS_PER_SECOND
+					case 4:
+						delay[i].call = 2 * ACTIONS_PER_SECOND
 					}
 				}
 
@@ -540,13 +568,13 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 
 				if decisions[chosen].Movement == util.MOVEMENT_WANDER && delay[i].movement <= 0 {
 
-                    rotation = r1.Intn(30)
+					rotation = r1.Intn(30)
 					rotation = rotation - 15
 
 					if rotation < 0 {
-						arg0 = byte(0xFF + rotation)
+						arena.Dinos[i].Rotate = byte(0xFF + rotation)
 					} else {
-						arg0 = byte(rotation)
+						arena.Dinos[i].Rotate = byte(rotation)
 					}
 				}
 				// if decisions[chosen].Movement == util.MOVEMENT_MOVE_AWAY {}
@@ -562,19 +590,28 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 						// we are running a movement right now
 						// check if we are at the point exept if it is a mobile point
 						// if at point
-                        pi := arena.Dinos[i].DoMove.ToPoint
+						pi := arena.Dinos[i].DoMove.ToPoint
 						if arena.Dinos[i].DoMove.ToPoint < len(arena.Dinos[i].DoMove.Points) && (arena.Dinos[i].DoMove.GoalType != 1 || arena.Dinos[i].DoMove.GoalType != 11) {
-                            // Check the dino position x y point against current movement x y point
-                            dx := arena.Dinos[i].DoMove.Points[pi].X - pos[i].x
-                            dy := arena.Dinos[i].DoMove.Points[pi].Y - pos[i].y
-                            dist := math.Sqrt(dx*dx + dy*dy)
-                            if arena.Dinos[i].DoMove.Points[pi].GoalSize == 0 {
-                                if dist < 10 {
-                                    arena.Dinos[i].DoMove.ToPoint += 1
-                                }
-                            } else {
-                                arena.Dinos[i].DoMove.ToPoint += 1
-                            }
+							// Check the dino position x y point against current movement x y point
+							dx := arena.Dinos[i].DoMove.Points[pi].X - pos[i].X
+							dy := arena.Dinos[i].DoMove.Points[pi].Y - pos[i].Y
+							dist := math.Sqrt(dx*dx + dy*dy)
+							if arena.Dinos[i].DoMove.Points[pi].GoalSize == 0 {
+								if dist < 100 {
+									arena.Dinos[i].DoMove.ToPoint += 1
+									fmt.Printf("Dino %d next point %d\n", i, pi)
+								}
+							} else {
+								if dist < 100 {
+									arena.Dinos[i].DoMove.ToPoint += 1
+									fmt.Printf("Dino %d next point %d\n", i, pi)
+								}
+							}
+							if (newPos[i].X + newPos[i].Y + newPos[i].A == 0) {
+								// may need to rethink how this works
+								decisions[chosen].Speed = util.DECISION_DONT_MOVE
+								arena.Dinos[i].DoMove = nil
+							}
 						} else {
 							// last point
 							arena.Dinos[i].DoMove = nil
@@ -585,133 +622,108 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 						arena.Dinos[i].DoMove.ToPoint = 0
 					}
 
-					if arena.Dinos[i].DoMove != nil {
-                        pi := int(math.Min(float64(arena.Dinos[i].DoMove.ToPoint), float64(len(arena.Dinos[i].DoMove.Points) - 1)))
-                        // Do we need to bound points here? Data is corrected when loaded initially.
-                        // Simply need to redirect dinos when approaching boundaries
-                        mx := arena.Dinos[i].DoMove.Points[pi].X
-                        my := arena.Dinos[i].DoMove.Points[pi].Y
-                        dx := mx - pos[i].x
-                        dy := my - pos[i].y
-                        dist := math.Sqrt(dx*dx + dy*dy)
-                        step := 100.0
-                        if dist < step || dist < arena.Dinos[i].DoMove.Points[pi].GoalSize {
-                            arena.Dinos[i].DoMove = nil
-                        } else {
-                            nx := dx / dist
-                            ny := dy / dist
-                            pos[i].x = mx + nx*step
-                            pos[i].y = my + ny*step
-                        }
-                        
-                        // calculate rotation
-                        target := math.Atan2(my - dy, mx - dx)
-                        dist = target - pos[i].a
-                        dist = math.Mod(dist + math.Pi,TWOPI) - math.Pi
-                        step = math.Min(math.Abs(dist)/4, 5)
-
-                        if math.Abs(dist) <= step {
-                            arg0 = 0
-                            pos[i].a = target
-                        } else {
-                            if dist < 0 {
-                                arg0 = byte(0xFF - int(step))
-                                step = step * -1
-                            } else {
-                                arg0 = byte(step)
-                            }
-                            pos[i].a = pos[i].a + step
-                        }
-					}
 				}
 
-				
+
 				if decisions[chosen].Movement >= util.MOVEMENT_WANDER && delay[i].movement <= 0 {
 					// we did some kind of moving about, post processing
 
-                    if arena.Dinos[i].HasLegs {
-                        arg2 = 0x90
-                    } else {
-                        arg2 = 0x10
-                    }
+					if arena.Dinos[i].HasLegs {
+						arg2 = 0x90
+					} else {
+						arg2 = 0x10
+					}
 
-                    goType := decisions[chosen].Speed
+					goType := decisions[chosen].Speed
 
-                    switch goType {
-                    case util.DECISION_DONT_MOVE:
-                        arg2 = arg2 | 0x01
-                        move[i].moveCode = 0
-                        delay[i].movement = 20 
+					switch goType {
+					case util.DECISION_DONT_MOVE:
+						arg2 = arg2 | 0x01
+						move[i].moveCode = 0
+						move[i].speed = 0
+						move[i].count = 0
+						delay[i].movement = 20 
 
-                    case util.DECISION_CREEP:
-                        arg2 = arg2 | 0x01
-                        switch move[i].count { 
-                        case 0:
-                            move[i].moveCode = 0
-                            delay[i].movement = 20 
-                        case 1:
-                            move[i].moveCode = 1
-                            delay[i].movement = 20 
-                        case 2:
-                            move[i].moveCode = 2
-                            delay[i].movement = 20
-                        default:
-                            delay[i].movement = 20
-                        }
+					case util.DECISION_CREEP:
+						arg2 = arg2 | 0x01
+						switch move[i].count { 
+						case 0:
+							move[i].moveCode = 0
+							move[i].speed = 5
+							delay[i].movement = 20 
+						case 1:
+							move[i].moveCode = 1
+							move[i].speed = 5
+							delay[i].movement = 20 
+						case 2:
+							move[i].moveCode = 2
+							move[i].speed = 5
+							delay[i].movement = 20
+						default:
+							delay[i].movement = 20
+						}
 
-                        if move[i].count <= 2 { 
-                            move[i].count++
-                        }
-                    case util.DECISION_WALK:
-                        arg2 = arg2 | 0x0A
-                        switch move[i].count { 
-                        case 0:
-                            move[i].moveCode = 0
-                            delay[i].movement = 20 
-                        case 1:
-                            move[i].moveCode = 1
-                            delay[i].movement = 20 
-                        case 2:
-                            move[i].moveCode = 2
-                            delay[i].movement = 20
-                        default:
-                            delay[i].movement = 20
-                        }
+						if move[i].count <= 2 { 
+							move[i].count++
+						}
+					case util.DECISION_WALK:
+						arg2 = arg2 | 0x0A
+						switch move[i].count { 
+						case 0:
+							move[i].moveCode = 0
+							move[i].speed = 2
+							delay[i].movement = 20 
+						case 1:
+							move[i].moveCode = 1
+							move[i].speed = 3
+							delay[i].movement = 20 
+						case 2:
+							move[i].moveCode = 2
+							move[i].speed = 4
+							delay[i].movement = 20
+						default:
+							delay[i].movement = 20
+						}
 
-                        if move[i].count <= 2 { 
-                            move[i].count++
-                        }
-                    case util.DECISION_RUN:
-                        arg2 = arg2 | 0x04
-                        switch move[i].count { 
-                        case 0:
-                            move[i].moveCode = 0
-                            delay[i].movement = 20 
-                        case 1:
-                            move[i].moveCode = 9
-                            delay[i].movement = 20 
-                        case 2:
-                            move[i].moveCode = 0xA
-                            delay[i].movement = 10
-                        case 4:
-                            move[i].moveCode = 0xA
-                            delay[i].movement = 10
-                        case 5:
-                            move[i].moveCode = 0xB
-                            delay[i].movement = 10
-                        default:
-                            delay[i].movement = 10
-                        }
+						if move[i].count <= 2 { 
+							move[i].count++
+						}
+					case util.DECISION_RUN:
+						arg2 = arg2 | 0x04
+						switch move[i].count { 
+						case 0:
+							move[i].moveCode = 0
+							move[i].speed = 20
+							delay[i].movement = 20 
+						case 1:
+							move[i].moveCode = 9
+							move[i].speed = 25
+							delay[i].movement = 20 
+						case 2:
+							move[i].moveCode = 0xA
+							move[i].speed = 30
+							delay[i].movement = 10
+						case 4:
+							move[i].moveCode = 0xA
+							move[i].speed = 40
+							delay[i].movement = 10
+						case 5:
+							move[i].moveCode = 0xB
+							move[i].speed = 45
+							delay[i].movement = 10
+						default:
+							delay[i].movement = 10
+						}
 
-                        if move[i].count <= 5 { 
-                            move[i].count++
-                        }
-					
-                    }
+						if move[i].count <= 5 { 
+							move[i].count++
+						}
+
+					}
 
 					//fmt.Printf("Dino %d rot: %d move: %x\n", i, rotation, move[i].moveCode)
 
-					cf.Put(&Action{code: 2, dino: byte(i), args: []byte{byte(arg0), byte(arg2), byte(move[i].moveCode)}})
+					cf.Put(&Action{code: 2, dino: byte(i), args: []byte{byte(arena.Dinos[i].Rotate), byte(arg2), byte(move[i].moveCode)}})
 				}
 
 			}
@@ -742,11 +754,11 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 	// endFrame := ContestFrame {Actions: make([]byte, 0), NumActions: 0}
 
 	// for i:=0; i<team1.NumDinos + team2.NumDinos; i++ {
-	// 	// set neck and tail to 0
-	// 	endFrame.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x11, 0}})
-	// 	endFrame.Put(&Action{code: byte(1), dino: byte(i), args: []byte{0x11, 0}})
-	// 	// turn off dino ?
-	// 	endFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{9}})
+	//	 // set neck and tail to 0
+	//	 endFrame.Put(&Action{code: byte(0), dino: byte(i), args: []byte{0x11, 0}})
+	//	 endFrame.Put(&Action{code: byte(1), dino: byte(i), args: []byte{0x11, 0}})
+	//	 // turn off dino ?
+	//	 endFrame.Put(&Action{code: 11, dino: byte(i), args: []byte{9}})
 	// }
 
 	// cr.Actions = append(cr.Actions, byte(endFrame.NumActions))
@@ -756,6 +768,217 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 
 	return cr, nil
 
+}
+
+func CalculatePosition(sourcePoint *Vector, boundVector *Vector, targetPoint *util.MovePoint) (*Vector, byte) {
+	//func CalculatePosition(sourcePoint *Vector, targetPoint *util.MovePoint) (*Vector, float64) {
+	var newX, newY, newA float64
+	var stepRotation byte
+	var turnLeft bool
+
+	newA = sourcePoint.A
+	//fmt.Printf("current newA %f\n", newA)
+
+	boundSum := math.Abs(boundVector.X) + math.Abs(boundVector.Y) + math.Abs(boundVector.A)
+	if boundSum > 0 {
+		return &Vector {X:0, Y:0, A:0}, stepRotation
+		//if math.Abs(boundVector.A) > 0 {
+		//	newA = boundVector.A
+		//} else {
+		//	newX = math.Cos(newA)
+		//	newY = math.Sin(newA)
+		//	newX = newX + boundVector.X
+		//	newY = newX + boundVector.Y
+		//	newA = math.Atan2(newY, newX)
+		//	if newA < 0 {
+		//		newA = TWOPI + newA
+		//	}
+		//	//fmt.Printf("%f %f %f", newX, newY, newA)
+		//	if newA > sourcePoint.A {
+		//		stepRotation = 0xFF - byte((newA - sourcePoint.A) * DEG)
+		//	} else {
+		//		stepRotation = byte((sourcePoint.A - newA) * DEG)
+		//	}
+		//}
+
+	} else {
+		targetAngle := math.Atan2(targetPoint.Y - sourcePoint.Y, targetPoint.X - sourcePoint.X)
+		//fmt.Printf("targetAngle: %f %f\n", targetAngle, targetAngle * DEG)
+
+		if targetAngle < 0 {
+			targetAngle = TWOPI + targetAngle
+		}
+
+		//fmt.Printf("targetAngle: %f %f\n", targetAngle, targetAngle * DEG)
+
+		angleDiff := math.Abs(targetAngle - sourcePoint.A)
+		rotation := float64(5) * RAD
+
+		if angleDiff > math.Pi {
+			angleDiff = TWOPI - angleDiff
+		}
+
+		//fmt.Printf("targetAngle: %f %f sourcePoint.A: %f %f\n", targetAngle, targetAngle * DEG, sourcePoint.A, sourcePoint.A * DEG)
+
+		if (targetAngle > sourcePoint.A && targetAngle - sourcePoint.A <= math.Pi) || 
+		(targetAngle < sourcePoint.A && sourcePoint.A - targetAngle > math.Pi) {
+			turnLeft = true
+		} else {
+			turnLeft = false
+		}
+
+		//fmt.Printf("angleDiff / RAD %f / %f\n", angleDiff, RAD)
+		if angleDiff > RAD {
+			//targetRads := targetAngle * RAD
+			if angleDiff < rotation {
+				rotation = float64(1) * RAD
+			}
+
+			if angleDiff > (float64(50) * RAD) {
+				rotation = float64(20) * RAD
+			}
+
+			if turnLeft {
+				newA = newA + rotation
+				// 1.40625 = 360 / 256
+				stepRotation = 0xFF - byte(rotation * DEG * TICK_CONVERT)
+			} else {
+				newA = newA - rotation
+				stepRotation = byte(rotation * DEG * TICK_CONVERT)
+			}
+		} else {
+			// we're on track to the point
+			// but is it behind us?
+			stepRotation = 0
+		}
+
+
+		//fmt.Printf("transformed newA %f\n", newA)
+		// Clamp current angle to within 360 degrees/2*PI
+		newA = math.Mod(newA, TWOPI)
+		//fmt.Printf("newA mod TWOPI %f\n", newA)
+
+		if newA < 0 {
+			newA = TWOPI + newA
+		}
+
+		//newA = sourcePoint.A + (float64(10) * RAD)
+		newX = math.Cos(newA)
+		newY = math.Sin(newA)
+
+	}
+
+	return &Vector {
+		X: newX,
+		Y: newY,
+		A: newA,
+	}, stepRotation
+	//}, targetAngle
+}
+
+func CheckBounds(sourcePoint * Vector, level * util.Level) (*Vector) {
+	//var angleDiff int
+	angle := sourcePoint.A * DEG
+	turnRate := float64(30)
+	limit := float64(100)
+	correct := false
+	//angleDiff := 0
+
+
+	if sourcePoint.X > level.X - limit {
+		if angle < 135 && angle >= 0  {
+			angle = angle + ((sourcePoint.X / level.X) * turnRate)
+			//angleDiff = int((sourcePoint.X / level.X) * turnRate)
+			correct = true
+		}
+		if angle > 225 && angle < 360 {
+			angle = angle - ((sourcePoint.X / level.X) * turnRate)
+			//angleDiff = 255 - int((sourcePoint.X / level.X) * turnRate)
+			correct = true
+		}
+	}
+
+	if sourcePoint.Y > level.Y - limit {
+		if angle >= 270 || angle < 45 {
+			angle = angle + ((sourcePoint.Y / level.Y) * turnRate)
+			//angleDiff = int((sourcePoint.Y / level.Y) * turnRate)
+			correct = true
+		}
+		if angle < 270 && angle > 135 {
+			angle = angle - ((sourcePoint.Y / level.Y) * turnRate)
+			//angleDiff = 255 - int((sourcePoint.Y / level.Y) * turnRate)
+			correct = true
+		}
+	}
+
+	if sourcePoint.X < (-level.X + limit) {
+		if angle <= 180 && angle > 45 {
+			angle = angle - ((sourcePoint.X / level.X) * turnRate)
+			//angleDiff = 255 - int((sourcePoint.X / level.X) * turnRate)
+			correct = true
+		}
+		if angle > 180 &&  angle < 315 {
+			angle = angle + ((sourcePoint.X / level.X) * turnRate)
+			//angleDiff = int((sourcePoint.X / level.X) * turnRate)
+			correct = true
+		}
+	}
+
+	if sourcePoint.Y < (-level.Y + limit) {
+		if angle <= 90 || angle > 315 {
+			angle = angle - ((sourcePoint.Y / level.Y) * turnRate)
+			//angleDiff = 255 - int((sourcePoint.Y / level.Y) * turnRate)
+			correct = true
+		}
+		if angle > 90 && angle < 225 {
+			angle = angle + ((sourcePoint.Y / level.Y) * turnRate)
+			//angleDiff = int((sourcePoint.Y / level.Y) * turnRate)
+			correct = true
+		}
+	}
+
+	if angle < 0 {
+		angle = TWOPI + angle
+	}
+
+
+	if correct == false {
+		angle = 0
+	}
+
+	return &Vector { X:0, Y:0, A:angle, }
+}
+
+func CheckBoundsV(sourcePoint * Vector, level * util.Level) (* Vector) {
+	limit := float64(367)
+
+	newX := 0.0
+	newY := 0.0
+
+
+	if sourcePoint.X > level.X - limit {
+		newX = -1.0
+	}
+
+	if sourcePoint.Y > level.Y - limit {
+		newY = -1.0
+	}
+
+	if sourcePoint.X < (-level.X + limit) {
+		newX = 1.0
+	}
+
+	if sourcePoint.Y < (-level.Y + limit) {
+		newY = 1.0
+	}
+
+	return &Vector {
+		X: newX * ((math.Abs(sourcePoint.X) - (level.X - limit)) / 100),
+		//X: newX * ((level.X - math.Abs(sourcePoint.X)) / limit),
+		Y: newY * ((math.Abs(sourcePoint.Y) - (level.Y - limit)) / 100),
+		//Y: newY * ((level.Y - math.Abs(sourcePoint.Y)) / limit),
+		A: 0,
+	}
 }
 
 func EvaluateDecision(d *util.Dino) []*DecisionResult {
@@ -786,11 +1009,11 @@ func EvaluateDecision(d *util.Dino) []*DecisionResult {
 
 		if execute == true {
 			result = append(result, &DecisionResult{
-                Movement: d.Decisions[i].Movement, 
-                Score: score, 
-                Speed: d.Decisions[i].GoSpeed,
-                DecisionId: i,
-            })
+				Movement: d.Decisions[i].Movement, 
+				Score: score, 
+				Speed: d.Decisions[i].GoSpeed,
+				DecisionId: i,
+			})
 		}
 	}
 
