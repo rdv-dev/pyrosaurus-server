@@ -1,7 +1,7 @@
 package util
 
 import (
-//	"fmt"
+	//"fmt"
 	"encoding/binary"
 )
 
@@ -109,6 +109,7 @@ type Dino struct {
 	neckAngle int
 	attacking []byte
 	attackedBy []byte
+	Rotate byte
 	
 }
 
@@ -129,7 +130,7 @@ func NewDino(inTeam *ContestEntry, species, dino int, xBound, yBound float64) *D
 	dinoRotnIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE + TEAM_X_POS_LEN + TEAM_Y_POS_LEN)) + (dino * TEAM_ROT_LEN) + decisionEnd
 
 	//fmt.Printf("Dino Offsets XPos: %d YPos: %d Rotn: %d\n", dinoXPosIndex, dinoYPosIndex, dinoRotnIndex)
-	//fmt.Printf("Dino Values  XPos: %f YPos: %f Rotn: %f\n",float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360))
+	//fmt.Printf("Dino Values  XPos: %f YPos: %f Rotn: %f\n",float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2]))),float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360+90))
 
 	return &Dino {
 		Team: inTeam.Team,
@@ -144,7 +145,7 @@ func NewDino(inTeam *ContestEntry, species, dino int, xBound, yBound float64) *D
 		name: make([]byte, 50),
 		Xpos: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2]))),
 		Ypos: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2]))),
-		Angle: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360),
+		Angle: float64((int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360+90)),
 		neckAngle: 0,
 		attacking: make([]byte, 0),
 		attackedBy: make([]byte, 0)}
