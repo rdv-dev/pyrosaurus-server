@@ -34,6 +34,7 @@ type PyroUser struct {
 	LastOpponent uint32
 
 	Contest []byte
+	createdUser bool
 
 }
 
@@ -145,7 +146,7 @@ func DoChallenge(user *PyroUser) (int, error) {
 	fmt.Printf("Version: %d\n", pyroVersion)
 	fmt.Printf("Checksum: %d\n", pyroDatalen)
 
-	createNewUser := false
+	user.createdUser = false
 	var playerId uint64
 
 	if ((checkByte1 + checkByte2) == 255 && 
@@ -163,7 +164,7 @@ func DoChallenge(user *PyroUser) (int, error) {
 				}
 			} else {
 				playerId = 0
-				createNewUser = true
+				user.createdUser = true
                 user.PyroVersion = pyroVersion
 			}
 			if playerId > 0 {
@@ -173,7 +174,31 @@ func DoChallenge(user *PyroUser) (int, error) {
 				user.PyroUserId = pyroUserID
 				user.PyroCheckId = pyroCheckId
 			} else {
-				if createNewUser {
+				pyroUserID, err = Database.CreatePlayer()
+
+				if err != nil {
+					fmt.Println("Error creating player")
+					user.createdUser = false
+				}
+			
+				playerId, err = Database.GetPlayerByID(pyroUserID)
+			
+				if err != nil {
+					user.createdUser = false
+					fmt.Println("After creating user, could not find interal id", err)
+				}
+
+				if user.createdUser == true {
+
+
+					user.PyroUserId = pyroUserID
+					user.InternalPlayerId = playerId
+					user.PyroCheckId = uint16(0xCCD)
+					user.Arena = 0xA
+					user.Rating = 5
+					user.GamesAvailable = 255
+					user.LastOpponent = uint32(0)
+				
 					user.Conn.Write([]byte{0x27}) //validated pyroid
 					validated = 1
 				} else {
@@ -241,21 +266,9 @@ func DoSpecialModes(user *PyroUser) (int, error) {
 
 
 	// SUB-MODE 5 - send updated user file
-	if user.PyroUserId == uint32(0) && user.PyroCheckId == uint16(0) {
+	if user.createdUser == true {
 		// Pyro Id is 0, create new user and send user ID to them
 
-		newPlayerId, err := Database.CreatePlayer()
-		if err != nil {
-			fmt.Println("Error creating player")
-			return 0, err
-		}
-
-		user.PyroUserId = newPlayerId
-		user.PyroCheckId = uint16(0xCCD)
-		user.Arena = 0xA
-		user.Rating = 5
-		user.GamesAvailable = 255
-		user.LastOpponent = uint32(0)
 
 		fmt.Println("Selecting sub-mode 5")
 		user.Conn.Write([]byte{0x5, 0x5})
@@ -298,7 +311,7 @@ func DoSpecialModes(user *PyroUser) (int, error) {
 	// SUB-MODE 6 - only available for version > 2
     //      check for contest, if one is available, send it
 
-	if len(user.Contest) > 0 && user.PyroVersion > 2 {
+	if user.createdUser == false && len(user.Contest) > 0 && user.PyroVersion > 2 {
 		fmt.Println("Selecting sub-mode 6")
 		user.Conn.Write([]byte{0x6, 0x6})
 
@@ -507,6 +520,9 @@ func GetFile(user *PyroUser) (*ContestEntryRaw, error) {
 	}
 
 	rawEntry := parseFile(fundata)
+	
+	binary.LittleEndian.PutUint32(rawEntry.TeamData[0:4], uint32(user.PyroUserId))
+	}
 
 	err := Database.CreateContestEntry(rawEntry.TeamData, user.InternalPlayerId)
 
