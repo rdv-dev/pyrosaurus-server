@@ -95,14 +95,15 @@ func main() {
 				user.Mode = int(mmode[0])
 
 				for {
-
-					
-					pyroJobs <- user
-
 					if user.Mode == 0 {
+						// this can be improved, for now, just wait for transfer to finish
+						time.Sleep(10*time.Second)
 						fmt.Println("Closing connection to client")
-						break;
+						user.Conn.Close()
+						return
 					}
+
+					pyroJobs <- user
 				}
 			}
 		}()
