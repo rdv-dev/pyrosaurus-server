@@ -522,7 +522,6 @@ func GetFile(user *PyroUser) (*ContestEntryRaw, error) {
 	rawEntry := parseFile(fundata)
 	
 	binary.LittleEndian.PutUint32(rawEntry.TeamData[0:4], uint32(user.PyroUserId))
-	}
 
 	err := Database.CreateContestEntry(rawEntry.TeamData, user.InternalPlayerId)
 
