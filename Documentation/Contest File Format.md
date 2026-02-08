@@ -56,7 +56,18 @@ The Pyrosaurus game appends two bytes to the end of the contest file to record t
 |Team Dino X Pos|2 * Num Dinos||
 |Team Dino Y Pos|2 * Num Dinos||
 |Team Dino Rotation|2 * Num Dinos	
-|Some Other Data|2 * Num Dinos||
+|dinoSizeData|2 * Num Dinos||
+|dinoDataPart1|2 * Num Dinos||
+|dinoDataPart2|2 * Num Dinos||
+|dinoDataPart3|2 * Num Dinos||
+|dinoDataPart4|2 * Num Dinos||
+|dinoDataPart5|2 * Num Dinos||
+|dinoDataPart6|2 * Num Dinos||
+|dinoDataPart7|2 * Num Dinos||
+|dinoDataPart8|2 * Num Dinos||
+|dinoDataPart9|2 * Num Dinos||
+|dinoDataPart10|2 * Num Dinos||
+|dinoDataPart11|2 * Num Dinos||
 |Dino Names|Zero Terminated, must be less than 50 chars|This logs the file offset of the Dino name and when the L key is pressed, looks up the name from the file|
 
 ## Level Data & Food Array
