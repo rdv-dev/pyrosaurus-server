@@ -7,6 +7,8 @@ Pyrosaurus comes delivered with 11 Arenas or Levels which make up the default Di
 Arena has 5 rankings, except for the last Arena which has 25 rankings. Once the highest ranking is reached for that Arena, the
 player is advanced to the next Arena at the bottom ranking.
 
+Advancing to the next ranking is handled by overwriting file LEVEL.000 with the next available LEVL.00X file where X is the level the player has reached, counting down from 10 to 0.
+
 ## Level Data Structure
 Field Name|Size (bytes)|Position|Description
 ---|---|---|---
