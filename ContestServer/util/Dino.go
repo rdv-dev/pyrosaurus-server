@@ -34,6 +34,12 @@ const (
     DECISION_CREEP = byte(1)
     DECISION_WALK = byte(2)
     DECISION_RUN = byte(3)
+
+    LEG_TYPE_TWO = 0
+    LEG_TYPE_TWO_SPRAWL = 1
+    LEG_TYPE_NONE = 2 // snake
+    LEG_TYPE_FOUR = 3
+    LEG_TYPE_FOUR_SPRAWL = 4
 )
 
 type Decision struct {
@@ -95,6 +101,7 @@ type Dino struct {
 	Team uint32
 	species []byte
     	IsRunningSpeed bool
+	LegType int
 	Moves []*Moves
 	DoMove *Moves
 	fitePoints []byte

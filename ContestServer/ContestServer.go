@@ -84,7 +84,7 @@ type Vector struct {
 
 type DinoMovement struct {
 	count int
-	moveCode int
+	movementAnimation int
 	speed int16
 }
 
@@ -279,6 +279,7 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 
 	for i:=0; i<team1.NumDinos; i++ {
 		arena.Dinos[i] = util.NewDino(team1, int(team1.TeamData[speciesTypeOffset]), i, level.X, level.Y)
+		arena.Dinos[i].LegType = int(team1.TeamData[team1.DinosOffset + 1 + team1.NumDinos + i])
 		speciesTypeOffset += util.TEAM_MYSTERY_DATA
 	}
 
@@ -287,6 +288,7 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 
 	for i:=team1.NumDinos; i<team1.NumDinos + team2.NumDinos; i++ {
 		arena.Dinos[i] = util.NewDino(team2, int(team2.TeamData[speciesTypeOffset]), (i-team1.NumDinos), level.X, level.Y)
+		arena.Dinos[i].LegType = int(team2.TeamData[team2.DinosOffset + 1 + team2.NumDinos + (i-team1.NumDinos)])
 		speciesTypeOffset += util.TEAM_MYSTERY_DATA
 	}
 
@@ -353,7 +355,7 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 			friend: make([]int, 0),
 			self: 0})
 
-		move = append(move, &DinoMovement {count: 0, moveCode: 0, speed: 0,})
+		move = append(move, &DinoMovement {count: 0, movementAnimation: 0, speed: 0,})
 
 		for j:=0; j<team1.NumDinos + team2.NumDinos; j++ {
 			// sense friend, enemy etc
@@ -647,7 +649,7 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 					switch goType {
 					case util.DECISION_DONT_MOVE:
 						arg2 = arg2 | 0x01
-						move[i].moveCode = 0
+						move[i].movementAnimation = 0
 						move[i].speed = 0
 						move[i].count = 0
 						delay[i].movement = 8
@@ -656,15 +658,15 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 						arg2 = arg2 | 0x01
 						switch move[i].count {
 						case 0:
-							move[i].moveCode = 0
+							move[i].movementAnimation = 0
 							move[i].speed = 5
 							delay[i].movement = 8
 						case 1:
-							move[i].moveCode = 1
+							move[i].movementAnimation = 1
 							move[i].speed = 5
 							delay[i].movement = 8
 						case 2:
-							move[i].moveCode = 2
+							move[i].movementAnimation = 2
 							move[i].speed = 5
 							delay[i].movement = 8
 						default:
@@ -679,15 +681,15 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 						switch move[i].count {
 						case 0:
 							arena.Dinos[i].IsRunningSpeed = false
-							move[i].moveCode = 0
+							move[i].movementAnimation = 0
 							move[i].speed = 1
 							delay[i].movement = 16
 						case 1:
-							move[i].moveCode = 1
+							move[i].movementAnimation = 1
 							move[i].speed = 2
 							delay[i].movement = 16
 						case 2:
-							move[i].moveCode = 2
+							move[i].movementAnimation = 2
 							move[i].speed = 3
 							delay[i].movement = 16
 						default:
@@ -703,38 +705,38 @@ func RunContest(team1, team2 *util.ContestEntry, leveldata []byte, testTime int)
 						arg2 = arg2 | 0x04
 						switch move[i].count {
 						case 0:
-							move[i].moveCode = 0
+							move[i].movementAnimation = 0
 							move[i].speed = 1
 							delay[i].movement = 8
 						case 1:
-							move[i].moveCode = 9
+							move[i].movementAnimation = 9
 							move[i].speed = 2
 							delay[i].movement = 16
 						case 2:
-							move[i].moveCode = 0xA
+							move[i].movementAnimation = 0xA
 							move[i].speed = 3
 							delay[i].movement = 16
-						case 4:
-							move[i].moveCode = 0xA
+						case 3:
+							move[i].movementAnimation = 0xA
 							move[i].speed = 4
 							delay[i].movement = 16
-						case 5:
-							move[i].moveCode = 0xB
+						case 4:
+							move[i].movementAnimation = 0xB
 							move[i].speed = 5
 							delay[i].movement = 16
 						default:
 							delay[i].movement = 16
 						}
 
-						if move[i].count <= 5 {
+						if move[i].count <= 4 {
 							move[i].count++
 						}
 
 					}
 
-					//fmt.Printf("Dino %d rot: %d move: %x\n", i, rotation, move[i].moveCode)
+					//fmt.Printf("Dino %d rot: %d move: %x\n", i, rotation, move[i].movementAnimation)
 
-					cf.Put(&Action{code: 2, dino: byte(i), args: []byte{byte(arena.Dinos[i].Rotate), byte(arg2), byte(move[i].moveCode)}})
+					cf.Put(&Action{code: 2, dino: byte(i), args: []byte{byte(arena.Dinos[i].Rotate), byte(arg2), byte(move[i].movementAnimation)}})
 				}
 
 			}
@@ -888,6 +890,116 @@ func CheckBoundsV(sourcePoint *Vector, level *util.Level) *Vector {
 		X: newX,
 		Y: newY,
 		A: 0,
+	}
+}
+
+// DoMoveStateMachine mirrors the client's doMove state machine.
+// Given the current movementAnimation state and movement parameters,
+// returns the new movementAnimation state that the client will transition to.
+// This is the interface spec between server simulation and client animation.
+func DoMoveStateMachine(state, mode, dx, cx, legType int, isRunningSpeed bool) int {
+	// Snake (legType 2) can never use running speed table
+	if legType == util.LEG_TYPE_NONE {
+		isRunningSpeed = false
+	}
+
+	if isRunningSpeed {
+		return doMoveRunningTable(state, mode, dx, cx, legType)
+	}
+	return doMoveNormalTable(state, mode, dx, cx, legType)
+}
+
+// doMoveNormalTable implements the normal-speed doMove switch (19 states).
+func doMoveNormalTable(state, mode, dx, cx, legType int) int {
+	switch state {
+	case 0:
+		// Stop override
+		if mode == 0 {
+			return 18
+		}
+		// Creep with small dx override
+		if mode == 1 && dx < 3 {
+			return 3
+		}
+		if dx > 0 {
+			return 4
+		}
+		if dx == 0 {
+			return 3
+		}
+		return state
+	case 1, 7:
+		if dx > 0 {
+			return 2
+		}
+		return state
+	case 2:
+		if dx == 0 {
+			return 1
+		}
+		return state
+	case 3:
+		if dx > 0 {
+			return 4
+		}
+		return state
+	case 4:
+		if dx == 0 {
+			return 3
+		}
+		return state
+	case 5:
+		if dx == 0 {
+			return 6
+		}
+		return state
+	case 6:
+		if dx > 0 {
+			return 5
+		}
+		return state
+	case 8, 16, 17, 18:
+		if dx <= 0 {
+			return 1
+		}
+		return 2
+	case 9:
+		if dx != 0 {
+			return 4
+		}
+		return 3
+	case 10, 11, 14, 15:
+		return 15
+	case 12, 13:
+		return 13
+	default:
+		return state
+	}
+}
+
+// doMoveRunningTable implements the running-speed doMove switch (19 states).
+func doMoveRunningTable(state, mode, dx, cx, legType int) int {
+	switch state {
+	case 0:
+		if mode == 0 {
+			return state
+		}
+		if legType == util.LEG_TYPE_TWO_SPRAWL {
+			return 11
+		}
+		return 9
+	case 1, 2, 7, 16, 17, 18:
+		return 8
+	case 3, 4, 5, 6:
+		return 9
+	case 8, 9, 10, 11:
+		return state
+	case 12, 13:
+		return 10
+	case 14, 15:
+		return 11
+	default:
+		return state
 	}
 }
 
