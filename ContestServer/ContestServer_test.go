@@ -6,8 +6,6 @@ import (
 	"os"
 	"io"
 	"github.com/rdv-dev/pyrosaurus-server/ContestServer/util"
-	"github.com/rdv-dev/pyrosaurus-server/ContestServer"
-	// "https://github.com/stretchr/testify/assert"
 
 	"fmt"
 )
@@ -111,7 +109,7 @@ func TestRunContest(t *testing.T) {
 
         fmt.Println("Running Contest")
 
-		result, err := ContestServer.RunContest(team1, team2, levelData, 0)
+		result, err := RunContest(team1, team2, levelData, 0)
 
 		if err != nil {
             fmt.Println(err)
@@ -139,7 +137,7 @@ func TestRunContest(t *testing.T) {
 
         fmt.Println("Exporting Contest")
 
-		outdata, err := ContestServer.ExportContest(team1, team2, levelData, result)
+		outdata, err := ExportContest(team1, team2, levelData, result)
         
 
 		if err != nil {

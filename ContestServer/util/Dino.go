@@ -94,7 +94,7 @@ func NewDecisions(decisions []byte) []*Decision {
 type Dino struct {
 	Team uint32
 	species []byte
-    HasLegs bool
+    	IsRunningSpeed bool
 	Moves []*Moves
 	DoMove *Moves
 	fitePoints []byte
@@ -103,9 +103,9 @@ type Dino struct {
 	Decisions []*Decision
 	dino []byte
 	name []byte
-	Xpos float64
-	Ypos float64
-	Angle float64
+	Xpos int16
+	Ypos int16
+	Angle int16
 	neckAngle int
 	attacking []byte
 	attackedBy []byte
@@ -113,7 +113,7 @@ type Dino struct {
 	
 }
 
-func NewDino(inTeam *ContestEntry, species, dino int, xBound, yBound float64) *Dino {
+func NewDino(inTeam *ContestEntry, species, dino int, xBound, yBound int16) *Dino {
 	//fmt.Printf("Moves Offset: %d Species: %d\n", inTeam.MovesOffset, species)
 	movesStart := inTeam.MovesOffset + (MOVE_DATA_LEN * species)
 	movesEnd := inTeam.MovesOffset + (MOVE_DATA_LEN * species) + MOVE_DATA_LEN
@@ -125,8 +125,8 @@ func NewDino(inTeam *ContestEntry, species, dino int, xBound, yBound float64) *D
 
 	//fmt.Printf("Decision Start offset: %d Decision End Offset: %d Diff: %d\n", decisionStart, decisionEnd, decisionEnd-decisionStart)
 
-	dinoXPosIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE)) + (dino * TEAM_X_POS_LEN) + decisionEnd
-	dinoYPosIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE + TEAM_X_POS_LEN)) + (dino * TEAM_Y_POS_LEN) + decisionEnd
+	dinoXPosIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE)) + (dino * TEAM_X_POS_LEN) + inTeam.DinosOffset
+	dinoYPosIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE + TEAM_X_POS_LEN)) + (dino * TEAM_Y_POS_LEN) + inTeam.DinosOffset
 	dinoRotnIndex := NUM_DINOS_ON_TEAM_LEN + (inTeam.NumDinos * (TEAM_QUEEN_ARRAY_LEN + TEAM_SPECIES_LEG_NUM_LEN + TEAM_DINO_RESIZE + TEAM_X_POS_LEN + TEAM_Y_POS_LEN)) + (dino * TEAM_ROT_LEN) + decisionEnd
 
 	//fmt.Printf("Dino Offsets XPos: %d YPos: %d Rotn: %d\n", dinoXPosIndex, dinoYPosIndex, dinoRotnIndex)
@@ -135,7 +135,7 @@ func NewDino(inTeam *ContestEntry, species, dino int, xBound, yBound float64) *D
 	return &Dino {
 		Team: inTeam.Team,
 		species: make([]byte, SPECIES_LEN),
-        HasLegs: true,
+        	IsRunningSpeed: false,
 		Moves: NewMoves(inTeam.TeamData[movesStart:movesEnd], xBound, yBound),
 		fitePoints: make([]byte, FITE_DATA1_LEN),
 		fiteXPos: make([]byte, FITE_DATA2_LEN),
@@ -143,9 +143,9 @@ func NewDino(inTeam *ContestEntry, species, dino int, xBound, yBound float64) *D
 		Decisions: NewDecisions(inTeam.TeamData[decisionStart:decisionEnd]),
 		dino: make([]byte, TEAM_ENTRY_RECORD_LEN),
 		name: make([]byte, 50),
-		Xpos: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2]))),
-		Ypos: float64(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2]))),
-		Angle: float64((int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))%360+90)),
+		Xpos: int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoXPosIndex:dinoXPosIndex+2])),
+		Ypos: int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoYPosIndex:dinoYPosIndex+2])),
+		Angle: NormalizeAngle(int16(binary.LittleEndian.Uint16(inTeam.TeamData[dinoRotnIndex:dinoRotnIndex+2]))),
 		neckAngle: 0,
 		attacking: make([]byte, 0),
 		attackedBy: make([]byte, 0)}

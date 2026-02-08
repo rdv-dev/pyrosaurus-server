@@ -5,8 +5,8 @@ import (
 )
 
 type Level struct {
-    X float64
-    Y float64
+    X int16
+    Y int16
     MaxFoodItems int
     MaxTeamScore int
     MaxFireRange int
@@ -44,8 +44,8 @@ type Level struct {
 
 func NewLevel(leveldata []byte) *Level {
     return &Level {
-        X: float64(binary.LittleEndian.Uint16(leveldata[0:2]))/2,
-        Y: float64(binary.LittleEndian.Uint16(leveldata[2:4]))/2,
+        X: int16(binary.LittleEndian.Uint16(leveldata[0:2])) / 2,
+        Y: int16(binary.LittleEndian.Uint16(leveldata[2:4])) / 2,
         MaxTime: int(binary.LittleEndian.Uint16(leveldata[56:58])),
         RawData: leveldata,
     }
