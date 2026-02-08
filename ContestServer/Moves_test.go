@@ -6,8 +6,6 @@ import (
 	"os"
 	"io"
 	"github.com/rdv-dev/pyrosaurus-server/ContestServer/util"
-	"github.com/rdv-dev/pyrosaurus-server/ContestServer"
-	// "https://github.com/stretchr/testify/assert"
 
 	"fmt"
 )
@@ -89,7 +87,7 @@ func TestMoves(t *testing.T) {
                 name = name + string(team1.TeamData[team1.DinoNamesOffset+x])
                 x++
             }
-            t.Logf(name)
+            t.Logf("%s", name)
             d++
             x++
         }
@@ -129,12 +127,12 @@ func TestMoves(t *testing.T) {
                 name = name + string(team2.TeamData[team2.DinoNamesOffset+x])
                 x++
             }
-            t.Logf(name)
+            t.Logf("%s", name)
             d++
             x++
         }
         
-        arena := &ContestServer.Arena {
+        arena := &Arena {
             Dinos: make([]*util.Dino, team1.NumDinos + team2.NumDinos),
             NumDinos: team1.NumDinos + team2.NumDinos,
         }
