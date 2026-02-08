@@ -19,10 +19,10 @@ Offset Dino Names|2|2|A|Absolute file offset ||
 Offset to Team Colors & Team Strings|2|2|C|Absolute file offset||
 Num species|1|1|E|The following 6 data structures are repeated by this number||
 Species data|20h * num species|1|F| ||
-Move data|64h * 2 * num species|2| | ||
+Move data|64h * num species|2| | ||
 FITE dataset 1|FEh * num species|1| | ||
-FITE dataset 2|32h * 2 * num species|2| | ||
-FITE dataset 3|32h * 2 * num species|2| | ||
+FITE dataset 2|32h * num species|2| | ||
+FITE dataset 3|32h * num species|2| | ||
 Decisions|17Dh * num species|1| | ||
 Team Data|[See table](Team-Entry-File-Spec.md#team-data-structure)|[See table](Team-Entry-File-Spec.md#team-data-structure)| | ||
 Dino names|One name per dino based on Team Data, \0 delimited, must be less than 50 characters per name| | | ||
@@ -36,21 +36,21 @@ Team location|\0 delimited| | | ||
 Field|Size|Byte width|Comments
 ---|---|---|---
 Num Dinos on team|1|1| ||
-Team queen array|1 * num Dinos|1| ||
-Species leg num|1 * num Dinos|1| ||
-Dino struct data|3 * num Dinos|1|This matches up exactly with some of the weird data in the contest||
-Team x positions|2 * num Dinos|2| ||
-Team y positions|2 * num Dinos|2| ||
-Team rotation|2 * num Dinos|2| ||
-dinoSizeData|2 * num Dinos|2| ||
-dinoDataPart1|2 * Num Dinos|2|A lot more research is needed to understand this and the following data. It is computed by the game and the server consumes and/or validates it.||
-dinoDataPart2|2 * Num Dinos|2|||
-dinoDataPart3|2 * Num Dinos|2|||
-dinoDataPart4|2 * Num Dinos|2|||
-dinoDataPart5|2 * Num Dinos|2|||
-dinoDataPart6|2 * Num Dinos|2|||
-dinoDataPart7|2 * Num Dinos|2|||
-dinoDataPart8|2 * Num Dinos|2|||
-dinoDataPart9|2 * Num Dinos|2|||
-dinoDataPart10|2 * Num Dinos|2|||
-dinoDataPart11|2 * Num Dinos|2|||
+Team queen array|num Dinos|1| ||
+Species leg num|num Dinos|1| ||
+Dino struct data|num Dinos|2 + 1|This matches up exactly with some of the weird data in the contest||
+Team x positions|num Dinos|2| ||
+Team y positions|num Dinos|2| ||
+Team rotation|num Dinos|2| ||
+dinoSizeData|num Dinos|2| ||
+dinoDataPart1|Num Dinos|2|A lot more research is needed to understand this and the following data. It is computed by the game and the server consumes and/or validates it.||
+dinoDataPart2|Num Dinos|2|||
+dinoDataPart3|Num Dinos|2|||
+dinoDataPart4|Num Dinos|2|||
+dinoDataPart5|Num Dinos|2|||
+dinoDataPart6|Num Dinos|2|||
+dinoDataPart7|Num Dinos|2|||
+dinoDataPart8|Num Dinos|2|||
+dinoDataPart9|Num Dinos|2|||
+dinoDataPart10|Num Dinos|2|||
+dinoDataPart11|Num Dinos|2|||
