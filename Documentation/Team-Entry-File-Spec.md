@@ -24,7 +24,7 @@ FITE dataset 1|FEh * num species|1| | ||
 FITE dataset 2|32h * 2 * num species|2| | ||
 FITE dataset 3|32h * 2 * num species|2| | ||
 Decisions|17Dh * num species|1| | ||
-Team Data|[See table](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)|[See table](https://github.com/algae-disco/pyrosaurus-server/blob/main/Documentation/Team-Entry-File-Spec.md#team-data-structure)| | ||
+Team Data|[See table](Team-Entry-File-Spec.md#team-data-structure)|[See table](Team-Entry-File-Spec.md#team-data-structure)| | ||
 Dino names|One name per dino based on Team Data, \0 delimited, must be less than 50 characters per name| | | ||
 Team colors|12|2| | ||
 Team fire colors|6|1| | ||
@@ -42,5 +42,15 @@ Dino struct data|3 * num Dinos|1|This matches up exactly with some of the weird 
 Team x positions|2 * num Dinos|2| ||
 Team y positions|2 * num Dinos|2| ||
 Team rotation|2 * num Dinos|2| ||
-Some data cont|2 * num Dinos|2| ||
-Dino init data|22 * num Dinos|1|A lot more research is needed to understand this data. This appears to be internal game data on the dino separate from the species.||
+dinoSizeData|2 * num Dinos|2| ||
+dinoDataPart1|2 * Num Dinos|2|A lot more research is needed to understand this and the following data. It is computed by the game and the server consumes and/or validates it.||
+dinoDataPart2|2 * Num Dinos|2|||
+dinoDataPart3|2 * Num Dinos|2|||
+dinoDataPart4|2 * Num Dinos|2|||
+dinoDataPart5|2 * Num Dinos|2|||
+dinoDataPart6|2 * Num Dinos|2|||
+dinoDataPart7|2 * Num Dinos|2|||
+dinoDataPart8|2 * Num Dinos|2|||
+dinoDataPart9|2 * Num Dinos|2|||
+dinoDataPart10|2 * Num Dinos|2|||
+dinoDataPart11|2 * Num Dinos|2|||
